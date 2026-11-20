@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>台股資金流向與動能加速度熱力泡泡圖 (四大象限與即時排行榜)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: JetBrains Mono & Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: #070b14;
+      color: #e2e8f0;
+      touch-action: manipulation;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .terminal-card {
+      background: linear-gradient(145deg, rgba(19, 25, 38, 0.95) 0%, rgba(11, 15, 25, 0.98) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+    }
+    .pulse-dot {
+      animation: pulse-ring 1.8s infinite ease-in-out;
+    }
+    @keyframes pulse-ring {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.45); opacity: 0.35; }
+    }
+    button, canvas {
+      touch-action: manipulation;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #070b14;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="p-2 sm:p-4 min-h-screen flex flex-col justify-between selection:bg-rose-500 selection:text-white">
+
+  <!-- ==================== 1. 頂部儀表控制列與上市/上櫃切換 ==================== -->
+  <header class="w-full mb-2.5 sm:mb-3">
+    <div class="terminal-card rounded-xl p-2.5 sm:p-4 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-3 shadow-2xl">
+      <!-- 標題與即時連線狀態 -->
+      <div class="flex items-center justify-between lg:justify-start gap-2.5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-2 h-9 sm:h-10 bg-gradient-to-b from-rose-500 via-amber-400 to-sky-400 rounded-sm"></div>
+          <div>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <h1 class="text-sm sm:text-lg font-black tracking-wide text-white flex items-center gap-1.5">
+                ⚡ 台股全市場資金流向與動能加速度泡泡圖
+              </h1>
+              <span class="text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded bg-rose-950/90 border border-rose-500/50 text-rose-300">
+                上市櫃合併 • 四大區塊輪動
+              </span>
+            </div>
+            <p class="text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+              <span>X軸: 全市場平均偏離(%) • Y軸: 5日-20日均加速度(億)</span>
+              <span class="text-slate-600 hidden sm:inline">•</span>
+              <span class="font-mono text-emerald-400 font-semibold hidden sm:inline" id="clock-display">盤中連線中...</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- 手機版狀態燈 -->
+        <div class="flex lg:hidden items-center gap-1.5 px-2 py-1 rounded bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 font-mono text-[10px]">
+          <div class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></div>
+          <span id="mobile-stream-status">即時</span>
+        </div>
+      </div>
+
+      <!-- 市場檢視篩選膠囊 (預設：全市場上市櫃合併) -->
+      <div class="flex items-center justify-center bg-slate-900/95 p-1 rounded-xl border border-slate-700/70 w-full lg:w-auto">
+        <button id="filter-all" class="flex-1 lg:flex-initial px-3.5 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center justify-center gap-1.5 bg-gradient-to-r from-rose-600 to-red-600 text-white shadow-md">
+          <span>🌐 全市場 (上市櫃合併)</span>
+        </button>
+        <button id="filter-tse" class="flex-1 lg:flex-initial px-3 sm:px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center justify-center gap-1 text-slate-400 hover:text-white">
+          <span>🏛️ 僅上市</span>
+        </button>
+        <button id="filter-otc" class="flex-1 lg:flex-initial px-3 sm:px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center justify-center gap-1 text-slate-400 hover:text-white">
+          <span>🚀 僅上櫃</span>
+        </button>
+      </div>
+
+      <!-- 大盤全族群平均基準與工具按鈕 -->
+      <div class="flex items-center justify-between lg:justify-end gap-2 text-xs">
+        <div class="bg-slate-900/95 px-2.5 py-1.5 rounded-lg border border-slate-700/60 font-mono flex items-center gap-2">
+          <div>
+            <span class="text-slate-400 text-[10px]">全族群均額</span>
+            <span class="text-amber-300 font-bold text-xs sm:text-sm ml-1" id="avg-sector-vol">580億</span>
+          </div>
+          <div class="w-px h-3.5 bg-slate-700"></div>
+          <div>
+            <span class="text-slate-400 text-[10px]" id="market-label">總成交</span>
+            <span class="text-white font-bold text-xs sm:text-sm ml-1" id="total-market-vol">6,960億</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <button id="download-file-btn" title="下載完整離線單檔 HTML" class="px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-semibold transition flex items-center gap-1 text-[11px] sm:text-xs shadow">
+            <span>💾</span>
+            <span class="hidden sm:inline">下載網頁檔</span>
+            <span class="sm:hidden">下載</span>
+          </button>
+
+          <button id="share-link-btn" title="複製目前網址分享給他人" class="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition flex items-center gap-1 text-[11px] sm:text-xs shadow">
+            <span>🔗</span>
+            <span id="share-btn-text" class="hidden sm:inline">複製分享</span>
+            <span class="sm:hidden">分享</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== 2. 四大區塊圖解說明卡 (對應使用者定義) ==================== -->
+  <section class="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-2.5 sm:mb-3">
+    <!-- 區塊 1: 主力主動流入 -->
+    <div class="terminal-card rounded-xl p-2.5 sm:p-3 border-l-4 border-l-rose-500 shadow-lg">
+      <div class="flex items-center justify-between">
+        <span class="text-xs sm:text-sm font-black text-rose-400 flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]"></span>
+          主力主動流入
+        </span>
+        <span class="font-mono text-xs font-bold px-1.5 py-0.5 rounded bg-rose-950 text-rose-300" id="count-main">0 族</span>
+      </div>
+      <p class="text-[11px] sm:text-xs text-slate-300 mt-1 font-medium">資金加速流入，最強勢</p>
+      <p class="text-[10px] text-slate-500 font-mono mt-0.5">右上象限：偏離 &gt; 0% 且 加速度 &gt; 0</p>
+    </div>
+
+    <!-- 區塊 2: 輪動 -->
+    <div class="terminal-card rounded-xl p-2.5 sm:p-3 border-l-4 border-l-amber-400 shadow-lg">
+      <div class="flex items-center justify-between">
+        <span class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]"></span>
+          輪動（熱力轉移）
+        </span>
+        <span class="font-mono text-xs font-bold px-1.5 py-0.5 rounded bg-amber-950 text-amber-300" id="count-rotation">0 族</span>
+      </div>
+      <p class="text-[11px] sm:text-xs text-slate-300 mt-1 font-medium">資金持續流入但放緩</p>
+      <p class="text-[10px] text-slate-500 font-mono mt-0.5">右下象限：偏離 &gt; 0% 且 加速度 &lt; 0</p>
+    </div>
+
+    <!-- 區塊 3: 觀望 -->
+    <div class="terminal-card rounded-xl p-2.5 sm:p-3 border-l-4 border-l-sky-400 shadow-lg">
+      <div class="flex items-center justify-between">
+        <span class="text-xs sm:text-sm font-black text-sky-400 flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-[0_0_8px_#38bdf8]"></span>
+          觀望（但沒人接）
+        </span>
+        <span class="font-mono text-xs font-bold px-1.5 py-0.5 rounded bg-sky-950 text-sky-300" id="count-watch">0 族</span>
+      </div>
+      <p class="text-[11px] sm:text-xs text-slate-300 mt-1 font-medium">動能回升，留意轉強</p>
+      <p class="text-[10px] text-slate-500 font-mono mt-0.5">左上象限：偏離 &lt; 0% 且 加速度 &gt; 0</p>
+    </div>
+
+    <!-- 區塊 4: 退潮 -->
+    <div class="terminal-card rounded-xl p-2.5 sm:p-3 border-l-4 border-l-slate-500 shadow-lg">
+      <div class="flex items-center justify-between">
+        <span class="text-xs sm:text-sm font-black text-slate-300 flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+          退潮（資金流出）
+        </span>
+        <span class="font-mono text-xs font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400" id="count-ebb">0 族</span>
+      </div>
+      <p class="text-[11px] sm:text-xs text-slate-400 mt-1 font-medium">資金持續流出，避開</p>
+      <p class="text-[10px] text-slate-500 font-mono mt-0.5">左下象限：偏離 &lt; 0% 且 加速度 &lt; 0</p>
+    </div>
+  </section>
+
+  <!-- ==================== 3. 操控工具列與圖解參數提示 ==================== -->
+  <div class="flex flex-wrap items-center justify-between gap-2 mb-2 px-1 text-xs">
+    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+      <button id="toggle-stream-btn" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition flex items-center gap-1 shadow text-[11px] sm:text-xs">
+        <span id="stream-icon">⏸</span>
+        <span id="stream-btn-text">暫停即時跳動</span>
+      </button>
+
+      <select id="stream-speed-select" title="調整盤中即時刷新頻率" class="px-2 py-1.5 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 text-[11px] sm:text-xs font-mono cursor-pointer focus:outline-none focus:border-amber-400">
+        <option value="1200">⚡ 極速 1.2s</option>
+        <option value="2500" selected>⏱ 標準 2.5s</option>
+        <option value="5000">🐢 慢速 5.0s</option>
+      </select>
+
+      <button id="manual-refresh-btn" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition border border-slate-700 flex items-center gap-1 text-[11px] sm:text-xs">
+        <span>🔄</span> <span>單次撮合</span>
+      </button>
+
+      <button id="open-editor-btn" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1 text-[11px] sm:text-xs">
+        <span>⚙️</span> 編輯族群數據
+      </button>
+
+      <button id="clear-focus-btn" class="hidden px-2.5 py-1.5 rounded-lg bg-rose-950/90 hover:bg-rose-900 text-rose-200 border border-rose-500/50 flex items-center gap-1 text-[11px] sm:text-xs">
+        <span>✕ 取消聚焦</span>
+      </button>
+    </div>
+
+    <div class="text-[11px] text-slate-400 font-mono flex items-center gap-2">
+      <span>泡泡大小 ＝ 成交規模（單位：億元）</span>
+      <span class="hidden md:inline text-slate-600">|</span>
+      <span class="hidden md:inline text-amber-300/90">+100% 偏離 ＝ 全市場族群平均 2 倍</span>
+    </div>
+  </div>
+
+  <!-- ==================== 4. 主可視化四象限泡泡圖 (CANVAS) ==================== -->
+  <section class="w-full relative terminal-card rounded-xl p-2 sm:p-3 border border-slate-800 flex flex-col h-[410px] sm:h-[500px] mb-3 shadow-2xl">
+    
+    <!-- 懸浮/點擊詳細資訊視窗 (Tooltip) -->
+    <div id="bubble-tooltip" class="absolute z-30 pointer-events-none hidden bg-slate-900/95 border border-slate-600 rounded-xl p-3 text-xs shadow-2xl backdrop-blur-md w-72 transition-opacity duration-150">
+      <div class="font-bold text-sm text-white flex items-center justify-between gap-1.5 border-b border-slate-700/80 pb-1.5 mb-2">
+        <div class="flex items-center gap-1.5 min-w-0">
+          <span id="tt-market-badge" class="px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0">上市</span>
+          <span id="tt-title" class="truncate">族群名稱</span>
+        </div>
+        <span id="tt-quadrant" class="px-2 py-0.5 rounded text-[10px] font-bold shrink-0">象限標籤</span>
+      </div>
+      <div class="space-y-1.5 font-mono text-[11px]">
+        <div class="flex justify-between text-slate-300">
+          <span>成交規模:</span>
+          <span id="tt-amount" class="text-amber-300 font-extrabold">-- 億元</span>
+        </div>
+        <div class="flex justify-between text-slate-300">
+          <span>全市場平均偏離 (X):</span>
+          <span id="tt-deviation" class="font-bold">--</span>
+        </div>
+        <div class="flex justify-between text-slate-300">
+          <span>加速度 5日-20日均 (Y):</span>
+          <span id="tt-accel" class="font-bold">--</span>
+        </div>
+        <div class="pt-1 border-t border-slate-800 text-slate-400 text-[10px]">
+          <span>代表個股：</span>
+          <span id="tt-stocks" class="text-slate-200 font-sans">--</span>
+        </div>
+      </div>
+      <div id="tt-desc" class="mt-2 text-[11px] text-slate-200 bg-slate-800/90 p-1.5 rounded-lg border border-slate-700/60 leading-relaxed">
+        狀態解讀
+      </div>
+    </div>
+
+    <!-- Canvas 畫布容器 -->
+    <div class="w-full flex-1 relative h-full">
+      <canvas id="bubbleCanvas" class="w-full h-full block cursor-crosshair rounded-lg"></canvas>
+    </div>
+  </section>
+
+  <!-- ==================== 5. 四大區塊分別的即時排行榜 ==================== -->
+  <section class="mb-3">
+    <div class="flex items-center justify-between mb-2 px-1">
+      <h2 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
+        <span>📊 四大區塊資金流向即時排行榜</span>
+        <span class="text-[11px] font-normal text-slate-400">（點擊任一列可於上方泡泡圖鎖定聚焦）</span>
+      </h2>
+      <span class="text-[11px] font-mono text-slate-400 hidden sm:inline">單位：億元 / 相對偏離%</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2.5 sm:gap-3">
+      
+      <!-- 排行榜 1：主力主動流入（主力進場） -->
+      <div class="terminal-card rounded-xl border border-rose-500/35 overflow-hidden flex flex-col shadow-xl">
+        <div class="bg-gradient-to-r from-rose-950/90 to-slate-900 px-3 py-2.5 border-b border-rose-500/30 flex items-center justify-between">
+          <div>
+            <h3 class="text-xs sm:text-sm font-black text-rose-300 flex items-center gap-1.5">
+              <span>🏆 主力主動流入榜</span>
+            </h3>
+            <p class="text-[10px] text-rose-200/75 mt-0.5">主力進場 • 資金加速流入，最強勢</p>
+          </div>
+          <span class="text-[10px] font-mono bg-rose-600/30 text-rose-200 px-1.5 py-0.5 rounded border border-rose-500/40">X&gt;0, Y&gt;0</span>
+        </div>
+        <div id="rank-list-main" class="p-2 space-y-1.5 flex-1 min-h-[160px]">
+          <!-- 動態生成排行卡片 -->
+        </div>
+      </div>
+
+      <!-- 排行榜 2：輪動（熱力開始轉移） -->
+      <div class="terminal-card rounded-xl border border-amber-500/35 overflow-hidden flex flex-col shadow-xl">
+        <div class="bg-gradient-to-r from-amber-950/80 to-slate-900 px-3 py-2.5 border-b border-amber-500/30 flex items-center justify-between">
+          <div>
+            <h3 class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1.5">
+              <span>🔄 輪動熱力轉移榜</span>
+            </h3>
+            <p class="text-[10px] text-amber-200/75 mt-0.5">熱力開始轉移 • 資金持續流入但放緩</p>
+          </div>
+          <span class="text-[10px] font-mono bg-amber-600/30 text-amber-200 px-1.5 py-0.5 rounded border border-amber-500/40">X&gt;0, Y&lt;0</span>
+        </div>
+        <div id="rank-list-rotation" class="p-2 space-y-1.5 flex-1 min-h-[160px]">
+          <!-- 動態生成排行卡片 -->
+        </div>
+      </div>
+
+      <!-- 排行榜 3：觀望（但沒人接） -->
+      <div class="terminal-card rounded-xl border border-sky-500/35 overflow-hidden flex flex-col shadow-xl">
+        <div class="bg-gradient-to-r from-sky-950/85 to-slate-900 px-3 py-2.5 border-b border-sky-500/30 flex items-center justify-between">
+          <div>
+            <h3 class="text-xs sm:text-sm font-black text-sky-300 flex items-center gap-1.5">
+              <span>👀 觀望動能回升榜</span>
+            </h3>
+            <p class="text-[10px] text-sky-200/75 mt-0.5">但沒人接 • 動能回升，留意轉強</p>
+          </div>
+          <span class="text-[10px] font-mono bg-sky-600/30 text-sky-200 px-1.5 py-0.5 rounded border border-sky-500/40">X&lt;0, Y&gt;0</span>
+        </div>
+        <div id="rank-list-watch" class="p-2 space-y-1.5 flex-1 min-h-[160px]">
+          <!-- 動態生成排行卡片 -->
+        </div>
+      </div>
+
+      <!-- 排行榜 4：退潮（資金流出） -->
+      <div class="terminal-card rounded-xl border border-slate-600/40 overflow-hidden flex flex-col shadow-xl">
+        <div class="bg-gradient-to-r from-slate-800/90 to-slate-900 px-3 py-2.5 border-b border-slate-700/60 flex items-center justify-between">
+          <div>
+            <h3 class="text-xs sm:text-sm font-black text-slate-300 flex items-center gap-1.5">
+              <span>📉 退潮資金流出榜</span>
+            </h3>
+            <p class="text-[10px] text-slate-400 mt-0.5">資金流出 • 資金持續流出，避開</p>
+          </div>
+          <span class="text-[10px] font-mono bg-slate-700/60 text-slate-300 px-1.5 py-0.5 rounded border border-slate-600">X&lt;0, Y&lt;0</span>
+        </div>
+        <div id="rank-list-ebb" class="p-2 space-y-1.5 flex-1 min-h-[160px]">
+          <!-- 動態生成排行卡片 -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== 6. 底部即時異動推播日誌 ==================== -->
+  <footer class="terminal-card rounded-xl p-2 sm:p-2.5 border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 shadow-xl text-xs">
+    <div class="flex items-center gap-1.5 font-semibold text-rose-400 whitespace-nowrap text-[11px] sm:text-xs">
+      <span class="relative flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+      </span>
+      <span>四象限即時訊號:</span>
+    </div>
+    
+    <div class="w-full sm:flex-1 overflow-hidden relative h-5 text-[11px] sm:text-xs text-slate-300 font-mono">
+      <div id="ticker-text" class="transition-all duration-500 transform translate-y-0 truncate">
+        [即時] 🔥【主力進場】IC代工成交規模達 2,450 億元（超越全族群平均 +280%），5日均量持續擴大！
+      </div>
+    </div>
+
+    <div class="text-[10px] sm:text-[11px] text-slate-500 whitespace-nowrap font-mono self-end sm:self-center">
+      <span id="footer-freq-label">動態更新頻率: 2.5s</span>
+    </div>
+  </footer>
+
+  <!-- ==================== 7. 自訂族群數值 Modal 面板 ==================== -->
+  <div id="editor-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-2 sm:p-4">
+    <div class="terminal-card rounded-xl max-w-4xl w-full p-3 sm:p-4 border border-slate-700 shadow-2xl max-h-[85vh] flex flex-col text-xs">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-2 mb-2">
+        <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-1.5">
+          <span>⚙️ 編輯全市場族群成交規模與 5日/20日均量</span>
+          <span class="text-[11px] text-amber-300 font-normal" id="editor-market-hint">(上市櫃合併全市場)</span>
+        </h3>
+        <button id="close-modal-btn" class="text-slate-400 hover:text-white text-base font-bold px-2">✕</button>
+      </div>
+      <p class="text-[11px] text-slate-400 mb-2">
+        說明：系統自動以全市場所有顯示族群計算「全族群平均成交規模」，並推算橫軸「平均偏離 (%)」與縱軸「加速度 (5日均 − 20日均，億元)」。
+      </p>
+
+      <div class="flex-1 overflow-y-auto space-y-2 pr-1" id="sector-editor-rows">
+        <!-- 動態產生編輯表單列 -->
+      </div>
+
+      <div class="border-t border-slate-700 pt-2.5 mt-2.5 flex justify-between items-center flex-wrap gap-2">
+        <button id="add-sector-btn" class="px-2.5 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold">
+          ➕ 新增族群
+        </button>
+        <div class="flex gap-2">
+          <button id="reset-default-btn" class="px-2.5 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs">
+            恢復預設數據
+          </button>
+          <button id="save-modal-btn" class="px-3.5 py-1.5 rounded bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow">
+            套用並重算四象限
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 8. JavaScript 四象限運算與即時渲染引擎 ==================== -->
+  <script>
+    /**
+     * 數據結構說明（上市櫃全市場統一合併）：
+     * market: "上市" | "上櫃" | "上市櫃"
+     * amount: 今日預估/即時成交規模 (單位：億元)
+     * ma5: 近 5 日平均成交金額 (單位：億元)
+     * ma20: 近 20 日平均成交金額 (單位：億元)
+     * 橫軸 X = ((amount - 全市場族群平均amount) / 全市場族群平均amount) * 100  (% 偏離，+100% 表示為平均的 2 倍)
+     * 縱軸 Y = ma5 - ma20  (加速度：近5日均 - 近20日均，單位：億元)
+     */
+
+    const UNIFIED_MARKET_DEFAULT = [
+      // --- 🔴 主力主動流入（主力進場：右上象限 X > 0, Y > 0） ---
+      { id: "m_1", market: "上市", name: "IC 代工", amount: 2450, ma5: 2120, ma20: 1860, stocks: "2330 台積電、2303 聯電", note: "全市場資金最核心，成交規模遠超平均且5日均持續擴大。" },
+      { id: "m_2", market: "上市櫃", name: "記憶體族群", amount: 1620, ma5: 1480, ma20: 1120, stocks: "2408 南亞科、3006 晶豪科、8299 群聯、3260 威剛", note: "上市櫃同步大舉吸金，5日均線大幅甩開20日均線，資金加速流入最強勢。" },
+      { id: "m_3", market: "上市", name: "伺服器ODM", amount: 1240, ma5: 1130, ma20: 970, stocks: "2382 廣達、3231 緯創、6669 緯穎", note: "法人大單主動敲進，成交額與加速度穩居全市場前段班。" },
+      { id: "m_4", market: "上市櫃", name: "散熱零組件", amount: 1050, ma5: 980, ma20: 820, stocks: "3017 奇鋐、3324 雙鴻、3653 健策、8996 高力", note: "上市與上櫃散熱雙引擎點火，短線5日均量加速推進。" },
+      { id: "m_5", market: "上市櫃", name: "矽光子CPO", amount: 880, ma5: 840, ma20: 660, stocks: "3450 聯鈞、3363 上詮、4979 華星光、3163 波若威", note: "櫃買與集中市場連動爆量，成功跨越全市場平均門檻進入主力流入區！" },
+
+      // --- 🟠 輪動（熱力開始轉移：右下象限 X > 0, Y < 0） ---
+      { id: "m_6", market: "上市", name: "電腦週邊", amount: 980, ma5: 920, ma20: 1040, stocks: "2357 華碩、2376 技嘉、2301 光寶科", note: "絕對成交規模仍高於全市場平均，但5日均已低於20日均，資金熱力開始轉移。" },
+      { id: "m_7", market: "上市", name: "金融保險", amount: 810, ma5: 775, ma20: 860, stocks: "2881 富邦金、2882 國泰金、2891 中信金", note: "量能維持高檔支撐大盤，但衝刺加速度放緩，進入高檔輪動整理。" },
+      { id: "m_8", market: "上市", name: "航運類股", amount: 740, ma5: 705, ma20: 790, stocks: "2603 長榮、2609 陽明、2615 萬海", note: "成交金額高於全市場平均水準，惟近5日熱度較前波高峰降溫。" },
+
+      // --- 🔵 觀望（但沒人接：左上象限 X < 0, Y > 0） ---
+      { id: "m_9", market: "上市櫃", name: "PCB 與 CCL", amount: 560, ma5: 590, ma20: 470, stocks: "3037 欣興、8046 南電、8358 金居、6274 台燿", note: "尚未超越全市場平均規模，但5日均已明顯翻揚超越20日均，動能回升留意轉強！" },
+      { id: "m_10", market: "上櫃", name: "上櫃半導體設備", amount: 460, ma5: 485, ma20: 390, stocks: "6488 環球晶、6147 頎邦、3583 辛耘", note: "處於觀望蓄勢區，低檔買盤逐步墊高5日均量，等待資金進一步擴散。" },
+      { id: "m_11", market: "上市櫃", name: "軸承機械", amount: 390, ma5: 415, ma20: 340, stocks: "3548 兆利、6805 富世達、3376 新日興", note: "市場全面關注度尚未爆發，但短線動能悄悄回溫。" },
+      { id: "m_12", market: "上櫃", name: "功率放大PA", amount: 310, ma5: 335, ma20: 275, stocks: "3105 穩懋、8086 宏捷科、2455 全新", note: "櫃買中小型低基期代表，5日均線剛翻越20日均線，留意轉強訊號。" },
+
+      // --- ⚪ 退潮（資金流出：左下象限 X < 0, Y < 0） ---
+      { id: "m_13", market: "上櫃", name: "生技醫療", amount: 340, ma5: 350, ma20: 430, stocks: "6472 保瑞、6446 藥華藥、4743 合一", note: "電子吸金排擠下量能低於全市場平均且持續萎縮，資金退潮階段。" },
+      { id: "m_14", market: "上市", name: "重電綠能", amount: 290, ma5: 310, ma20: 460, stocks: "1519 華城、1513 中興電、1503 士電", note: "成交規模遠低於平均且5日均持續下滑，資金退潮宜避開。" },
+      { id: "m_15", market: "上市", name: "傳統塑化", amount: 210, ma5: 225, ma20: 340, stocks: "1301 台塑、1303 南亞、1326 台化", note: "量能低迷且持續失血，雙軸皆負，暫時避開。" },
+      { id: "m_16", market: "上櫃", name: "文創遊戲", amount: 145, ma5: 155, ma20: 215, stocks: "3293 鈊象、5478 智冠、6180 橘子", note: "缺乏大額資金青睞，處於退潮失血區。" }
+    ];
+
+    let marketFilter = "all"; // "all" (上市櫃合併) | "tse" (僅上市) | "otc" (僅上櫃)
+    let allSectorsData = JSON.parse(JSON.stringify(UNIFIED_MARKET_DEFAULT));
+
+    let isStreaming = true;
+    let streamIntervalMs = 2500;
+    let streamTimer = null;
+    let hoveredSector = null;
+    let focusedSectorId = null;
+
+    const canvas = document.getElementById("bubbleCanvas");
+    const ctx = canvas.getContext("2d");
+    const tooltip = document.getElementById("bubble-tooltip");
+
+    function getActiveList() {
+      if (marketFilter === "tse") {
+        return allSectorsData.filter(s => s.market === "上市" || s.market === "上市櫃");
+      }
+      if (marketFilter === "otc") {
+        return allSectorsData.filter(s => s.market === "上櫃" || s.market === "上市櫃");
+      }
+      return allSectorsData;
+    }
+
+    /**
+     * 核心指標計算函式：
+     * 1. 計算全市場（或當前篩選範圍）所有族群平均成交金額
+     * 2. 計算橫軸 X = 相對所有族群平均成交金額的偏離 (%) -> +100% 表示為平均的 2 倍
+     * 3. 計算縱軸 Y = 加速度 (近5日均 - 近20日均，單位：億元)
+     * 4. 判定所屬四大象限
+     */
+    function computeMetrics(list) {
+      if (!list || list.length === 0) return { avgAmount: 0, totalAmount: 0 };
+      const totalAmount = list.reduce((acc, item) => acc + item.amount, 0);
+      const avgAmount = totalAmount / list.length;
+
+      list.forEach(item => {
+        item.deviationPct = avgAmount > 0 ? ((item.amount - avgAmount) / avgAmount) * 100 : 0;
+        item.acceleration = item.ma5 - item.ma20;
+
+        if (item.deviationPct >= 0 && item.acceleration >= 0) {
+          item.quadrant = "main";       // 主力主動流入（主力進場）
+          item.quadrantLabel = "主力主動流入";
+        } else if (item.deviationPct >= 0 && item.acceleration < 0) {
+          item.quadrant = "rotation";   // 輪動（熱力開始轉移）
+          item.quadrantLabel = "輪動（熱力轉移）";
+        } else if (item.deviationPct < 0 && item.acceleration >= 0) {
+          item.quadrant = "watch";      // 觀望（但沒人接）
+          item.quadrantLabel = "觀望（但沒人接）";
+        } else {
+          item.quadrant = "ebb";        // 退潮（資金流出）
+          item.quadrantLabel = "退潮（資金流出）";
+        }
+      });
+
+      return { avgAmount, totalAmount };
+    }
+
+    // --- 自適應畫布縮放 ---
+    function resizeCanvas() {
+      const parent = canvas.parentElement;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = parent.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      renderChart();
+    }
+    window.addEventListener("resize", resizeCanvas);
+
+    // --- 繪製四象限熱力泡泡圖 ---
+    function renderChart() {
+      const dpr = window.devicePixelRatio || 1;
+      const width = canvas.width / dpr;
+      const height = canvas.height / dpr;
+      const isMobile = window.innerWidth < 640;
+
+      const list = getActiveList();
+      const { avgAmount, totalAmount } = computeMetrics(list);
+
+      document.getElementById("avg-sector-vol").innerText = `${Math.round(avgAmount).toLocaleString()}億`;
+      document.getElementById("total-market-vol").innerText = `${Math.round(totalAmount).toLocaleString()}億`;
+
+      ctx.clearRect(0, 0, width, height);
+
+      const maxPosDev = Math.max(120, ...list.map(d => d.deviationPct * 1.15));
+      const minNegDev = Math.min(-85, ...list.map(d => d.deviationPct * 1.15));
+      const maxAbsAccel = Math.max(150, ...list.map(d => Math.abs(d.acceleration) * 1.25));
+
+      const padLeft = isMobile ? 42 : 62;
+      const padRight = isMobile ? 22 : 34;
+      const padTop = isMobile ? 34 : 42;
+      const padBottom = isMobile ? 36 : 44;
+
+      const plotW = width - padLeft - padRight;
+      const plotH = height - padTop - padBottom;
+
+      const toX = (dev) => padLeft + ((dev - minNegDev) / (maxPosDev - minNegDev)) * plotW;
+      const toY = (acc) => padTop + plotH - ((acc - (-maxAbsAccel)) / (maxAbsAccel * 2)) * plotH;
+
+      const zeroX = toX(0);
+      const zeroY = toY(0);
+
+      // 1. 四大象限微光背景底色
+      ctx.fillStyle = "rgba(244, 63, 94, 0.06)";
+      ctx.fillRect(zeroX, padTop, width - padRight - zeroX, zeroY - padTop);
+
+      ctx.fillStyle = "rgba(245, 158, 11, 0.045)";
+      ctx.fillRect(zeroX, zeroY, width - padRight - zeroX, height - padBottom - zeroY);
+
+      ctx.fillStyle = "rgba(56, 189, 248, 0.045)";
+      ctx.fillRect(padLeft, padTop, zeroX - padLeft, zeroY - padTop);
+
+      ctx.fillStyle = "rgba(100, 116, 139, 0.04)";
+      ctx.fillRect(padLeft, zeroY, zeroX - padLeft, height - padBottom - zeroY);
+
+      // 2. 網格輔助線
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.045)";
+      ctx.lineWidth = 1;
+      [-50, 50, 100, 150, 200, 250].forEach(tickX => {
+        if (tickX > minNegDev && tickX < maxPosDev) {
+          const cx = toX(tickX);
+          ctx.beginPath();
+          ctx.moveTo(cx, padTop);
+          ctx.lineTo(cx, height - padBottom);
+          ctx.stroke();
+
+          ctx.fillStyle = "#64748b";
+          ctx.font = "9px 'JetBrains Mono'";
+          ctx.textAlign = "center";
+          ctx.fillText((tickX > 0 ? "+" : "") + tickX + "%", cx, height - padBottom + 13);
+        }
+      });
+
+      const yStep = Math.round(maxAbsAccel / 2 / 50) * 50 || 50;
+      [-yStep * 2, -yStep, yStep, yStep * 2].forEach(tickY => {
+        if (Math.abs(tickY) < maxAbsAccel) {
+          const cy = toY(tickY);
+          ctx.beginPath();
+          ctx.moveTo(padLeft, cy);
+          ctx.lineTo(width - padRight, cy);
+          ctx.stroke();
+
+          ctx.fillStyle = "#64748b";
+          ctx.font = "9px 'JetBrains Mono'";
+          ctx.textAlign = "right";
+          ctx.fillText((tickY > 0 ? "+" : "") + tickY + "億", padLeft - 6, cy + 3);
+        }
+      });
+
+      // 3. 四象限浮水印標題
+      ctx.font = isMobile ? "bold 10px 'Noto Sans TC'" : "bold 12px 'Noto Sans TC'";
+      
+      ctx.textAlign = "right";
+      ctx.fillStyle = "rgba(251, 113, 133, 0.9)";
+      ctx.fillText(isMobile ? "● 主力主動流入" : "● 主力主動流入（主力進場：資金加速流入，最強勢）", width - padRight - 8, padTop + 16);
+
+      ctx.fillStyle = "rgba(251, 191, 36, 0.85)";
+      ctx.fillText(isMobile ? "● 輪動（熱力轉移）" : "● 輪動（熱力開始轉移：資金持續流入但放緩）", width - padRight - 8, height - padBottom - 10);
+
+      ctx.textAlign = "left";
+      ctx.fillStyle = "rgba(56, 189, 248, 0.85)";
+      ctx.fillText(isMobile ? "● 觀望（沒人接）" : "● 觀望（但沒人接：動能回升，留意轉強）", padLeft + 8, padTop + 16);
+
+      ctx.fillStyle = "rgba(148, 163, 184, 0.75)";
+      ctx.fillText(isMobile ? "● 退潮（資金流出）" : "● 退潮（資金流出：資金持續流出，避開）", padLeft + 8, height - padBottom - 10);
+
+      // 4. 核心十字基準線
+      ctx.save();
+      ctx.strokeStyle = "rgba(226, 232, 240, 0.45)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      ctx.moveTo(zeroX, padTop);
+      ctx.lineTo(zeroX, height - padBottom);
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(250, 204, 21, 0.65)";
+      ctx.lineWidth = 1.8;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(padLeft, zeroY);
+      ctx.lineTo(width - padRight, zeroY);
+      ctx.stroke();
+      ctx.restore();
+
+      // 座標軸說明
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = isMobile ? "9px 'Noto Sans TC'" : "11px 'Noto Sans TC'";
+      ctx.textAlign = "center";
+      ctx.fillText("相對所有族群平均成交金額的偏離 (%)  [0% = 全市場平均，+100% = 平均的 2 倍]", width / 2, height - 6);
+
+      ctx.save();
+      ctx.translate(12, height / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText("加速度（近5日均 − 近20日均，億元）", 0, 0);
+      ctx.restore();
+
+      // 5. 繪製所有族群泡泡
+      const maxAmt = Math.max(...list.map(d => d.amount), 100);
+      const sortedForDraw = [...list].sort((a, b) => b.amount - a.amount);
+
+      sortedForDraw.forEach(sec => {
+        const cx = toX(sec.deviationPct);
+        const cy = toY(sec.acceleration);
+
+        const minR = isMobile ? 16 : 22;
+        const maxR = isMobile ? 42 : 58;
+        const ratio = Math.sqrt(sec.amount / maxAmt);
+        const radius = minR + ratio * (maxR - minR);
+
+        sec._rx = cx;
+        sec._ry = cy;
+        sec._r = radius;
+
+        let fillRgba, strokeHex, glowRgba;
+        if (sec.quadrant === "main") {
+          fillRgba = "rgba(225, 29, 72, 0.78)";
+          strokeHex = "#fda4af";
+          glowRgba = "rgba(244, 63, 94, 0.65)";
+        } else if (sec.quadrant === "rotation") {
+          fillRgba = "rgba(217, 119, 6, 0.75)";
+          strokeHex = "#fde68a";
+          glowRgba = "rgba(245, 158, 11, 0.5)";
+        } else if (sec.quadrant === "watch") {
+          fillRgba = "rgba(2, 132, 199, 0.72)";
+          strokeHex = "#7dd3fc";
+          glowRgba = "rgba(56, 189, 248, 0.5)";
+        } else {
+          fillRgba = "rgba(71, 85, 105, 0.68)";
+          strokeHex = "#94a3b8";
+          glowRgba = "rgba(15, 23, 42, 0.4)";
+        }
+
+        const isHighlighted = (hoveredSector && hoveredSector.id === sec.id) || (focusedSectorId === sec.id);
+        const isDimmed = (focusedSectorId && focusedSectorId !== sec.id);
+
+        ctx.save();
+        ctx.globalAlpha = isDimmed ? 0.3 : 1.0;
+
+        if (isHighlighted) {
+          ctx.lineWidth = 3.5;
+          ctx.strokeStyle = "#ffffff";
+          ctx.shadowBlur = 24;
+          ctx.shadowColor = "#ffffff";
+        } else {
+          ctx.lineWidth = 1.8;
+          ctx.strokeStyle = strokeHex;
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = glowRgba;
+        }
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.fillStyle = fillRgba;
+        ctx.fill();
+        ctx.stroke();
+
+        const grad = ctx.createRadialGradient(cx - radius * 0.3, cy - radius * 0.3, radius * 0.08, cx, cy, radius);
+        grad.addColorStop(0, "rgba(255, 255, 255, 0.42)");
+        grad.addColorStop(0.75, "transparent");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (focusedSectorId === sec.id) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius + 6, 0, Math.PI * 2);
+          ctx.strokeStyle = "#facc15";
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 3]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        ctx.restore();
+
+        // 泡泡中心文字：族群名稱 + 成交規模(億元) + 市場小標
+        ctx.save();
+        ctx.globalAlpha = isDimmed ? 0.35 : 1.0;
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#ffffff";
+
+        const nameSize = Math.max(9, Math.min(isMobile ? 11 : 13, radius * 0.38));
+        ctx.font = `bold ${nameSize}px 'Noto Sans TC'`;
+        ctx.fillText(sec.name, cx, cy - 2);
+
+        const volSize = Math.max(8, Math.min(isMobile ? 9.5 : 11, radius * 0.31));
+        ctx.font = `bold ${volSize}px 'JetBrains Mono'`;
+        ctx.fillStyle = "#fef08a";
+        ctx.fillText(`${Math.round(sec.amount)}億`, cx, cy + (isMobile ? 9 : 11));
+
+        // 較大泡泡額外顯示 [上市/上櫃] 小標
+        if (radius >= (isMobile ? 22 : 28)) {
+          ctx.font = `600 ${isMobile ? 7.5 : 8.5}px 'Noto Sans TC'`;
+          ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
+          ctx.fillText(`[${sec.market}]`, cx, cy - (isMobile ? 12 : 15));
+        }
+        ctx.restore();
+      });
+    }
+
+    // --- 渲染四大區塊排行榜 ---
+    function renderLeaderboards() {
+      const list = getActiveList();
+      computeMetrics(list);
+
+      const groups = {
+        main: list.filter(s => s.quadrant === "main").sort((a, b) => (b.deviationPct + b.acceleration * 0.3) - (a.deviationPct + a.acceleration * 0.3)),
+        rotation: list.filter(s => s.quadrant === "rotation").sort((a, b) => b.amount - a.amount),
+        watch: list.filter(s => s.quadrant === "watch").sort((a, b) => b.acceleration - a.acceleration),
+        ebb: list.filter(s => s.quadrant === "ebb").sort((a, b) => a.acceleration - b.acceleration)
+      };
+
+      document.getElementById("count-main").innerText = `${groups.main.length} 族`;
+      document.getElementById("count-rotation").innerText = `${groups.rotation.length} 族`;
+      document.getElementById("count-watch").innerText = `${groups.watch.length} 族`;
+      document.getElementById("count-ebb").innerText = `${groups.ebb.length} 族`;
+
+      const getMarketTagHTML = (mkt) => {
+        if (mkt === "上市") {
+          return `<span class="text-[9px] px-1 py-0.2 rounded bg-indigo-950 text-indigo-300 border border-indigo-500/40 shrink-0">上市</span>`;
+        } else if (mkt === "上櫃") {
+          return `<span class="text-[9px] px-1 py-0.2 rounded bg-teal-950 text-teal-300 border border-teal-500/40 shrink-0">上櫃</span>`;
+        }
+        return `<span class="text-[9px] px-1 py-0.2 rounded bg-purple-950 text-purple-300 border border-purple-500/40 shrink-0">上市櫃</span>`;
+      };
+
+      const renderGroupHTML = (containerId, items, theme) => {
+        const container = document.getElementById(containerId);
+        if (items.length === 0) {
+          container.innerHTML = `<div class="h-full flex items-center justify-center text-xs text-slate-500 py-8">目前無族群落入此象限</div>`;
+          return;
+        }
+
+        container.innerHTML = items.map((sec, idx) => {
+          const isFocused = focusedSectorId === sec.id;
+          const devStr = (sec.deviationPct >= 0 ? "+" : "") + sec.deviationPct.toFixed(0) + "%";
+          const accStr = (sec.acceleration >= 0 ? "+" : "") + Math.round(sec.acceleration) + "億";
+
+          const badgeColors = {
+            main: idx === 0 ? "bg-rose-500 text-white" : "bg-rose-950 text-rose-300 border border-rose-500/40",
+            rotation: idx === 0 ? "bg-amber-500 text-slate-950" : "bg-amber-950 text-amber-300 border border-amber-500/40",
+            watch: idx === 0 ? "bg-sky-500 text-slate-950" : "bg-sky-950 text-sky-300 border border-sky-500/40",
+            ebb: "bg-slate-800 text-slate-400 border border-slate-700"
+          };
+
+          const accColor = sec.acceleration >= 0 ? "text-rose-400" : "text-emerald-400";
+          const devColor = sec.deviationPct >= 0 ? "text-amber-300" : "text-slate-400";
+
+          return `
+            <div onclick="toggleFocusSector('${sec.id}')" 
+                 class="p-2 rounded-lg border transition cursor-pointer ${isFocused ? 'bg-slate-800 border-amber-400 ring-1 ring-amber-400' : 'bg-slate-900/80 hover:bg-slate-800/90 border-slate-800/90'}">
+              <div class="flex items-center justify-between gap-1.5">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="w-5 h-5 rounded flex items-center justify-center text-[10px] font-mono font-black shrink-0 ${badgeColors[theme]}">
+                    ${idx + 1}
+                  </span>
+                  <span class="font-bold text-xs sm:text-sm text-white truncate">${sec.name}</span>
+                  ${getMarketTagHTML(sec.market)}
+                </div>
+                <span class="font-mono text-xs font-extrabold text-amber-300 shrink-0">${Math.round(sec.amount).toLocaleString()} 億</span>
+              </div>
+
+              <div class="mt-1.5 flex items-center justify-between text-[10px] sm:text-[11px] font-mono bg-slate-950/60 px-2 py-1 rounded">
+                <span class="text-slate-400">平均偏離: <strong class="${devColor}">${devStr}</strong></span>
+                <span class="text-slate-400">加速度: <strong class="${accColor}">${accStr}</strong></span>
+              </div>
+
+              <div class="mt-1 text-[10px] text-slate-400 truncate">
+                代表股：${sec.stocks}
+              </div>
+            </div>
+          `;
+        }).join("");
+      };
+
+      renderGroupHTML("rank-list-main", groups.main, "main");
+      renderGroupHTML("rank-list-rotation", groups.rotation, "rotation");
+      renderGroupHTML("rank-list-watch", groups.watch, "watch");
+      renderGroupHTML("rank-list-ebb", groups.ebb, "ebb");
+    }
+
+    // --- 點擊排行榜聚焦指定泡泡 ---
+    window.toggleFocusSector = function(id) {
+      if (focusedSectorId === id) {
+        focusedSectorId = null;
+        document.getElementById("clear-focus-btn").classList.add("hidden");
+        tooltip.classList.add("hidden");
+      } else {
+        focusedSectorId = id;
+        document.getElementById("clear-focus-btn").classList.remove("hidden");
+        const sec = getActiveList().find(s => s.id === id);
+        if (sec && sec._rx) {
+          const rect = canvas.getBoundingClientRect();
+          showTooltip(rect.left + sec._rx, rect.top + sec._ry, sec);
+        }
+      }
+      renderChart();
+      renderLeaderboards();
+    };
+
+    document.getElementById("clear-focus-btn").addEventListener("click", () => {
+      focusedSectorId = null;
+      document.getElementById("clear-focus-btn").classList.add("hidden");
+      tooltip.classList.add("hidden");
+      renderChart();
+      renderLeaderboards();
+    });
+
+    // --- 滑鼠與手機觸控交互 ---
+    function handlePointer(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      const px = clientX - rect.left;
+      const py = clientY - rect.top;
+
+      let found = null;
+      const list = getActiveList();
+      const sortedHit = [...list].sort((a, b) => (a._r || 0) - (b._r || 0));
+      for (const sec of sortedHit) {
+        if (!sec._rx) continue;
+        if (Math.hypot(px - sec._rx, py - sec._ry) <= sec._r + 5) {
+          found = sec;
+          break;
+        }
+      }
+
+      if (found) {
+        hoveredSector = found;
+        showTooltip(clientX, clientY, found);
+      } else {
+        hoveredSector = null;
+        if (!focusedSectorId) {
+          tooltip.classList.add("hidden");
+        }
+      }
+      renderChart();
+    }
+
+    canvas.addEventListener("mousemove", (e) => handlePointer(e.clientX, e.clientY));
+    canvas.addEventListener("mouseleave", () => {
+      hoveredSector = null;
+      if (!focusedSectorId) tooltip.classList.add("hidden");
+      renderChart();
+    });
+    canvas.addEventListener("touchstart", (e) => {
+      if (e.touches.length > 0) {
+        handlePointer(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    function showTooltip(clientX, clientY, sec) {
+      tooltip.classList.remove("hidden");
+      document.getElementById("tt-title").innerText = sec.name;
+
+      const mBadge = document.getElementById("tt-market-badge");
+      mBadge.innerText = sec.market;
+      if (sec.market === "上市") {
+        mBadge.className = "px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-900 text-indigo-200 border border-indigo-500/40 shrink-0";
+      } else if (sec.market === "上櫃") {
+        mBadge.className = "px-1.5 py-0.5 rounded text-[10px] font-bold bg-teal-900 text-teal-200 border border-teal-500/40 shrink-0";
+      } else {
+        mBadge.className = "px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-900 text-purple-200 border border-purple-500/40 shrink-0";
+      }
+
+      const qBadge = document.getElementById("tt-quadrant");
+      qBadge.innerText = sec.quadrantLabel;
+      const badgeStyles = {
+        main: "px-2 py-0.5 rounded text-[10px] font-bold bg-rose-600 text-white shrink-0",
+        rotation: "px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-slate-950 shrink-0",
+        watch: "px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500 text-slate-950 shrink-0",
+        ebb: "px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-200 shrink-0"
+      };
+      qBadge.className = badgeStyles[sec.quadrant];
+
+      document.getElementById("tt-amount").innerText = `${Math.round(sec.amount).toLocaleString()} 億元`;
+      
+      const devEl = document.getElementById("tt-deviation");
+      devEl.innerText = `${sec.deviationPct >= 0 ? "+" : ""}${sec.deviationPct.toFixed(1)}%`;
+      devEl.className = sec.deviationPct >= 0 ? "font-bold text-amber-300" : "font-bold text-slate-400";
+
+      const accEl = document.getElementById("tt-accel");
+      accEl.innerText = `${sec.acceleration >= 0 ? "+" : ""}${Math.round(sec.acceleration)} 億元`;
+      accEl.className = sec.acceleration >= 0 ? "font-bold text-rose-400" : "font-bold text-emerald-400";
+
+      document.getElementById("tt-stocks").innerText = sec.stocks;
+      document.getElementById("tt-desc").innerText = sec.note;
+
+      const tipW = 288;
+      const tipH = 180;
+      let left = clientX + 14;
+      let top = clientY - 30;
+      if (left + tipW > window.innerWidth - 10) left = clientX - tipW - 14;
+      if (left < 10) left = 10;
+      if (top + tipH > window.innerHeight - 10) top = window.innerHeight - tipH - 10;
+      if (top < 10) top = 10;
+
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+    }
+
+    // --- 盤中即時跳動模擬引擎 ---
+    function simulateTick() {
+      allSectorsData.forEach(sec => {
+        const scale = sec.market === "上櫃" ? 7 : 18;
+        const deltaAmt = (Math.random() - 0.44) * scale;
+        sec.amount = Math.max(40, +(sec.amount + deltaAmt).toFixed(1));
+        sec.ma5 = Math.max(40, +(sec.ma5 + deltaAmt * 0.35).toFixed(1));
+      });
+
+      const now = new Date();
+      const timeStr = now.toTimeString().split(" ")[0];
+      document.getElementById("clock-display").innerText = `盤中即時 ${timeStr}`;
+
+      renderChart();
+      renderLeaderboards();
+      updateDynamicTicker(timeStr);
+    }
+
+    function updateDynamicTicker(timeStr) {
+      const list = getActiveList();
+      const mains = list.filter(s => s.quadrant === "main").sort((a, b) => b.acceleration - a.acceleration);
+      const watches = list.filter(s => s.quadrant === "watch").sort((a, b) => b.acceleration - a.acceleration);
+      const ticker = document.getElementById("ticker-text");
+
+      if (mains.length > 0 && Math.random() > 0.45) {
+        const top = mains[0];
+        ticker.innerText = `[${timeStr}] 🔥【主力進場】[${top.market}] ${top.name} 成交規模達 ${Math.round(top.amount)} 億元（偏離平均 +${top.deviationPct.toFixed(0)}%），5日均超越20日均 +${Math.round(top.acceleration)} 億！`;
+      } else if (watches.length > 0) {
+        const w = watches[0];
+        ticker.innerText = `[${timeStr}] 👀【觀望留意轉強】[${w.market}] ${w.name} 雖尚未達平均規模，但5日均已領先20日均 +${Math.round(w.acceleration)} 億，動能持續回升！`;
+      }
+    }
+
+    function startStream() {
+      if (streamTimer) clearInterval(streamTimer);
+      streamTimer = setInterval(simulateTick, streamIntervalMs);
+      document.getElementById("mobile-stream-status").innerText = "即時";
+    }
+
+    // --- 全市場 / 僅上市 / 僅上櫃 篩選膠囊切換 ---
+    const filterAllBtn = document.getElementById("filter-all");
+    const filterTseBtn = document.getElementById("filter-tse");
+    const filterOtcBtn = document.getElementById("filter-otc");
+
+    function setMarketFilter(mode) {
+      marketFilter = mode;
+      focusedSectorId = null;
+      hoveredSector = null;
+      document.getElementById("clear-focus-btn").classList.add("hidden");
+      tooltip.classList.add("hidden");
+
+      const activeClass = "flex-1 lg:flex-initial px-3.5 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center justify-center gap-1.5 bg-gradient-to-r from-rose-600 to-red-600 text-white shadow-md";
+      const inactiveClass = "flex-1 lg:flex-initial px-3 sm:px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center justify-center gap-1 text-slate-400 hover:text-white";
+
+      filterAllBtn.className = mode === "all" ? activeClass : inactiveClass;
+      filterTseBtn.className = mode === "tse" ? activeClass : inactiveClass;
+      filterOtcBtn.className = mode === "otc" ? activeClass : inactiveClass;
+
+      renderChart();
+      renderLeaderboards();
+    }
+
+    filterAllBtn.addEventListener("click", () => setMarketFilter("all"));
+    filterTseBtn.addEventListener("click", () => setMarketFilter("tse"));
+    filterOtcBtn.addEventListener("click", () => setMarketFilter("otc"));
+
+    // 速度下拉選單
+    document.getElementById("stream-speed-select").addEventListener("change", (e) => {
+      streamIntervalMs = parseInt(e.target.value, 10) || 2500;
+      document.getElementById("footer-freq-label").innerText = `動態更新頻率: ${(streamIntervalMs / 1000).toFixed(1)}s`;
+      if (isStreaming) {
+        startStream();
+      }
+    });
+
+    // 暫停/啟動按鈕
+    const toggleBtn = document.getElementById("toggle-stream-btn");
+    toggleBtn.addEventListener("click", () => {
+      isStreaming = !isStreaming;
+      if (isStreaming) {
+        startStream();
+        toggleBtn.className = "px-2.5 sm:px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition flex items-center gap-1 shadow text-[11px] sm:text-xs";
+        document.getElementById("stream-icon").innerText = "⏸";
+        document.getElementById("stream-btn-text").innerText = "暫停即時跳動";
+      } else {
+        clearInterval(streamTimer);
+        document.getElementById("mobile-stream-status").innerText = "暫停";
+        toggleBtn.className = "px-2.5 sm:px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold transition flex items-center gap-1 shadow text-[11px] sm:text-xs";
+        document.getElementById("stream-icon").innerText = "▶";
+        document.getElementById("stream-btn-text").innerText = "啟動即時跳動";
+      }
+    });
+
+    document.getElementById("manual-refresh-btn").addEventListener("click", simulateTick);
+
+    // 複製分享連結
+    const shareBtn = document.getElementById("share-link-btn");
+    shareBtn.addEventListener("click", () => {
+      const dummy = document.createElement("input");
+      document.body.appendChild(dummy);
+      dummy.value = window.location.href;
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+
+      const label = document.getElementById("share-btn-text");
+      label.innerText = "已複製網址！";
+      shareBtn.classList.replace("bg-indigo-600", "bg-emerald-600");
+      setTimeout(() => {
+        label.innerText = "複製分享";
+        shareBtn.classList.replace("bg-emerald-600", "bg-indigo-600");
+      }, 2000);
+    });
+
+    // 一鍵下載完整離線網頁檔
+    document.getElementById("download-file-btn").addEventListener("click", () => {
+      const fullHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+      const blob = new Blob([fullHtml], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tw_stock_unified_4quadrant_bubble.html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // --- 編輯數值 Modal 邏輯 ---
+    const modal = document.getElementById("editor-modal");
+    const editorRows = document.getElementById("sector-editor-rows");
+
+    function renderEditorRows() {
+      editorRows.innerHTML = allSectorsData.map((sec, idx) => `
+        <div class="bg-slate-900/90 p-2 rounded-lg border border-slate-800 flex flex-wrap items-center gap-2 text-xs">
+          <div class="w-20">
+            <span class="text-slate-400 text-[10px] block">市場別</span>
+            <select class="w-full bg-slate-800 border border-slate-700 rounded px-1 py-1 text-white font-bold" data-idx="${idx}" data-field="market">
+              <option value="上市" ${sec.market === "上市" ? "selected" : ""}>上市</option>
+              <option value="上櫃" ${sec.market === "上櫃" ? "selected" : ""}>上櫃</option>
+              <option value="上市櫃" ${sec.market === "上市櫃" ? "selected" : ""}>上市櫃</option>
+            </select>
+          </div>
+          <div class="w-24 sm:w-28">
+            <span class="text-slate-400 text-[10px] block">族群名稱</span>
+            <input type="text" class="w-full bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-white font-bold" value="${sec.name}" data-idx="${idx}" data-field="name">
+          </div>
+          <div class="w-20 sm:w-24">
+            <span class="text-slate-400 text-[10px] block">成交規模(億)</span>
+            <input type="number" step="10" class="w-full bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-amber-300 font-mono" value="${Math.round(sec.amount)}" data-idx="${idx}" data-field="amount">
+          </div>
+          <div class="w-20 sm:w-24">
+            <span class="text-slate-400 text-[10px] block">近5日均(億)</span>
+            <input type="number" step="10" class="w-full bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-rose-300 font-mono" value="${Math.round(sec.ma5)}" data-idx="${idx}" data-field="ma5">
+          </div>
+          <div class="w-20 sm:w-24">
+            <span class="text-slate-400 text-[10px] block">近20日均(億)</span>
+            <input type="number" step="10" class="w-full bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-sky-300 font-mono" value="${Math.round(sec.ma20)}" data-idx="${idx}" data-field="ma20">
+          </div>
+          <div class="flex-1 min-w-[120px]">
+            <span class="text-slate-400 text-[10px] block">代表成分股</span>
+            <input type="text" class="w-full bg-slate-800 border border-slate-700 rounded px-1.5 py-1 text-slate-300" value="${sec.stocks}" data-idx="${idx}" data-field="stocks">
+          </div>
+          <button onclick="removeSectorRow(${idx})" class="text-rose-500 hover:text-rose-400 px-1.5 py-1 font-bold mt-3">✕</button>
+        </div>
+      `).join("");
+    }
+
+    window.removeSectorRow = function(idx) {
+      allSectorsData.splice(idx, 1);
+      renderEditorRows();
+    };
+
+    document.getElementById("open-editor-btn").addEventListener("click", () => {
+      renderEditorRows();
+      modal.classList.remove("hidden");
+    });
+    document.getElementById("close-modal-btn").addEventListener("click", () => modal.classList.add("hidden"));
+
+    document.getElementById("add-sector-btn").addEventListener("click", () => {
+      allSectorsData.push({
+        id: "custom_" + Date.now(),
+        market: "上市櫃",
+        name: "新監控族群",
+        amount: 680,
+        ma5: 650,
+        ma20: 540,
+        stocks: "自訂成分股",
+        note: "使用者自訂監控族群。"
+      });
+      renderEditorRows();
+    });
+
+    document.getElementById("reset-default-btn").addEventListener("click", () => {
+      allSectorsData = JSON.parse(JSON.stringify(UNIFIED_MARKET_DEFAULT));
+      renderEditorRows();
+    });
+
+    document.getElementById("save-modal-btn").addEventListener("click", () => {
+      editorRows.querySelectorAll("input, select").forEach(el => {
+        const idx = parseInt(el.getAttribute("data-idx"));
+        const field = el.getAttribute("data-field");
+        if (field === "name" || field === "stocks" || field === "market") {
+          allSectorsData[idx][field] = el.value;
+        } else {
+          allSectorsData[idx][field] = parseFloat(el.value) || 0;
+        }
+      });
+      modal.classList.add("hidden");
+      renderChart();
+      renderLeaderboards();
+    });
+
+    // --- 初始化啟動 ---
+    window.addEventListener("DOMContentLoaded", () => {
+      resizeCanvas();
+      renderLeaderboards();
+      startStream();
+    });
+  </script>
+</body>
+</html>
