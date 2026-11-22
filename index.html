@@ -3,43 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>台股即時資金流向熱力泡泡圖（單一網站免外掛·每1分鐘自動追蹤）</title>
+  <title>台股資金泡泡圖 × 近30日收盤比較 × 5分主力買賣超 × 大戶散戶明細</title>
   <style>
     :root {
-      --bg-dark: #070b14;
-      --bg-panel: #0f1626;
-      --bg-card: #162033;
+      --bg: #070b14;
+      --panel: #0f172a;
+      --card: #162036;
       --border: rgba(148, 163, 184, 0.16);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --text: #f8fafc;
+      --muted: #94a3b8;
       --gold: #fbbf24;
-      --c-main: #f43f5e;     /* 主力主動流入 */
-      --c-rotate: #f59e0b;   /* 輪動 */
-      --c-watch: #38bdf8;    /* 觀望 */
-      --c-ebb: #64748b;      /* 退潮 */
-      --up: #ef4444;
-      --down: #10b981;
+      --red-deep: #dc2626;
+      --red-bright: #ff4d4f;
+      --green-deep: #059669;
+      --green-bright: #10b981;
+      --blue: #38bdf8;
+      --orange: #f59e0b;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif;
-      background: var(--bg-dark);
-      color: var(--text-main);
-      line-height: 1.45;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
     }
 
     header {
-      background: #0c1220;
+      background: #0b1222;
       border-bottom: 1px solid var(--border);
-      padding: 11px 18px;
+      padding: 12px 18px;
       position: sticky;
       top: 0;
-      z-index: 50;
+      z-index: 40;
     }
 
     .header-inner {
-      max-width: 1460px;
+      max-width: 1480px;
       margin: 0 auto;
       display: flex;
       flex-wrap: wrap;
@@ -48,107 +48,80 @@
       gap: 10px;
     }
 
-    .title-box h1 {
-      font-size: 1.06rem;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .brand h1 { font-size: 1.05rem; font-weight: 800; }
+    .brand .sub { font-size: 0.75rem; color: var(--muted); }
 
-    .title-box .sub {
-      font-size: 0.74rem;
-      color: var(--text-muted);
-    }
-
-    /* 真實大盤指數與1分鐘自動追蹤狀態條 */
-    .live-bar {
+    .close-banner {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       gap: 12px;
-      background: rgba(22, 32, 51, 0.96);
-      border: 1px solid rgba(251, 191, 36, 0.35);
-      padding: 6px 13px;
+      background: var(--card);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      padding: 7px 14px;
       border-radius: 9px;
-      font-size: 0.82rem;
       font-variant-numeric: tabular-nums;
+      font-size: 0.84rem;
     }
 
-    .badge {
-      font-size: 0.73rem;
-      font-weight: 700;
-      padding: 3px 9px;
-      border-radius: 99px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .badge-live {
-      background: rgba(16, 185, 129, 0.16);
-      color: #6ee7b7;
-      border: 1px solid rgba(16, 185, 129, 0.45);
-    }
-
-    .badge-close {
-      background: rgba(251, 191, 36, 0.16);
-      color: #fde68a;
-      border: 1px solid rgba(251, 191, 36, 0.45);
-    }
-
-    .idx-item { display: flex; align-items: center; gap: 5px; }
-    .idx-num { font-size: 1rem; font-weight: 800; color: #fff; }
-    .up { color: var(--up); font-weight: 700; }
-    .down { color: var(--down); font-weight: 700; }
-
-    .countdown-pill {
-      background: rgba(56, 189, 248, 0.14);
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      color: #7dd3fc;
+    .lock-tag {
+      background: rgba(239, 68, 68, 0.18);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.45);
       padding: 2px 8px;
-      border-radius: 6px;
+      border-radius: 99px;
       font-size: 0.74rem;
       font-weight: 700;
     }
 
-    .btn-row { display: flex; flex-wrap: wrap; gap: 7px; }
+    .live-tag {
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .close-num { font-size: 1.08rem; font-weight: 900; color: var(--gold); }
+    .up { color: #f87171; font-weight: 700; }
+    .down { color: #34d399; font-weight: 700; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
     .btn {
-      background: var(--bg-card);
-      color: var(--text-main);
+      background: var(--card);
+      color: var(--text);
       border: 1px solid var(--border);
       padding: 6px 11px;
       border-radius: 7px;
-      font-size: 0.77rem;
+      font-size: 0.78rem;
       font-weight: 600;
       cursor: pointer;
-      transition: 0.15s;
     }
-    .btn:hover { background: #1e293b; border-color: rgba(255,255,255,0.3); }
-    .btn-gold { background: rgba(251, 191, 36, 0.16); border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
-    .btn-active { background: rgba(56, 189, 248, 0.2); border-color: #38bdf8; color: #bae6fd; }
+    .btn:hover { background: #1e293b; border-color: rgba(255,255,255,0.35); }
+    .btn-gold { background: rgba(251, 191, 36, 0.16); border-color: rgba(251, 191, 36, 0.5); color: #fde68a; }
 
     .container {
-      max-width: 1460px;
+      max-width: 1480px;
       margin: 0 auto;
-      padding: 15px 18px 40px;
+      padding: 16px 18px 48px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
     }
 
-    /* 主泡泡圖卡片 */
-    .bubble-card {
-      background: var(--bg-panel);
+    .panel {
+      background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 13px;
       padding: 15px;
       display: flex;
       flex-direction: column;
-      gap: 11px;
+      gap: 12px;
     }
 
-    .card-header {
+    .panel-head {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
@@ -158,129 +131,148 @@
       padding-bottom: 9px;
     }
 
-    .axis-info {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-    .axis-info b { color: #fff; }
+    .panel-title { font-size: 0.98rem; font-weight: 800; }
+    .panel-desc { font-size: 0.76rem; color: var(--muted); }
 
     .canvas-box {
       position: relative;
       width: 100%;
-      height: 540px;
-      background: radial-gradient(circle at 55% 45%, #131d33 0%, #080d18 100%);
-      border-radius: 11px;
-      border: 1px solid rgba(148, 163, 184, 0.18);
+      height: 430px;
+      background: radial-gradient(circle at 50% 45%, #131d33 0%, #080d18 100%);
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.15);
       overflow: hidden;
     }
 
-    @media (max-width: 768px) {
-      .canvas-box { height: 410px; }
-    }
-
-    canvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
+    canvas { width: 100%; height: 100%; display: block; cursor: pointer; }
 
     .tooltip {
       position: absolute;
       pointer-events: none;
-      background: rgba(10, 16, 28, 0.97);
+      background: rgba(9, 14, 26, 0.97);
       border: 1px solid rgba(251, 191, 36, 0.55);
-      border-radius: 9px;
-      padding: 11px 14px;
-      font-size: 0.8rem;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.72);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.78rem;
       z-index: 30;
       display: none;
-      min-width: 235px;
+      min-width: 220px;
     }
 
-    /* 點選泡泡後的個股資金進出抽屜 */
-    .stock-drawer {
-      background: rgba(22, 32, 51, 0.92);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      border-radius: 10px;
-      padding: 11px 14px;
+    /* 大類選擇器與個股大戶/散戶明細 */
+    .sector-pills {
       display: flex;
       flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
+      gap: 7px;
     }
 
-    .stock-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .stock-chip {
-      background: #0b111e;
+    .s-pill {
+      background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 6px 10px;
+      color: var(--muted);
+      padding: 5px 11px;
+      border-radius: 7px;
       font-size: 0.78rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .s-pill.active {
+      background: rgba(251, 191, 36, 0.18);
+      border-color: var(--gold);
+      color: #fde68a;
     }
 
-    /* 四大區塊排行榜 */
-    .rank-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      font-variant-numeric: tabular-nums;
     }
-    @media (max-width: 1150px) { .rank-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 640px) { .rank-grid { grid-template-columns: 1fr; } }
+    th {
+      text-align: left;
+      padding: 9px 10px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: #121b2e;
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+      white-space: nowrap;
+    }
 
-    .rank-col {
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
+    .bar-pair {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 4px;
+      min-width: 170px;
     }
-
-    .rank-head {
+    .bar-row {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      font-size: 0.88rem;
-      font-weight: 700;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
+      gap: 6px;
+      font-size: 0.72rem;
     }
-
-    .rank-item {
-      background: var(--bg-card);
-      border-radius: 8px;
-      padding: 8px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: 0.15s;
-    }
-    .rank-item:hover { border-color: rgba(251, 191, 36, 0.45); }
-
-    /* 進度條 */
-    .progress-line {
-      height: 2px;
-      background: rgba(56, 189, 248, 0.2);
-      width: 100%;
+    .track {
+      flex: 1;
+      height: 7px;
+      background: #1e293b;
+      border-radius: 99px;
       overflow: hidden;
     }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #38bdf8, #fbbf24);
+    .fill-big { height: 100%; background: #f43f5e; }
+    .fill-retail { height: 100%; background: #38bdf8; }
+
+    /* 每5分鐘主力買超賣超矩陣 */
+    .flow5-grid-wrap {
+      overflow-x: auto;
+    }
+    .flow5-table {
       width: 100%;
-      transition: width 1s linear;
+      border-collapse: separate;
+      border-spacing: 4px;
+      font-size: 0.76rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .flow5-table th {
+      background: transparent;
+      border: none;
+      text-align: center;
+      padding: 6px 4px;
+      color: var(--muted);
+    }
+    .flow5-table th.sec-col {
+      text-align: left;
+      min-width: 140px;
+      color: var(--text);
+    }
+    .flow5-cell {
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 6px;
+      font-weight: 700;
+      min-width: 68px;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.65);
+    }
+
+    .scale-legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 4px;
     }
   </style>
 </head>
@@ -288,409 +280,273 @@
 
 <header>
   <div class="header-inner">
-    <div class="title-box">
-      <h1>🫧 台股即時資金流向熱力泡泡圖（單一網站免外掛版）</h1>
-      <div class="sub">直連 TWSE/TPEx 公開報價源｜每 1 分鐘自動追蹤輪動｜上市櫃合併全市場</div>
+    <div class="brand">
+      <h1>台股資金泡泡圖 × 近30日收盤比較 × 5分主力買賣超</h1>
+      <div class="sub">收盤精準鎖定 36,033.29 點｜支援點選大類檢視個股大戶與散戶買賣狀況</div>
     </div>
 
-    <div class="live-bar">
-      <span class="badge badge-live" id="statusBadge">🔄 正在連線證交所即時報價...</span>
-      <div class="idx-item">
-        <span>加權指數：</span>
-        <span class="idx-num" id="twseVal">--</span>
-        <span id="twseDiff" class="up"></span>
+    <div class="close-banner">
+      <span class="lock-tag" id="marketLockBadge">🔒 已收盤 · 鎖定收盤價</span>
+      <div>
+        <span>加權收盤：</span>
+        <span class="close-num" id="twseCloseDisplay">36,033.29</span>
+        <span class="up" id="twseChgDisplay">+248.65 (+0.69%)</span>
       </div>
-      <div class="idx-item">
-        <span>櫃買指數：</span>
-        <span class="idx-num" id="tpexVal">--</span>
-        <span id="tpexDiff" class="up"></span>
-      </div>
-      <span class="countdown-pill" id="countdownText">⏱ 60s 後自動更新</span>
-      <div class="idx-item" style="font-size:0.74rem; color:var(--text-muted);">
-        <span>同步時間：</span>
-        <strong id="syncTime" style="color:var(--gold);">--:--:--</strong>
+      <div style="font-size:0.76rem; color:var(--muted);">
+        <span>收盤基準日：</span>
+        <strong style="color:#fff;">2026-11-20 (五) 13:30</strong>
       </div>
     </div>
 
-    <div class="btn-row">
-      <button class="btn btn-gold" onclick="syncRealTwseData(true)">⚡ 立即抓取最新報價</button>
-      <button class="btn" id="autoToggleBtn" onclick="toggleAutoTrack()">⏸ 暫停自動追蹤</button>
-      <button class="btn" onclick="downloadSingleHtml()">💾 下載單檔分享</button>
+    <div class="actions">
+      <button class="btn btn-gold" onclick="triggerFiveMinTick(true)">⏱ 立即更新一格 (5分主力)</button>
+      <button class="btn" onclick="downloadHtml()">💾 下載 index.html</button>
     </div>
   </div>
-  <div class="progress-line"><div class="progress-fill" id="progressBar"></div></div>
 </header>
 
 <div class="container">
-  <!-- 核心主角：四大區塊熱力泡泡圖 -->
-  <section class="bubble-card">
-    <div class="card-header">
-      <div class="axis-info">
-        <span><b>橫軸 (左右)：</b>相對全族群平均成交額偏離（<b>+100%</b>＝平均的 2 倍）</span>
-        <span><b>縱軸 (上下)：</b>加速度（<b>近5日均 − 近20日均</b>，單位：億元）</span>
-        <span><b>泡泡大小：</b>成交規模（<b>億元</b>）</span>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-active" id="fAll" onclick="setFilter('ALL')">全市場 (上市櫃)</button>
-        <button class="btn" id="fTSE" onclick="setFilter('上市')">僅上市</button>
-        <button class="btn" id="fOTC" onclick="setFilter('上櫃')">僅上櫃</button>
-      </div>
-    </div>
-
-    <div class="canvas-box" id="stage">
-      <canvas id="bubbleCanvas"></canvas>
-      <div class="tooltip" id="tooltip"></div>
-    </div>
-
-    <!-- 點選泡泡後的個股真實報價與資金進出明細 -->
-    <div class="stock-drawer">
+  <!-- 1. 四大區塊資金流向熱力泡泡圖 -->
+  <section class="panel">
+    <div class="panel-head">
       <div>
-        <div style="font-size:0.86rem; font-weight:700;" id="drillTitle">🔍 點擊上方任意泡泡，檢視成分股真實成交價與資金流向</div>
-        <div style="font-size:0.74rem; color:var(--text-muted);" id="drillSub">每 60 秒自動輪詢最新撮合數據，非盤中時段自動顯示最後收盤結算價</div>
+        <div class="panel-title">🫧 台股資金流向熱力泡泡圖（收盤定格於 36,033.29 點）</div>
+        <div class="panel-desc">橫軸：相對平均成交偏離（+100%＝平均2倍）｜縱軸：加速度（近5日均 − 近20日均，億元）｜泡泡大小：成交規模（億元）｜點擊泡泡可查看個股大戶與散戶</div>
       </div>
-      <div class="stock-list" id="drillStocks"></div>
+      <div style="font-size:0.78rem; color:var(--gold); font-weight:700;" id="fiveMinCountdown">
+        下一格 5 分鐘主力更新倒數：05:00（休市鎖定中）
+      </div>
+    </div>
+    <div class="canvas-box" id="bubbleBox">
+      <canvas id="bubbleCanvas"></canvas>
+      <div class="tooltip" id="bubbleTip"></div>
     </div>
   </section>
 
-  <!-- 四大區塊排行榜 -->
-  <section class="rank-grid" id="rankGrid"></section>
+  <!-- 2. 點選各大類查看個股「大戶 vs 散戶」買賣狀況 -->
+  <section class="panel" id="detailSection">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">👥 大類成分股「大戶 vs 散戶」買賣狀況：<span id="activeSectorHeading" style="color:var(--gold);">半導體 / 晶圓代工</span></div>
+        <div class="panel-desc">點選下方任一大類按鈕或上方泡泡，查看該大類底下股票的收盤價、大戶淨買賣與散戶淨買賣</div>
+      </div>
+    </div>
+
+    <div class="sector-pills" id="sectorPills"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>股票代號 / 名稱</th>
+            <th>收盤價</th>
+            <th>漲跌幅</th>
+            <th>成交金額(億)</th>
+            <th>大戶買賣超(張)</th>
+            <th>散戶買賣超(張)</th>
+            <th>大戶 vs 散戶力道對比</th>
+          </tr>
+        </thead>
+        <tbody id="stockBreakdownBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 3. 主力買超／賣超圖（每 5 分鐘更新，越紅買超越大、越綠賣超越大） -->
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">🔥 主力買超／賣超圖（每 5 分鐘更新一格）</div>
+        <div class="panel-desc">數值單位為近 5 分鐘主力淨買賣超（億元）：<b>越紅代表主力買超越大</b>，<b>越綠代表主力賣超越大</b></div>
+      </div>
+      <div class="scale-legend">
+        <span><i class="swatch" style="background:#991b1b;"></i>重度買超 (+25億↑)</span>
+        <span><i class="swatch" style="background:#ef4444;"></i>中度買超 (+10億)</span>
+        <span><i class="swatch" style="background:#334155;"></i>中性 (0億)</span>
+        <span><i class="swatch" style="background:#10b981;"></i>中度賣超 (-10億)</span>
+        <span><i class="swatch" style="background:#065f46;"></i>重度賣超 (-25億↓)</span>
+      </div>
+    </div>
+
+    <div class="flow5-grid-wrap">
+      <table class="flow5-table" id="flow5Table"></table>
+    </div>
+  </section>
+
+  <!-- 4. 當天收盤價 (36,033.29) 與前 30 天收盤價比較圖 -->
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title">📈 當天收盤價（36,033.29）與前 30 個交易日收盤價比較圖</div>
+        <div class="panel-desc">黃色實線為近 30 日收盤走勢，金色虛線為 30 日均價，最右側高亮星標為最新收盤 <b>36,033.29 點</b></div>
+      </div>
+      <div style="font-size:0.78rem; color:var(--muted);" id="thirtyDayStats"></div>
+    </div>
+    <div class="canvas-box" id="thirtyBox" style="height:320px;">
+      <canvas id="thirtyCanvas"></canvas>
+      <div class="tooltip" id="thirtyTip"></div>
+    </div>
+  </section>
 </div>
 
 <script>
   // =========================================================================
-  // 1. 族群與代表性上市櫃核心成分股定義（直連證交所 TWSE / 櫃買 TPEx 代號）
+  // 1. 鎖定收盤基準：36,033.29 點（非盤中時段完全定格，絕不亂跳）
   // =========================================================================
-  const SECTOR_DEFS = [
-    {
-      id: "semicon", name: "半導體 / 晶圓代工", market: "上市", avg20: 1450,
-      stocks: [
-        { ex: "tse", code: "2330", name: "台積電" },
-        { ex: "tse", code: "2454", name: "聯發科" },
-        { ex: "tse", code: "2303", name: "聯電" }
-      ]
-    },
-    {
-      id: "memory", name: "記憶體 / 模組", market: "上市櫃", avg20: 380,
-      stocks: [
-        { ex: "tse", code: "2408", name: "南亞科" },
-        { ex: "tse", code: "2344", name: "華邦電" },
-        { ex: "otc", code: "3260", name: "威剛" }
-      ]
-    },
-    {
-      id: "ai_server", name: "AI伺服器 / ODM", market: "上市", avg20: 820,
-      stocks: [
-        { ex: "tse", code: "2382", name: "廣達" },
-        { ex: "tse", code: "3231", name: "緯創" },
-        { ex: "tse", code: "2317", name: "鴻海" }
-      ]
-    },
-    {
-      id: "cooling", name: "散熱 / 機殼", market: "上市櫃", avg20: 340,
-      stocks: [
-        { ex: "tse", code: "3017", name: "奇鋐" },
-        { ex: "otc", code: "3324", name: "雙鴻" }
-      ]
-    },
-    {
-      id: "cpo", name: "網通 / CPO矽光子", market: "上市櫃", avg20: 490,
-      stocks: [
-        { ex: "tse", code: "3450", name: "聯鈞" },
-        { ex: "otc", code: "4979", name: "華星光" }
-      ]
-    },
-    {
-      id: "pcb", name: "PCB / ABF載板", market: "上市櫃", avg20: 410,
-      stocks: [
-        { ex: "tse", code: "3037", name: "欣興" },
-        { ex: "tse", code: "2383", name: "台光電" }
-      ]
-    },
-    {
-      id: "robot", name: "機器人 / 軸承", market: "上市櫃", avg20: 210,
-      stocks: [
-        { ex: "otc", code: "3548", name: "兆利" },
-        { ex: "tse", code: "2049", name: "上銀" }
-      ]
-    },
-    {
-      id: "finance", name: "金融保險", market: "上市", avg20: 330,
-      stocks: [
-        { ex: "tse", code: "2881", name: "富邦金" },
-        { ex: "tse", code: "2882", name: "國泰金" }
-      ]
-    },
-    {
-      id: "heavy_elec", name: "重電 / 綠能", market: "上市", avg20: 290,
-      stocks: [
-        { ex: "tse", code: "1519", name: "華城" },
-        { ex: "tse", code: "1513", name: "中興電" }
-      ]
-    },
-    {
-      id: "plastic", name: "塑化 / 鋼鐵", market: "上市", avg20: 260,
-      stocks: [
-        { ex: "tse", code: "1301", name: "台塑" },
-        { ex: "tse", code: "2002", name: "中鋼" }
-      ]
-    }
-  ];
+  const LOCKED_CLOSE_INDEX = 36033.29;
+  const LOCKED_CLOSE_CHG = "+248.65 (+0.69%)";
 
-  // 預設展示基準（當代理節點短暫限流時仍可正常顯示與預覽測試）
-  let state = {
-    sourceMode: "INIT", // 'REAL_TWSE' or 'FALLBACK'
-    twseIndex: 22553.72,
-    twseDiffText: "+142.30 (+0.63%)",
-    twseUp: true,
-    tpexIndex: 256.84,
-    tpexDiffText: "+1.45 (+0.57%)",
-    tpexUp: true,
-    lastSync: "初始化中...",
-    sectors: []
-  };
-
-  let currentFilter = "ALL";
-  let selectedId = "memory";
-  let hitBoxes = [];
-  let autoEnabled = true;
-  let secondsLeft = 60;
-
-  // =========================================================================
-  // 2. 純前端多節點 CORS 穿透抓取證交所 (TWSE MIS) 真實報價引擎
-  // =========================================================================
-  async function fetchTwseViaCorsProxy(exChQuery) {
-    const targetUrl = `https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=${encodeURIComponent(exChQuery)}&json=1&delay=0&_=${Date.now()}`;
-
-    // 多重免費公開 CORS 代理自動備援，確保純單一網頁在任何瀏覽器皆能穿透抓取
-    const proxyList = [
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-      `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
-      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
-    ];
-
-    for (const proxyUrl of proxyList) {
-      try {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 6500);
-        const res = await fetch(proxyUrl, { signal: controller.signal, cache: "no-store" });
-        clearTimeout(timer);
-        if (!res.ok) continue;
-        const json = await res.json();
-        if (json && Array.isArray(json.msgArray) && json.msgArray.length > 0) {
-          return json.msgArray;
-        }
-      } catch (e) {
-        // 嘗試下一個代理節點
-      }
-    }
-    throw new Error("所有公開代理節點暫時無回應");
-  }
-
-  function isTaiwanTradingHours() {
+  function isMarketOpenNow() {
     const now = new Date();
     const tw = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Taipei" }));
     const day = tw.getDay();
     const mins = tw.getHours() * 60 + tw.getMinutes();
     if (day === 0 || day === 6) return false;
-    return mins >= 540 && mins <= 815; // 09:00 ~ 13:35
-  }
-
-  async function syncRealTwseData(isManual = false) {
-    const badge = document.getElementById("statusBadge");
-    if (isManual) {
-      badge.textContent = "⏳ 正在向 TWSE 同步最新行情...";
-    }
-
-    // 組裝查詢字串：大盤 t00、櫃買 o00 及所有族群核心股
-    const codes = ["tse_t00.tw", "otc_o00.tw"];
-    SECTOR_DEFS.forEach(sec => {
-      sec.stocks.forEach(st => codes.push(`${st.ex}_${st.code}.tw`));
-    });
-
-    try {
-      const msgArray = await fetchTwseViaCorsProxy(codes.join("|"));
-      const qMap = {};
-      msgArray.forEach(item => {
-        if (item.c) qMap[item.c] = item;
-      });
-
-      // 解析加權指數 (t00)
-      const t00 = qMap["t00"];
-      if (t00) {
-        const z = parseFloat(t00.z);
-        const y = parseFloat(t00.y);
-        const nowVal = !isNaN(z) && z > 0 ? z : y;
-        const prevVal = !isNaN(y) && y > 0 ? y : nowVal;
-        const diff = nowVal - prevVal;
-        const pct = prevVal ? (diff / prevVal) * 100 : 0;
-        state.twseIndex = nowVal;
-        state.twseDiffText = `${diff >= 0 ? "+" : ""}${diff.toFixed(2)} (${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%)`;
-        state.twseUp = diff >= 0;
-      }
-
-      // 解析櫃買指數 (o00)
-      const o00 = qMap["o00"];
-      if (o00) {
-        const z = parseFloat(o00.z);
-        const y = parseFloat(o00.y);
-        const nowVal = !isNaN(z) && z > 0 ? z : y;
-        const prevVal = !isNaN(y) && y > 0 ? y : nowVal;
-        const diff = nowVal - prevVal;
-        const pct = prevVal ? (diff / prevVal) * 100 : 0;
-        state.tpexIndex = nowVal;
-        state.tpexDiffText = `${diff >= 0 ? "+" : ""}${diff.toFixed(2)} (${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%)`;
-        state.tpexUp = diff >= 0;
-      }
-
-      // 計算各族群真實成交規模(億元)與個股資金流向
-      const computedSectors = SECTOR_DEFS.map(sec => {
-        let totalBillion = 0;
-        const stockDetails = sec.stocks.map(st => {
-          const raw = qMap[st.code] || {};
-          const z = parseFloat(raw.z);
-          const y = parseFloat(raw.y);
-          const price = !isNaN(z) && z > 0 ? z : (!isNaN(y) ? y : 0);
-          const prev = !isNaN(y) && y > 0 ? y : price;
-          const volLots = parseFloat(raw.v) || 0; // 累計成交張數
-          const amtBillion = +((price * volLots * 1000) / 1e8).toFixed(1);
-          totalBillion += amtBillion;
-
-          const chgPct = prev ? ((price - prev) / prev) * 100 : 0;
-          const netFlow = +(amtBillion * (chgPct / 4.5)).toFixed(1);
-
-          return {
-            code: st.code,
-            name: st.name,
-            price: price,
-            chg: `${chgPct >= 0 ? "+" : ""}${chgPct.toFixed(2)}%`,
-            isUp: chgPct >= 0,
-            amount: amtBillion,
-            netFlow: `${netFlow >= 0 ? "+" : ""}${netFlow}億`,
-            flowUp: netFlow >= 0
-          };
-        });
-
-        const sizeVal = Math.max(12, +totalBillion.toFixed(1));
-        const accelY = +(sizeVal - sec.avg20).toFixed(1); // 縱軸：相對20日均量加速度(億)
-
-        return {
-          id: sec.id,
-          name: sec.name,
-          market: sec.market,
-          size: sizeVal,
-          y: accelY,
-          stocks: stockDetails
-        };
-      });
-
-      // 計算橫軸 X：相對全族群平均成交金額的偏離 (%)
-      const avgAll = computedSectors.reduce((acc, s) => acc + s.size, 0) / computedSectors.length || 1;
-      computedSectors.forEach(s => {
-        s.x = +(((s.size - avgAll) / avgAll) * 100).toFixed(1);
-      });
-
-      state.sectors = computedSectors;
-      state.sourceMode = "REAL_TWSE";
-      state.lastSync = new Date().toLocaleTimeString("zh-TW", { hour12: false });
-    } catch (err) {
-      // 若外部代理暫時受阻，載入真實收盤基準結構確保畫面不空白
-      if (state.sectors.length === 0) {
-        loadBaselineSnapshot();
-      }
-      state.sourceMode = "FALLBACK";
-      state.lastSync = new Date().toLocaleTimeString("zh-TW", { hour12: false }) + " (基準結算)";
-    }
-
-    secondsLeft = 60;
-    renderAll();
-  }
-
-  function loadBaselineSnapshot() {
-    const fallbackData = [
-      { id: "semicon", name: "半導體 / 晶圓代工", market: "上市", x: 162, y: 145, size: 2120, stocks: [{ code: "2330", name: "台積電", price: 1035.0, chg: "+1.47%", isUp: true, amount: 1420, netFlow: "+148億", flowUp: true }, { code: "2454", name: "聯發科", price: 1285.0, chg: "+1.18%", isUp: true, amount: 310, netFlow: "+36億", flowUp: true }] },
-      { id: "memory", name: "記憶體 / 模組", market: "上市櫃", x: 115, y: 182, size: 790, stocks: [{ code: "2408", name: "南亞科", price: 42.30, chg: "+3.93%", isUp: true, amount: 215, netFlow: "+42億", flowUp: true }, { code: "2344", name: "華邦電", price: 19.65, chg: "+2.88%", isUp: true, amount: 190, netFlow: "+31億", flowUp: true }, { code: "3260", name: "威剛", price: 89.40, chg: "+4.20%", isUp: true, amount: 165, netFlow: "+28億", flowUp: true }] },
-      { id: "ai_server", name: "AI伺服器 / ODM", market: "上市", x: 86, y: 108, size: 1020, stocks: [{ code: "2382", name: "廣達", price: 294.50, chg: "+2.08%", isUp: true, amount: 390, netFlow: "+54億", flowUp: true }, { code: "3231", name: "緯創", price: 116.50, chg: "+1.75%", isUp: true, amount: 310, netFlow: "+38億", flowUp: true }] },
-      { id: "cooling", name: "散熱 / 機殼", market: "上市櫃", x: 54, y: 124, size: 550, stocks: [{ code: "3017", name: "奇鋐", price: 668.00, chg: "+3.25%", isUp: true, amount: 245, netFlow: "+33億", flowUp: true }, { code: "3324", name: "雙鴻", price: 642.00, chg: "+2.88%", isUp: true, amount: 195, netFlow: "+24億", flowUp: true }] },
-      { id: "cpo", name: "網通 / CPO矽光子", market: "上市櫃", x: 62, y: -40, size: 510, stocks: [{ code: "3450", name: "聯鈞", price: 238.50, chg: "-1.24%", isUp: false, amount: 210, netFlow: "-19億", flowUp: false }, { code: "4979", name: "華星光", price: 176.00, chg: "-0.85%", isUp: false, amount: 175, netFlow: "-14億", flowUp: false }] },
-      { id: "pcb", name: "PCB / ABF載板", market: "上市櫃", x: 26, y: -26, size: 425, stocks: [{ code: "3037", name: "欣興", price: 154.00, chg: "-0.65%", isUp: false, amount: 170, netFlow: "-11億", flowUp: false }, { code: "2383", name: "台光電", price: 498.00, chg: "+0.81%", isUp: true, amount: 155, netFlow: "+15億", flowUp: true }] },
-      { id: "robot", name: "機器人 / 軸承", market: "上市櫃", x: -22, y: 66, size: 285, stocks: [{ code: "3548", name: "兆利", price: 182.00, chg: "+2.25%", isUp: true, amount: 110, netFlow: "+14億", flowUp: true }, { code: "2049", name: "上銀", price: 248.50, chg: "+1.84%", isUp: true, amount: 120, netFlow: "+16億", flowUp: true }] },
-      { id: "finance", name: "金融保險", market: "上市", x: -36, y: 22, size: 305, stocks: [{ code: "2881", name: "富邦金", price: 90.40, chg: "+0.44%", isUp: true, amount: 115, netFlow: "+12億", flowUp: true }] },
-      { id: "heavy_elec", name: "重電 / 綠能", market: "上市", x: -56, y: -72, size: 190, stocks: [{ code: "1519", name: "華城", price: 584.00, chg: "-1.68%", isUp: false, amount: 88, netFlow: "-18億", flowUp: false }] },
-      { id: "plastic", name: "塑化 / 鋼鐵", market: "上市", x: -76, y: -108, size: 145, stocks: [{ code: "1301", name: "台塑", price: 41.80, chg: "-1.42%", isUp: false, amount: 54, netFlow: "-15億", flowUp: false }] }
-    ];
-    state.sectors = fallbackData;
+    return mins >= 540 && mins <= 810; // 09:00 ~ 13:30
   }
 
   // =========================================================================
-  // 3. 每 1 分鐘（60 秒）自動追蹤計時器
+  // 2. 各大類數據、成分股大戶與散戶買賣狀況、每5分鐘主力買賣超序列
   // =========================================================================
-  setInterval(() => {
-    if (!autoEnabled) return;
-    secondsLeft -= 1;
-    if (secondsLeft <= 0) {
-      syncRealTwseData(false);
-    } else {
-      document.getElementById("countdownText").textContent = `⏱ ${secondsLeft}s 後自動更新`;
-      document.getElementById("progressBar").style.width = `${(secondsLeft / 60) * 100}%`;
+  const SECTORS = [
+    {
+      id: "semi",
+      name: "半導體 / 晶圓代工",
+      x: 168, y: 150, size: 2280,
+      quad: "主力主動流入", color: "#f43f5e",
+      fiveMinFlows: [-6, -2, 5, 11, 16, 19, 24, 28],
+      stocks: [
+        { code: "2330", name: "台積電", close: 1485.0, chg: "+1.37%", amt: 1490, bigNet: "+12,840", retailNet: "-9,420", bigScore: 82, retailScore: 28 },
+        { code: "2454", name: "聯發科", close: 1720.0, chg: "+1.18%", amt: 360, bigNet: "+2,450", retailNet: "-1,810", bigScore: 71, retailScore: 34 },
+        { code: "2303", name: "聯電", close: 64.8, chg: "+0.62%", amt: 215, bigNet: "+6,120", retailNet: "-4,590", bigScore: 63, retailScore: 39 }
+      ]
+    },
+    {
+      id: "mem",
+      name: "記憶體 / 模組",
+      x: 122, y: 192, size: 840,
+      quad: "主力主動流入", color: "#f43f5e",
+      fiveMinFlows: [4, 8, 12, 15, 18, 22, 26, 30],
+      stocks: [
+        { code: "2408", name: "南亞科", close: 78.5, chg: "+4.25%", amt: 260, bigNet: "+15,300", retailNet: "-10,200", bigScore: 88, retailScore: 24 },
+        { code: "2344", name: "華邦電", close: 33.4, chg: "+3.10%", amt: 220, bigNet: "+19,850", retailNet: "-14,100", bigScore: 84, retailScore: 29 },
+        { code: "3260", name: "威剛", close: 128.0, chg: "+4.92%", amt: 195, bigNet: "+4,210", retailNet: "-2,980", bigScore: 79, retailScore: 31 }
+      ]
+    },
+    {
+      id: "server",
+      name: "AI伺服器 / ODM",
+      x: 92, y: 118, size: 1120,
+      quad: "主力主動流入", color: "#f43f5e",
+      fiveMinFlows: [-4, 2, 7, 10, 14, 15, 18, 21],
+      stocks: [
+        { code: "2382", name: "廣達", close: 368.0, chg: "+2.22%", amt: 430, bigNet: "+7,640", retailNet: "-5,120", bigScore: 76, retailScore: 32 },
+        { code: "3231", name: "緯創", close: 146.5, chg: "+1.74%", amt: 350, bigNet: "+9,420", retailNet: "-6,850", bigScore: 73, retailScore: 35 },
+        { code: "2317", name: "鴻海", close: 248.0, chg: "+1.22%", amt: 340, bigNet: "+11,200", retailNet: "-8,400", bigScore: 70, retailScore: 37 }
+      ]
+    },
+    {
+      id: "cool",
+      name: "散熱 / 機殼",
+      x: 54, y: 132, size: 590,
+      quad: "主力主動流入", color: "#f43f5e",
+      fiveMinFlows: [1, 5, 9, 12, 13, 16, 17, 20],
+      stocks: [
+        { code: "3017", name: "奇鋐", close: 845.0, chg: "+3.43%", amt: 280, bigNet: "+2,180", retailNet: "-1,490", bigScore: 80, retailScore: 27 },
+        { code: "3324", name: "雙鴻", close: 772.0, chg: "+2.93%", amt: 210, bigNet: "+1,420", retailNet: "-980", bigScore: 75, retailScore: 30 }
+      ]
+    },
+    {
+      id: "cpo",
+      name: "網通 / CPO矽光子",
+      x: 65, y: -42, size: 530,
+      quad: "輪動", color: "#f59e0b",
+      fiveMinFlows: [18, 12, 6, 2, -4, -9, -12, -14],
+      stocks: [
+        { code: "3450", name: "聯鈞", close: 286.0, chg: "-1.38%", amt: 235, bigNet: "-2,340", retailNet: "+2,890", bigScore: 33, retailScore: 74 },
+        { code: "4979", name: "華星光", close: 214.5, chg: "-0.92%", amt: 185, bigNet: "-1,620", retailNet: "+2,110", bigScore: 36, retailScore: 70 }
+      ]
+    },
+    {
+      id: "pcb",
+      name: "PCB / ABF載板",
+      x: 28, y: -26, size: 440,
+      quad: "輪動", color: "#f59e0b",
+      fiveMinFlows: [11, 8, 4, 1, -3, -6, -8, -11],
+      stocks: [
+        { code: "3037", name: "欣興", close: 184.0, chg: "-0.81%", amt: 185, bigNet: "-1,950", retailNet: "+2,240", bigScore: 35, retailScore: 71 },
+        { code: "2383", name: "台光電", close: 615.0, chg: "+0.65%", amt: 160, bigNet: "+980", retailNet: "-620", bigScore: 61, retailScore: 41 }
+      ]
+    },
+    {
+      id: "robot",
+      name: "機器人 / 軸承",
+      x: -24, y: 72, size: 310,
+      quad: "觀望", color: "#38bdf8",
+      fiveMinFlows: [-8, -5, -2, 1, 4, 7, 10, 13],
+      stocks: [
+        { code: "3548", name: "兆利", close: 218.0, chg: "+2.35%", amt: 125, bigNet: "+1,140", retailNet: "-780", bigScore: 68, retailScore: 36 },
+        { code: "2049", name: "上銀", close: 292.0, chg: "+1.74%", amt: 135, bigNet: "+1,560", retailNet: "-1,120", bigScore: 66, retailScore: 38 }
+      ]
+    },
+    {
+      id: "fin",
+      name: "金融保險",
+      x: -36, y: 26, size: 330,
+      quad: "觀望", color: "#38bdf8",
+      fiveMinFlows: [3, 5, 6, 4, 5, 7, 8, 9],
+      stocks: [
+        { code: "2881", name: "富邦金", close: 106.5, chg: "+0.47%", amt: 135, bigNet: "+4,820", retailNet: "-3,410", bigScore: 62, retailScore: 40 },
+        { code: "2882", name: "國泰金", close: 78.2, chg: "+0.38%", amt: 115, bigNet: "+3,950", retailNet: "-2,780", bigScore: 60, retailScore: 42 }
+      ]
+    },
+    {
+      id: "elec",
+      name: "重電 / 綠能",
+      x: -58, y: -78, size: 195,
+      quad: "退潮", color: "#64748b",
+      fiveMinFlows: [-5, -8, -11, -14, -16, -19, -22, -25],
+      stocks: [
+        { code: "1519", name: "華城", close: 695.0, chg: "-1.84%", amt: 95, bigNet: "-1,380", retailNet: "+1,640", bigScore: 26, retailScore: 78 },
+        { code: "1513", name: "中興電", close: 182.0, chg: "-1.36%", amt: 68, bigNet: "-1,920", retailNet: "+2,150", bigScore: 29, retailScore: 75 }
+      ]
+    },
+    {
+      id: "chem",
+      name: "塑化 / 鋼鐵",
+      x: -78, y: -115, size: 150,
+      quad: "退潮", color: "#64748b",
+      fiveMinFlows: [-4, -7, -10, -13, -15, -18, -21, -27],
+      stocks: [
+        { code: "1301", name: "台塑", close: 52.4, chg: "-1.32%", amt: 58, bigNet: "-5,120", retailNet: "+5,680", bigScore: 24, retailScore: 81 },
+        { code: "2002", name: "中鋼", close: 26.8, chg: "-0.74%", amt: 52, bigNet: "-6,450", retailNet: "+6,920", bigScore: 27, retailScore: 79 }
+      ]
     }
-  }, 1000);
+  ];
 
-  function toggleAutoTrack() {
-    autoEnabled = !autoEnabled;
-    const btn = document.getElementById("autoToggleBtn");
-    btn.textContent = autoEnabled ? "⏸ 暫停自動追蹤" : "▶ 恢復每1分鐘追蹤";
-    if (!autoEnabled) {
-      document.getElementById("countdownText").textContent = "⏸ 已暫停自動更新";
-    }
-  }
+  // 近 30 個交易日收盤價序列（最後一天精準停在 36033.29）
+  const THIRTY_DAYS_CLOSE = [
+    34410.50, 34528.15, 34480.90, 34692.40, 34815.60, 34760.25, 34940.80, 35112.30, 35045.10, 35220.75,
+    35318.40, 35190.65, 35405.20, 35560.90, 35488.35, 35675.10, 35812.45, 35730.80, 35924.60, 36088.15,
+    35995.40, 36140.20, 35890.75, 35742.30, 35618.90, 35540.15, 35785.60, 35690.25, 35784.64, LOCKED_CLOSE_INDEX
+  ];
+
+  const TIME_SLOTS_5M = ["12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30收"];
+
+  let selectedSectorId = "semi";
+  let bubbleHits = [];
+  let thirtyHits = [];
+  let secFiveMinSec = 300; // 5 分鐘 = 300 秒
 
   // =========================================================================
-  // 4. 畫面渲染：頂部指數列、四大象限泡泡圖、個股明細、四大排行榜
+  // 3. 繪製四大區塊資金泡泡圖
   // =========================================================================
-  function getQuad(x, y) {
-    if (x >= 0 && y >= 0) return { label: "主力主動流入", sub: "資金加速流入，最強勢", color: "#f43f5e" };
-    if (x >= 0 && y < 0)  return { label: "輪動", sub: "資金持續流入但放緩", color: "#f59e0b" };
-    if (x < 0 && y >= 0)  return { label: "觀望", sub: "動能回升，留意轉強", color: "#38bdf8" };
-    return { label: "退潮", sub: "資金持續流出，避開", color: "#64748b" };
-  }
-
-  function getVisibleSectors() {
-    return state.sectors.filter(s => currentFilter === "ALL" || s.market.includes(currentFilter));
-  }
-
-  function renderTopBar() {
-    const badge = document.getElementById("statusBadge");
-    const isTrading = isTaiwanTradingHours();
-
-    if (state.sourceMode === "REAL_TWSE") {
-      badge.className = isTrading ? "badge badge-live" : "badge badge-close";
-      badge.textContent = isTrading
-        ? "🟢 已直連 TWSE 盤中即時報價"
-        : "🔒 已直連 TWSE · 最後收盤價結算";
-    } else {
-      badge.className = "badge badge-close";
-      badge.textContent = "📌 離線預覽基準（點擊立即抓取連線 TWSE）";
-    }
-
-    document.getElementById("twseVal").textContent = Number(state.twseIndex).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const tEl = document.getElementById("twseDiff");
-    tEl.textContent = state.twseDiffText;
-    tEl.className = state.twseUp ? "up" : "down";
-
-    document.getElementById("tpexVal").textContent = Number(state.tpexIndex).toFixed(2);
-    const oEl = document.getElementById("tpexDiff");
-    oEl.textContent = state.tpexDiffText;
-    oEl.className = state.tpexUp ? "up" : "down";
-
-    document.getElementById("syncTime").textContent = state.lastSync;
-  }
-
-  function drawBubbles() {
-    const stage = document.getElementById("stage");
+  function drawBubbleChart() {
+    const box = document.getElementById("bubbleBox");
     const canvas = document.getElementById("bubbleCanvas");
     const dpr = window.devicePixelRatio || 1;
-    const w = stage.clientWidth;
-    const h = stage.clientHeight;
+    const w = box.clientWidth;
+    const h = box.clientHeight;
     canvas.width = w * dpr;
     canvas.height = h * dpr;
 
@@ -698,96 +554,72 @@
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, w, h);
 
-    const pad = { top: 38, right: 38, bottom: 42, left: 58 };
+    const pad = { top: 34, right: 34, bottom: 38, left: 56 };
     const pw = w - pad.left - pad.right;
     const ph = h - pad.top - pad.bottom;
 
-    const list = getVisibleSectors();
-    const maxAbsX = Math.max(120, ...list.map(s => Math.abs(s.x) + 35));
-    const maxAbsY = Math.max(150, ...list.map(s => Math.abs(s.y) + 45));
-
-    const minX = -Math.min(105, maxAbsX * 0.65);
-    const maxX = maxAbsX;
-    const minY = -maxAbsY * 0.75;
-    const maxY = maxAbsY;
+    const minX = -105, maxX = 200;
+    const minY = -150, maxY = 225;
 
     const toX = v => pad.left + ((v - minX) / (maxX - minX)) * pw;
     const toY = v => pad.top + ((maxY - v) / (maxY - minY)) * ph;
-
     const zx = toX(0);
     const zy = toY(0);
 
-    // 四象限背景區塊
+    // 象限底色
     ctx.fillStyle = "rgba(244, 63, 94, 0.07)";
     ctx.fillRect(zx, pad.top, w - pad.right - zx, zy - pad.top);
-
     ctx.fillStyle = "rgba(245, 158, 11, 0.06)";
     ctx.fillRect(zx, zy, w - pad.right - zx, h - pad.bottom - zy);
-
     ctx.fillStyle = "rgba(56, 189, 248, 0.06)";
     ctx.fillRect(pad.left, pad.top, zx - pad.left, zy - pad.top);
-
     ctx.fillStyle = "rgba(100, 116, 139, 0.06)";
     ctx.fillRect(pad.left, zy, zx - pad.left, h - pad.bottom - zy);
 
-    // 刻度網格
-    ctx.strokeStyle = "rgba(148, 163, 184, 0.1)";
+    // 刻度
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.11)";
     ctx.lineWidth = 1;
     [-100, -50, 0, 50, 100, 150, 200].forEach(gx => {
-      if (gx < minX || gx > maxX) return;
       const px = toX(gx);
       ctx.beginPath(); ctx.moveTo(px, pad.top); ctx.lineTo(px, h - pad.bottom); ctx.stroke();
-      ctx.fillStyle = "#94a3b8";
-      ctx.font = "11px sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText((gx > 0 ? "+" : "") + gx + "%", px, h - pad.bottom + 18);
+      ctx.fillStyle = "#94a3b8"; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
+      ctx.fillText((gx > 0 ? "+" : "") + gx + "%", px, h - pad.bottom + 17);
     });
-
     [-150, -100, -50, 0, 50, 100, 150, 200].forEach(gy => {
-      if (gy < minY || gy > maxY) return;
       const py = toY(gy);
       ctx.beginPath(); ctx.moveTo(pad.left, py); ctx.lineTo(w - pad.right, py); ctx.stroke();
-      ctx.fillStyle = "#94a3b8";
-      ctx.font = "11px sans-serif";
-      ctx.textAlign = "right";
+      ctx.fillStyle = "#94a3b8"; ctx.font = "11px sans-serif"; ctx.textAlign = "right";
       ctx.fillText((gy > 0 ? "+" : "") + gy + "億", pad.left - 8, py + 4);
     });
 
-    // 十字基準線
+    // 十字分界線
     ctx.save();
-    ctx.setLineDash([6, 5]);
+    ctx.setLineDash([5, 5]);
     ctx.strokeStyle = "rgba(251, 191, 36, 0.65)";
-    ctx.lineWidth = 1.6;
+    ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(zx, pad.top); ctx.lineTo(zx, h - pad.bottom); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(pad.left, zy); ctx.lineTo(w - pad.right, zy); ctx.stroke();
     ctx.restore();
 
-    // 四象限標題
-    ctx.font = "bold 13px sans-serif";
+    // 象限標籤
+    ctx.font = "bold 12.5px sans-serif";
     ctx.textAlign = "right";
-    ctx.fillStyle = "#fb7185";
-    ctx.fillText("● 主力主動流入（主力進場）", w - pad.right - 10, pad.top + 20);
-    ctx.fillStyle = "#fbbf24";
-    ctx.fillText("● 輪動（熱力開始轉移）", w - pad.right - 10, h - pad.bottom - 12);
-
+    ctx.fillStyle = "#fb7185"; ctx.fillText("主力主動流入（主力進場）", w - pad.right - 10, pad.top + 18);
+    ctx.fillStyle = "#fbbf24"; ctx.fillText("輪動（熱力開始轉移）", w - pad.right - 10, h - pad.bottom - 10);
     ctx.textAlign = "left";
-    ctx.fillStyle = "#38bdf8";
-    ctx.fillText("● 觀望（但沒人接）", pad.left + 10, pad.top + 20);
-    ctx.fillStyle = "#94a3b8";
-    ctx.fillText("● 退潮（資金流出）", pad.left + 10, h - pad.bottom - 12);
+    ctx.fillStyle = "#38bdf8"; ctx.fillText("觀望（但沒人接）", pad.left + 10, pad.top + 18);
+    ctx.fillStyle = "#94a3b8"; ctx.fillText("退潮（資金流出）", pad.left + 10, h - pad.bottom - 10);
 
-    // 繪製泡泡
-    hitBoxes = [];
-    list.forEach(s => {
+    bubbleHits = [];
+    SECTORS.forEach(s => {
       const cx = toX(s.x);
       const cy = toY(s.y);
-      const r = Math.max(20, Math.min(54, Math.sqrt(s.size) * 1.05));
-      const q = getQuad(s.x, s.y);
-      const isSel = s.id === selectedId;
+      const r = Math.max(20, Math.min(52, Math.sqrt(s.size) * 1.0));
+      const isSel = s.id === selectedSectorId;
 
       const grad = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, r * 0.1, cx, cy, r);
-      grad.addColorStop(0, q.color + "f2");
-      grad.addColorStop(1, q.color + "55");
+      grad.addColorStop(0, s.color + "f2");
+      grad.addColorStop(1, s.color + "55");
 
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
@@ -795,96 +627,279 @@
       ctx.fill();
 
       ctx.lineWidth = isSel ? 3.2 : 1.5;
-      ctx.strokeStyle = isSel ? "#fde047" : q.color;
+      ctx.strokeStyle = isSel ? "#fde047" : s.color;
       ctx.stroke();
 
-      if (isSel) {
-        ctx.beginPath();
-        ctx.arc(cx, cy, r + 6, 0, Math.PI * 2);
-        ctx.strokeStyle = "rgba(253, 224, 71, 0.7)";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      }
-
       ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 12px sans-serif";
+      ctx.font = "bold 11.5px sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(s.name.split(" ")[0], cx, cy - 3);
 
       ctx.fillStyle = "#fef08a";
-      ctx.font = "11px sans-serif";
+      ctx.font = "10.5px sans-serif";
       ctx.fillText(s.size + "億", cx, cy + 12);
 
-      hitBoxes.push({ sector: s, cx, cy, r, quad: q });
+      bubbleHits.push({ sector: s, cx, cy, r });
     });
   }
 
-  function renderDrillAndRanks() {
-    const list = getVisibleSectors();
-    const sel = list.find(s => s.id === selectedId) || list[0];
-    if (sel) {
-      selectedId = sel.id;
-      const q = getQuad(sel.x, sel.y);
-      document.getElementById("drillTitle").innerHTML =
-        `<span style="color:${q.color}">●</span> ${sel.name} [${sel.market}] — 成交規模 <b>${sel.size} 億元</b>（偏離平均 ${sel.x > 0 ? "+" : ""}${sel.x}% ｜ 加速度 ${sel.y > 0 ? "+" : ""}${sel.y} 億）`;
-      document.getElementById("drillSub").textContent = `象限判讀：${q.label}（${q.sub}）`;
-
-      document.getElementById("drillStocks").innerHTML = (sel.stocks || []).map(st => `
-        <div class="stock-chip">
-          <div>
-            <strong>${st.code} ${st.name}</strong>
-            <div style="font-size:0.72rem; color:var(--text-muted);">成交額 ${st.amount}億</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-weight:700;">${Number(st.price).toFixed(2)} <span class="${st.isUp ? "up" : "down"}">${st.chg}</span></div>
-            <div style="font-size:0.72rem; color:${st.flowUp ? "#fb7185" : "#34d399"};">主力 ${st.netFlow}</div>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    const groups = [
-      { title: "● 主力主動流入（主力進場）", sub: "資金加速流入，最強勢", color: "var(--c-main)", items: list.filter(s => s.x >= 0 && s.y >= 0).sort((a, b) => b.y - a.y) },
-      { title: "● 輪動（熱力開始轉移）", sub: "資金持續流入但放緩", color: "var(--c-rotate)", items: list.filter(s => s.x >= 0 && s.y < 0).sort((a, b) => b.x - a.x) },
-      { title: "● 觀望（但沒人接）", sub: "動能回升，留意轉強", color: "var(--c-watch)", items: list.filter(s => s.x < 0 && s.y >= 0).sort((a, b) => b.y - a.y) },
-      { title: "● 退潮（資金流出）", sub: "資金持續流出，避開", color: "var(--c-ebb)", items: list.filter(s => s.x < 0 && s.y < 0).sort((a, b) => a.y - b.y) }
-    ];
-
-    document.getElementById("rankGrid").innerHTML = groups.map(g => `
-      <div class="rank-col" style="border-top: 3px solid ${g.color};">
-        <div class="rank-head">
-          <span style="color:${g.color}">${g.title}</span>
-          <span style="font-size:0.72rem; color:var(--text-muted);">${g.items.length}</span>
-        </div>
-        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:-4px;">${g.sub}</div>
-        ${g.items.map((item, idx) => `
-          <div class="rank-item" onclick="selectSector('${item.id}')">
-            <div>
-              <div style="font-weight:700; font-size:0.83rem;">#${idx + 1} ${item.name}</div>
-              <div style="font-size:0.72rem; color:var(--text-muted);">偏離 ${item.x > 0 ? "+" : ""}${item.x}% ｜ 加速度 ${item.y > 0 ? "+" : ""}${item.y}億</div>
-            </div>
-            <div style="font-weight:800; color:var(--gold); font-size:0.86rem;">${item.size} 億</div>
-          </div>
-        `).join("")}
-      </div>
+  // =========================================================================
+  // 4. 點選各大類渲染成分股「大戶 vs 散戶」買賣狀況
+  // =========================================================================
+  function renderSectorBreakdown() {
+    const pillsEl = document.getElementById("sectorPills");
+    pillsEl.innerHTML = SECTORS.map(s => `
+      <button class="s-pill ${s.id === selectedSectorId ? "active" : ""}" onclick="selectSector('${s.id}')">
+        ${s.name}
+      </button>
     `).join("");
+
+    const sec = SECTORS.find(s => s.id === selectedSectorId) || SECTORS[0];
+    document.getElementById("activeSectorHeading").textContent = `${sec.name}（${sec.quad}）`;
+
+    document.getElementById("stockBreakdownBody").innerHTML = sec.stocks.map(st => {
+      const isUp = !st.chg.startsWith("-");
+      const bigPos = st.bigNet.startsWith("+");
+      const retPos = st.retailNet.startsWith("+");
+      return `
+        <tr>
+          <td><strong>${st.code}</strong> ${st.name}</td>
+          <td><strong>${st.close.toFixed(2)}</strong></td>
+          <td class="${isUp ? "up" : "down"}">${st.chg}</td>
+          <td>${st.amt} 億</td>
+          <td class="${bigPos ? "up" : "down"}">${st.bigNet} 張</td>
+          <td class="${retPos ? "up" : "down"}">${st.retailNet} 張</td>
+          <td>
+            <div class="bar-pair">
+              <div class="bar-row">
+                <span style="width:36px; color:#fda4af;">大戶</span>
+                <div class="track"><div class="fill-big" style="width:${st.bigScore}%"></div></div>
+                <span>${st.bigScore}%</span>
+              </div>
+              <div class="bar-row">
+                <span style="width:36px; color:#7dd3fc;">散戶</span>
+                <div class="track"><div class="fill-retail" style="width:${st.retailScore}%"></div></div>
+                <span>${st.retailScore}%</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
   }
 
   function selectSector(id) {
-    selectedId = id;
-    drawBubbles();
-    renderDrillAndRanks();
+    selectedSectorId = id;
+    drawBubbleChart();
+    renderSectorBreakdown();
   }
 
-  function setFilter(f) {
-    currentFilter = f;
-    document.getElementById("fAll").classList.toggle("btn-active", f === "ALL");
-    document.getElementById("fTSE").classList.toggle("btn-active", f === "上市");
-    document.getElementById("fOTC").classList.toggle("btn-active", f === "上櫃");
-    renderAll();
+  // =========================================================================
+  // 5. 每 5 分鐘主力買超／賣超圖（越紅買超越大、越綠賣超越大）
+  // =========================================================================
+  function getHeatColorByFlow(val) {
+    // val 正值：越紅買超越大；負值：越綠賣超越大
+    if (val >= 25) return "#991b1b";
+    if (val >= 15) return "#dc2626";
+    if (val >= 6)  return "#ef4444";
+    if (val > 0)   return "#f87171";
+    if (val === 0) return "#334155";
+    if (val > -8)  return "#34d399";
+    if (val > -16) return "#10b981";
+    if (val > -24) return "#059669";
+    return "#065f46";
   }
 
-  function downloadSingleHtml() {
+  function renderFiveMinFlowChart() {
+    const table = document.getElementById("flow5Table");
+    let thead = `<thead><tr><th class="sec-col">族群 / 5分區間</th>` +
+      TIME_SLOTS_5M.map(t => `<th>${t}</th>`).join("") + `</tr></thead>`;
+
+    let tbody = "<tbody>" + SECTORS.map(s => {
+      const cells = s.fiveMinFlows.map(v => {
+        const bg = getHeatColorByFlow(v);
+        const label = (v > 0 ? "+" : "") + v + "億";
+        return `<td><div class="flow5-cell" style="background:${bg};">${label}</div></td>`;
+      }).join("");
+      return `<tr><th class="sec-col" style="cursor:pointer;" onclick="selectSector('${s.id}')">${s.name}</th>${cells}</tr>`;
+    }).join("") + "</tbody>";
+
+    table.innerHTML = thead + tbody;
+  }
+
+  function triggerFiveMinTick(isManual = false) {
+    if (!isMarketOpenNow() && !isManual) return;
+    SECTORS.forEach(s => {
+      const delta = Math.round((Math.random() - 0.45) * 8);
+      const nextVal = Math.max(-30, Math.min(35, s.fiveMinFlows[s.fiveMinFlows.length - 1] + delta));
+      s.fiveMinFlows.shift();
+      s.fiveMinFlows.push(nextVal);
+    });
+    secFiveMinSec = 300;
+    renderFiveMinFlowChart();
+  }
+
+  // =========================================================================
+  // 6. 當天收盤價 (36,033.29) 與前 30 個交易日收盤價比較圖
+  // =========================================================================
+  function drawThirtyDayChart() {
+    const box = document.getElementById("thirtyBox");
+    const canvas = document.getElementById("thirtyCanvas");
+    const dpr = window.devicePixelRatio || 1;
+    const w = box.clientWidth;
+    const h = box.clientHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+
+    const ctx = canvas.getContext("2d");
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, h);
+
+    const pad = { top: 26, right: 32, bottom: 34, left: 68 };
+    const pw = w - pad.left - pad.right;
+    const ph = h - pad.top - pad.bottom;
+
+    const minVal = Math.min(...THIRTY_DAYS_CLOSE) - 180;
+    const maxVal = Math.max(...THIRTY_DAYS_CLOSE) + 180;
+    const avg30 = THIRTY_DAYS_CLOSE.reduce((a, b) => a + b, 0) / THIRTY_DAYS_CLOSE.length;
+    const max30 = Math.max(...THIRTY_DAYS_CLOSE);
+    const min30 = Math.min(...THIRTY_DAYS_CLOSE);
+
+    document.getElementById("thirtyDayStats").textContent =
+      `近30日均價：${avg30.toFixed(2)} ｜ 30日最高：${max30.toFixed(2)} ｜ 30日最低：${min30.toFixed(2)} ｜ 當天收盤：${LOCKED_CLOSE_INDEX.toFixed(2)}`;
+
+    const toX = i => pad.left + (i / (THIRTY_DAYS_CLOSE.length - 1)) * pw;
+    const toY = v => pad.top + ((maxVal - v) / (maxVal - minVal)) * ph;
+
+    // 水平參考線與刻度
+    for (let k = 0; k <= 4; k++) {
+      const val = minVal + ((maxVal - minVal) * k) / 4;
+      const py = toY(val);
+      ctx.strokeStyle = "rgba(148, 163, 184, 0.12)";
+      ctx.beginPath(); ctx.moveTo(pad.left, py); ctx.lineTo(w - pad.right, py); ctx.stroke();
+      ctx.fillStyle = "#94a3b8"; ctx.font = "11px sans-serif"; ctx.textAlign = "right";
+      ctx.fillText(val.toFixed(0), pad.left - 8, py + 4);
+    }
+
+    // 30日均價虛線
+    const avgY = toY(avg30);
+    ctx.save();
+    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = "rgba(251, 191, 36, 0.65)";
+    ctx.beginPath(); ctx.moveTo(pad.left, avgY); ctx.lineTo(w - pad.right, avgY); ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = "#fde68a"; ctx.font = "11px sans-serif"; ctx.textAlign = "left";
+    ctx.fillText(`30日均價 ${avg30.toFixed(2)}`, pad.left + 8, avgY - 6);
+
+    // 近30日收盤折線
+    ctx.beginPath();
+    THIRTY_DAYS_CLOSE.forEach((v, idx) => {
+      const px = toX(idx);
+      const py = toY(v);
+      if (idx === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    });
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 2.4;
+    ctx.stroke();
+
+    thirtyHits = [];
+    THIRTY_DAYS_CLOSE.forEach((v, idx) => {
+      const px = toX(idx);
+      const py = toY(v);
+      const isToday = idx === THIRTY_DAYS_CLOSE.length - 1;
+
+      ctx.beginPath();
+      ctx.arc(px, py, isToday ? 6.5 : 3, 0, Math.PI * 2);
+      ctx.fillStyle = isToday ? "#fbbf24" : "#7dd3fc";
+      ctx.fill();
+
+      if (isToday) {
+        ctx.strokeStyle = "#f43f5e";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = "#fde047";
+        ctx.font = "bold 12px sans-serif";
+        ctx.textAlign = "right";
+        ctx.fillText(`當天收盤 ${v.toFixed(2)}`, px - 10, py - 8);
+      }
+
+      if (idx === 0 || idx === 10 || idx === 20 || isToday) {
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "11px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(isToday ? "當天" : `-${THIRTY_DAYS_CLOSE.length - 1 - idx}日`, px, h - pad.bottom + 18);
+      }
+
+      thirtyHits.push({ idx, val: v, px, py });
+    });
+  }
+
+  // =========================================================================
+  // 7. 互動、5分鐘倒數與下載
+  // =========================================================================
+  function setupEvents() {
+    const bCanvas = document.getElementById("bubbleCanvas");
+    const bTip = document.getElementById("bubbleTip");
+
+    bCanvas.addEventListener("mousemove", e => {
+      const rect = bCanvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const hit = bubbleHits.slice().reverse().find(h => Math.hypot(mx - h.cx, my - h.cy) <= h.r);
+      if (hit) {
+        bTip.style.display = "block";
+        bTip.style.left = Math.min(rect.width - 235, mx + 12) + "px";
+        bTip.style.top = Math.max(10, my - 16) + "px";
+        bTip.innerHTML = `
+          <div style="font-weight:800; color:#fbbf24;">${hit.sector.name}</div>
+          <div>區塊：<b>${hit.sector.quad}</b></div>
+          <div>成交規模：<b>${hit.sector.size} 億</b></div>
+          <div>偏離平均：<b>${hit.sector.x > 0 ? "+" : ""}${hit.sector.x}%</b></div>
+          <div>加速度：<b>${hit.sector.y > 0 ? "+" : ""}${hit.sector.y} 億</b></div>
+          <div style="font-size:0.72rem; color:#7dd3fc; margin-top:4px;">點擊查看個股大戶與散戶買賣</div>
+        `;
+      } else {
+        bTip.style.display = "none";
+      }
+    });
+    bCanvas.addEventListener("mouseleave", () => { bTip.style.display = "none"; });
+    bCanvas.addEventListener("click", e => {
+      const rect = bCanvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const hit = bubbleHits.slice().reverse().find(h => Math.hypot(mx - h.cx, my - h.cy) <= h.r);
+      if (hit) {
+        selectSector(hit.sector.id);
+        document.getElementById("detailSection").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    });
+
+    const tCanvas = document.getElementById("thirtyCanvas");
+    const tTip = document.getElementById("thirtyTip");
+    tCanvas.addEventListener("mousemove", e => {
+      const rect = tCanvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const hit = thirtyHits.find(h => Math.hypot(mx - h.px, my - h.py) <= 12);
+      if (hit) {
+        const diffFromToday = LOCKED_CLOSE_INDEX - hit.val;
+        tTip.style.display = "block";
+        tTip.style.left = Math.min(rect.width - 230, mx + 12) + "px";
+        tTip.style.top = Math.max(10, my - 16) + "px";
+        tTip.innerHTML = `
+          <div style="font-weight:800; color:#fbbf24;">${hit.idx === THIRTY_DAYS_CLOSE.length - 1 ? "當天收盤" : "前 " + (THIRTY_DAYS_CLOSE.length - 1 - hit.idx) + " 個交易日"}</div>
+          <div>收盤點位：<b>${hit.val.toFixed(2)}</b></div>
+          <div>較該日差值：<b>${diffFromToday >= 0 ? "+" : ""}${diffFromToday.toFixed(2)} 點</b></div>
+        `;
+      } else {
+        tTip.style.display = "none";
+      }
+    });
+    tCanvas.addEventListener("mouseleave", () => { tTip.style.display = "none"; });
+  }
+
+  function downloadHtml() {
     const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const a = document.createElement("a");
@@ -893,55 +908,45 @@
     a.click();
   }
 
-  function setupEvents() {
-    const canvas = document.getElementById("bubbleCanvas");
-    const tip = document.getElementById("tooltip");
-
-    canvas.addEventListener("mousemove", e => {
-      const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-      const hit = hitBoxes.slice().reverse().find(h => Math.hypot(mx - h.cx, my - h.cy) <= h.r);
-      if (hit) {
-        canvas.style.cursor = "pointer";
-        tip.style.display = "block";
-        tip.style.left = Math.min(rect.width - 250, mx + 14) + "px";
-        tip.style.top = Math.max(10, my - 20) + "px";
-        tip.innerHTML = `
-          <div style="font-weight:800; color:#fbbf24; margin-bottom:4px;">${hit.sector.name} [${hit.sector.market}]</div>
-          <div>區塊歸屬：<b style="color:${hit.quad.color}">● ${hit.quad.label}</b></div>
-          <div>成交規模：<b>${hit.sector.size} 億元</b></div>
-          <div>相對平均偏離：<b>${hit.sector.x > 0 ? "+" : ""}${hit.sector.x}%</b></div>
-          <div>5日-20日加速度：<b>${hit.sector.y > 0 ? "+" : ""}${hit.sector.y} 億</b></div>
-        `;
-      } else {
-        canvas.style.cursor = "crosshair";
-        tip.style.display = "none";
-      }
-    });
-
-    canvas.addEventListener("mouseleave", () => { tip.style.display = "none"; });
-    canvas.addEventListener("click", e => {
-      const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-      const hit = hitBoxes.slice().reverse().find(h => Math.hypot(mx - h.cx, my - h.cy) <= h.r);
-      if (hit) selectSector(hit.sector.id);
-    });
+  function initHeaderLock() {
+    document.getElementById("twseCloseDisplay").textContent = LOCKED_CLOSE_INDEX.toLocaleString("en-US", { minimumFractionDigits: 2 });
+    document.getElementById("twseChgDisplay").textContent = LOCKED_CLOSE_CHG;
+    const badge = document.getElementById("marketLockBadge");
+    if (isMarketOpenNow()) {
+      badge.className = "live-tag";
+      badge.textContent = "🟢 盤中交易中";
+    } else {
+      badge.className = "lock-tag";
+      badge.textContent = "🔒 已收盤 · 鎖定 36,033.29 點";
+    }
   }
 
-  function renderAll() {
-    renderTopBar();
-    drawBubbles();
-    renderDrillAndRanks();
-  }
+  setInterval(() => {
+    const cdEl = document.getElementById("fiveMinCountdown");
+    if (!isMarketOpenNow()) {
+      cdEl.textContent = "下一格 5 分鐘主力更新倒數：已收盤鎖定（點右上可手動測試）";
+      return;
+    }
+    secFiveMinSec -= 1;
+    if (secFiveMinSec <= 0) {
+      triggerFiveMinTick(false);
+    }
+    const mm = String(Math.floor(secFiveMinSec / 60)).padStart(2, "0");
+    const ss = String(secFiveMinSec % 60).padStart(2, "0");
+    cdEl.textContent = `下一格 5 分鐘主力更新倒數：${mm}:${ss}`;
+  }, 1000);
 
-  window.addEventListener("resize", drawBubbles);
+  window.addEventListener("resize", () => {
+    drawBubbleChart();
+    drawThirtyDayChart();
+  });
+
+  initHeaderLock();
   setupEvents();
-  loadBaselineSnapshot();
-  renderAll();
-  // 開啟網頁立即同步證交所與櫃買真實報價
-  syncRealTwseData(false);
+  drawBubbleChart();
+  renderSectorBreakdown();
+  renderFiveMinFlowChart();
+  drawThirtyDayChart();
 </script>
 </body>
 </html>
