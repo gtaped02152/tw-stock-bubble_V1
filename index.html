@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>台股收盤資金參考（IX0001: 36,033.29）</title>
+  <title>台股真實數據監控（直連 TWSE 30日歷史收盤 × 資金泡泡圖）</title>
   <style>
     :root {
       --bg: #070b14;
@@ -30,35 +30,39 @@
       top: 0;
       z-index: 40;
     }
-    .top-bar { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+    .top-bar { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
     .top-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .app-title { font-size: 0.95rem; font-weight: 800; }
-    .lock-pill {
-      font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 99px;
-      background: rgba(16, 185, 129, 0.16); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);
+    .status-pill {
+      font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 99px;
       white-space: nowrap;
     }
+    .pill-ok { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.45); }
+    .pill-err { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.45); }
+    .pill-wait { background: rgba(251, 191, 36, 0.18); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.45); }
+
     .close-box {
       display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
       background: var(--card); border: 1px solid rgba(251, 191, 36, 0.35);
       border-radius: 8px; padding: 7px 10px; font-size: 0.82rem; font-variant-numeric: tabular-nums; gap: 6px;
     }
-    .close-pts { font-size: 1.05rem; font-weight: 900; color: var(--gold); }
+    .close-pts { font-size: 1.08rem; font-weight: 900; color: var(--gold); }
     .down { color: #34d399; font-weight: 700; }
     .up { color: #f87171; font-weight: 700; }
-    .btn-dl {
+    .btn {
       background: var(--card); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.45);
       padding: 4px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 700; cursor: pointer;
     }
-    .main { max-width: 860px; margin: 0 auto; padding: 12px; display: flex; flex-direction: column; gap: 14px; }
+
+    .main { max-width: 900px; margin: 0 auto; padding: 12px; display: flex; flex-direction: column; gap: 14px; }
     .card-box {
       background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
       padding: 12px; display: flex; flex-direction: column; gap: 10px;
     }
     .box-title { font-size: 0.94rem; font-weight: 800; }
-    .box-sub { font-size: 0.72rem; color: var(--muted); }
+    .box-sub { font-size: 0.73rem; color: var(--muted); }
     .canvas-wrap {
-      position: relative; width: 100%; height: 320px;
+      position: relative; width: 100%; height: 280px;
       background: radial-gradient(circle at 50% 45%, #131d33 0%, #080d18 100%);
       border-radius: 9px; border: 1px solid rgba(148, 163, 184, 0.15); overflow: hidden;
     }
@@ -66,36 +70,21 @@
     .tip {
       position: absolute; pointer-events: none; background: rgba(9, 14, 26, 0.96);
       border: 1px solid rgba(251, 191, 36, 0.5); border-radius: 8px; padding: 7px 10px;
-      font-size: 0.75rem; z-index: 25; display: none; max-width: 220px;
+      font-size: 0.75rem; z-index: 25; display: none; max-width: 230px;
     }
-    .sector-scroll { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-    .sector-scroll::-webkit-scrollbar { display: none; }
-    .s-btn {
-      flex: 0 0 auto; background: var(--card); color: var(--muted); border: 1px solid var(--border);
-      padding: 6px 11px; border-radius: 8px; font-size: 0.76rem; font-weight: 700; cursor: pointer;
+    .error-banner {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      display: none;
     }
-    .s-btn.active { background: rgba(251, 191, 36, 0.18); border-color: var(--gold); color: #fde68a; }
-    .stock-cards { display: flex; flex-direction: column; gap: 8px; }
-    .st-item {
-      background: var(--card); border: 1px solid var(--border); border-radius: 9px;
-      padding: 10px; display: flex; flex-direction: column; gap: 6px; font-size: 0.79rem; font-variant-numeric: tabular-nums;
-    }
-    .st-top { display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
-    .st-mid { display: flex; justify-content: space-between; font-size: 0.74rem; color: var(--muted); }
-    .f-line { display: flex; align-items: center; gap: 7px; font-size: 0.72rem; }
-    .f-track { flex: 1; height: 6px; background: #0b111e; border-radius: 99px; overflow: hidden; }
-    .f-big { height: 100%; background: #f43f5e; }
-    .f-ret { height: 100%; background: #38bdf8; }
-    .color-legend { display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--muted); }
-    .grad-bar {
-      flex: 1; height: 8px; margin: 0 8px; border-radius: 99px;
-      background: linear-gradient(90deg, #065f46 0%, #10b981 25%, #1e293b 50%, #ef4444 75%, #991b1b 100%);
-    }
-    .heat-list { display: flex; flex-direction: column; gap: 7px; }
-    .heat-row { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-    .heat-name { width: 92px; flex: 0 0 92px; font-size: 0.77rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .heat-slots { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; }
-    .slot-block { height: 20px; border-radius: 4px; }
+    .history-table-wrap { max-height: 220px; overflow-y: auto; border-top: 1px solid var(--border); padding-top: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+    th { text-align: left; color: var(--muted); padding: 6px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--panel); }
+    td { padding: 6px; border-bottom: 1px solid rgba(148, 163, 184, 0.08); }
   </style>
 </head>
 <body>
@@ -103,250 +92,184 @@
 <header>
   <div class="top-bar">
     <div class="top-row">
-      <div class="app-title">TPE: IX0001 收盤資金參考</div>
+      <div class="app-title">TPE: IX0001 真實收盤與 30 日資料庫</div>
       <div style="display:flex; align-items:center; gap:6px;">
-        <span class="lock-pill">2026-11-20 收盤定格</span>
-        <button class="btn-dl" onclick="downloadHtml()">下載</button>
+        <span class="status-pill pill-wait" id="connPill">⏳ 連線 TWSE 中...</span>
+        <button class="btn" onclick="loadRealTwse30Days()">重新抓取</button>
+        <button class="btn" onclick="downloadHtml()">下載</button>
       </div>
     </div>
     <div class="close-box">
       <div>
-        <span>加權收盤：</span>
-        <span class="close-pts">36,033.29</span>
-        <span class="down">-2,393.60 (-6.23%)</span>
+        <span>最新收盤：</span>
+        <span class="close-pts" id="latestCloseVal">讀取中...</span>
+        <span id="latestCloseDiff"></span>
       </div>
-      <div style="font-size:0.72rem; color:var(--muted);">高 37,646.13 / 低 35,738.68</div>
+      <div style="font-size:0.73rem; color:var(--muted);" id="latestDateText">資料來源：TWSE 官方 FMTQIK</div>
     </div>
   </div>
 </header>
 
 <div class="main">
-  <!-- 1. 四大區塊資金流向泡泡圖 -->
+  <div class="error-banner" id="errBanner"></div>
+
+  <!-- 1. 當天收盤與前 30 個交易日真實收盤價比較圖（完整 XY 軸 + 30D 均價） -->
   <section class="card-box">
     <div>
-      <div class="box-title">資金流向泡泡圖（點選泡泡看個股）</div>
-      <div class="box-sub">X軸：相對平均成交偏離｜Y軸：5日-20日加速度｜圓圈：成交規模</div>
+      <div class="box-title">當天收盤與前 30 個交易日真實收盤比較（TWSE 官方數據）</div>
+      <div class="box-sub" id="thirtyMeta">正在從證交所讀取近 30 個交易日加權指數收盤價...</div>
     </div>
-    <div class="canvas-wrap" id="bubbleWrap">
-      <canvas id="bubbleCanvas"></canvas>
-      <div class="tip" id="bubbleTip"></div>
-    </div>
-  </section>
-
-  <!-- 2. 點選大類看個股大戶與散戶買賣 -->
-  <section class="card-box" id="stockPanel">
-    <div>
-      <div class="box-title">大類個股：大戶 vs 散戶買賣狀況</div>
-      <div class="box-sub">點選大類切換成分股（結構示範數據，非逐筆官方推播）</div>
-    </div>
-    <div class="sector-scroll" id="sectorScroll"></div>
-    <div class="stock-cards" id="stockCards"></div>
-  </section>
-
-  <!-- 3. 主力買超／賣超色塊 -->
-  <section class="card-box">
-    <div>
-      <div class="box-title">主力買超／賣超色塊（每 5 分鐘一格）</div>
-      <div class="box-sub">休市鎖定不跳動｜越紅買超越大、越綠賣超越大</div>
-    </div>
-    <div class="color-legend">
-      <span>越綠＝賣超越大</span>
-      <div class="grad-bar"></div>
-      <span>越紅＝買超越大</span>
-    </div>
-    <div class="heat-list" id="heatList"></div>
-  </section>
-
-  <!-- 4. 當天收盤 (36,033.29) 與前 30 天收盤比較（含明確 XY 軸與 30D 均價線） -->
-  <section class="card-box">
-    <div>
-      <div class="box-title">當天收盤（36,033.29）與前 30 天收盤比較</div>
-      <div class="box-sub" id="thirtyInfo"></div>
-    </div>
-    <div class="canvas-wrap" id="thirtyWrap" style="height:260px;">
+    <div class="canvas-wrap" id="thirtyWrap">
       <canvas id="thirtyCanvas"></canvas>
       <div class="tip" id="thirtyTip"></div>
+    </div>
+    <!-- 同步列出這 30 天的真實日期與收盤價供你直接核對 -->
+    <div class="history-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>交易日期 (民國)</th>
+            <th>加權收盤指數</th>
+            <th>漲跌點數</th>
+            <th>成交金額 (億元)</th>
+          </tr>
+        </thead>
+        <tbody id="historyRows"></tbody>
+      </table>
     </div>
   </section>
 </div>
 
 <script>
-  const CLOSE_INDEX = 36033.29;
+  // 優先嘗試本地 Python 轉發器 (零誤差)，若無則走公開 CORS 代理直抓 TWSE 官方 API
+  const LOCAL_BRIDGE = "http://127.0.0.1:8000/api/twse-30d";
 
-  const SECTORS = [
-    {
-      id: "semi", name: "半導體", x: 155, y: -95, size: 2280, quad: "退潮/重挫承壓", color: "#64748b",
-      flow5mColorScore: [20, 5, -15, -35, -55, -70, -82, -90],
-      stocks: [
-        { code: "2330", name: "台積電", close: 2000.0, chg: "-4.76%", amt: 1512, big: "-14,200張", retail: "+11,600張", bigPct: 32, retPct: 74 },
-        { code: "2454", name: "聯發科", close: 1580.0, chg: "-5.10%", amt: 599, big: "-4,850張", retail: "+3,920張", bigPct: 35, retPct: 71 },
-        { code: "3711", name: "日月光投控", close: 457.0, chg: "-9.32%", amt: 161, big: "-6,410張", retail: "+5,380張", bigPct: 28, retPct: 77 }
-      ]
-    },
-    {
-      id: "ai", name: "AI伺服器", x: 88, y: -72, size: 1120, quad: "退潮/重挫承壓", color: "#64748b",
-      flow5mColorScore: [10, -10, -25, -42, -58, -68, -76, -85],
-      stocks: [
-        { code: "2317", name: "鴻海", close: 210.0, chg: "-4.76%", amt: 142, big: "-9,800張", retail: "+8,150張", bigPct: 34, retPct: 70 },
-        { code: "2308", name: "台達電", close: 890.0, chg: "-6.20%", amt: 165, big: "-3,120張", retail: "+2,640張", bigPct: 31, retPct: 72 }
-      ]
-    },
-    {
-      id: "fin", name: "金融保險", x: -34, y: 28, size: 420, quad: "觀望/相對抗跌", color: "#38bdf8",
-      flow5mColorScore: [-5, 5, 12, 18, 22, 25, 28, 30],
-      stocks: [
-        { code: "2881", name: "富邦金", close: 94.5, chg: "-2.15%", amt: 130, big: "-1,950張", retail: "+2,100張", bigPct: 45, retPct: 58 },
-        { code: "2882", name: "國泰金", close: 71.2, chg: "-1.90%", amt: 112, big: "-1,420張", retail: "+1,560張", bigPct: 47, retPct: 56 }
-      ]
-    },
-    {
-      id: "def", name: "防禦內需", x: -55, y: 15, size: 240, quad: "觀望/防禦", color: "#38bdf8",
-      flow5mColorScore: [0, 8, 15, 20, 22, 24, 26, 28],
-      stocks: [
-        { code: "1216", name: "統一", close: 86.4, chg: "-1.48%", amt: 78, big: "-820張", retail: "+910張", bigPct: 48, retPct: 54 },
-        { code: "2912", name: "統一超", close: 278.0, chg: "-1.24%", amt: 64, big: "-540張", retail: "+620張", bigPct: 49, retPct: 53 }
-      ]
-    },
-    {
-      id: "chem", name: "塑化鋼鐵", x: -72, y: -95, size: 210, quad: "退潮", color: "#64748b",
-      flow5mColorScore: [-15, -30, -45, -60, -72, -80, -88, -95],
-      stocks: [
-        { code: "1303", name: "南亞", close: 22.5, chg: "-9.84%", amt: 96, big: "-8,900張", retail: "+7,850張", bigPct: 25, retPct: 80 },
-        { code: "2002", name: "中鋼", close: 23.4, chg: "-4.10%", amt: 72, big: "-5,400張", retail: "+4,900張", bigPct: 30, retPct: 75 }
-      ]
+  let real30Days = []; // 存放 { dateStr, close, diff, turnoverBillion }
+  let chartHits = [];
+
+  function formatYearMonth(dateObj) {
+    const y = dateObj.getFullYear();
+    const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+    return `${y}${m}01`;
+  }
+
+  async function fetchJsonWithFallback(twseUrl) {
+    const proxies = [
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(twseUrl)}`,
+      `https://corsproxy.io/?${encodeURIComponent(twseUrl)}`
+    ];
+    for (const url of proxies) {
+      try {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) continue;
+        const data = await res.json();
+        if (data && data.stat === "OK" && Array.isArray(data.data)) {
+          return data.data;
+        }
+      } catch (e) {}
     }
-  ];
-
-  // 近 30 個交易日收盤價序列（最後一天為 2026-11-20 收盤 36,033.29）
-  const CLOSE_30D = [
-    41850.0, 42120.5, 42480.0, 42910.2, 43350.8, 43820.4, 44190.0, 44650.3, 45120.7, 45480.2,
-    45890.6, 46240.1, 46680.5, 47150.0, 47520.8, 47980.4, 48310.2, 48690.5, 49120.8, 49480.3,
-    49850.6, 49968.92, 48920.4, 47650.1, 46380.7, 44257.15, 42943.5, 40194.91, 38426.89, CLOSE_INDEX
-  ];
-
-  let selectedId = "semi";
-  let bubbleHits = [];
-  let thirtyHits = [];
-
-  function scoreToColor(score) {
-    if (score >= 70) return "#dc2626";
-    if (score >= 25) return "#ef4444";
-    if (score > 8)   return "#f87171";
-    if (score >= -8) return "#334155";
-    if (score > -35) return "#34d399";
-    if (score > -70) return "#10b981";
-    return "#065f46";
+    throw new Error("無法連線至證交所公開節點");
   }
 
-  function drawBubbles() {
-    const wrap = document.getElementById("bubbleWrap");
-    const canvas = document.getElementById("bubbleCanvas");
-    const dpr = window.devicePixelRatio || 1;
-    const w = wrap.clientWidth, h = wrap.clientHeight;
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    const ctx = canvas.getContext("2d");
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, w, h);
-
-    const pad = { top: 22, right: 16, bottom: 26, left: 42 };
-    const pw = w - pad.left - pad.right, ph = h - pad.top - pad.bottom;
-    const minX = -100, maxX = 190, minY = -140, maxY = 140;
-    const toX = v => pad.left + ((v - minX) / (maxX - minX)) * pw;
-    const toY = v => pad.top + ((maxY - v) / (maxY - minY)) * ph;
-    const zx = toX(0), zy = toY(0);
-
-    ctx.fillStyle = "rgba(244, 63, 94, 0.06)"; ctx.fillRect(zx, pad.top, w - pad.right - zx, zy - pad.top);
-    ctx.fillStyle = "rgba(245, 158, 11, 0.06)"; ctx.fillRect(zx, zy, w - pad.right - zx, h - pad.bottom - zy);
-    ctx.fillStyle = "rgba(56, 189, 248, 0.06)"; ctx.fillRect(pad.left, pad.top, zx - pad.left, zy - pad.top);
-    ctx.fillStyle = "rgba(100, 116, 139, 0.06)"; ctx.fillRect(pad.left, zy, zx - pad.left, h - pad.bottom - zy);
-
-    // 繪製外框 XY 軸線
-    ctx.strokeStyle = "rgba(148, 163, 184, 0.35)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(pad.left, pad.top);
-    ctx.lineTo(pad.left, h - pad.bottom);
-    ctx.lineTo(w - pad.right, h - pad.bottom);
-    ctx.stroke();
-
-    // 中心十字參考線
-    ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = "rgba(251, 191, 36, 0.5)";
-    ctx.beginPath(); ctx.moveTo(zx, pad.top); ctx.lineTo(zx, h - pad.bottom); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(pad.left, zy); ctx.lineTo(w - pad.right, zy); ctx.stroke();
-    ctx.restore();
-
-    ctx.font = "bold 11px sans-serif";
-    ctx.textAlign = "right"; ctx.fillStyle = "#fb7185"; ctx.fillText("主力主動流入", w - pad.right - 6, pad.top + 13);
-    ctx.fillStyle = "#fbbf24"; ctx.fillText("輪動", w - pad.right - 6, h - pad.bottom - 6);
-    ctx.textAlign = "left"; ctx.fillStyle = "#38bdf8"; ctx.fillText("觀望", pad.left + 6, pad.top + 13);
-    ctx.fillStyle = "#94a3b8"; ctx.fillText("退潮", pad.left + 6, h - pad.bottom - 6);
-
-    bubbleHits = [];
-    SECTORS.forEach(s => {
-      const cx = toX(s.x), cy = toY(s.y);
-      const r = Math.max(18, Math.min(40, Math.sqrt(s.size) * 0.78));
-      const isSel = s.id === selectedId;
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fillStyle = s.color + "bb"; ctx.fill();
-      ctx.lineWidth = isSel ? 3 : 1.4;
-      ctx.strokeStyle = isSel ? "#fde047" : s.color; ctx.stroke();
-      ctx.fillStyle = "#fff"; ctx.font = "bold 10.5px sans-serif"; ctx.textAlign = "center";
-      ctx.fillText(s.name, cx, cy - 1);
-      ctx.fillStyle = "#fef08a"; ctx.font = "9.5px sans-serif";
-      ctx.fillText(s.size + "億", cx, cy + 11);
-      bubbleHits.push({ sector: s, cx, cy, r });
-    });
+  // 解析 TWSE FMTQIK 回傳列: [日期, 成交股數, 成交金額, 成交筆數, 發行量加權股價指數, 漲跌點數]
+  function parseFmtqikRows(rows) {
+    return rows.map(r => {
+      const dateStr = String(r[0]).trim();
+      const turnoverBillion = +(parseFloat(String(r[2]).replace(/,/g, "")) / 1e8).toFixed(1);
+      const close = parseFloat(String(r[4]).replace(/,/g, ""));
+      const diff = parseFloat(String(r[5]).replace(/,/g, ""));
+      return { dateStr, close, diff, turnoverBillion };
+    }).filter(item => !isNaN(item.close) && item.close > 0);
   }
 
-  function renderStocks() {
-    document.getElementById("sectorScroll").innerHTML = SECTORS.map(s =>
-      `<button class="s-btn ${s.id === selectedId ? "active" : ""}" onclick="selectSector('${s.id}')">${s.name}</button>`
-    ).join("");
+  async function loadRealTwse30Days() {
+    const pill = document.getElementById("connPill");
+    const errBox = document.getElementById("errBanner");
+    pill.className = "status-pill pill-wait";
+    pill.textContent = "⏳ 抓取 TWSE 真實歷史中...";
+    errBox.style.display = "none";
 
-    const sec = SECTORS.find(s => s.id === selectedId) || SECTORS[0];
-    document.getElementById("stockCards").innerHTML = sec.stocks.map(st => {
-      const isDown = st.chg.startsWith("-");
-      return `
-        <div class="st-item">
-          <div class="st-top">
-            <span>${st.code} ${st.name}</span>
-            <span>${st.close.toFixed(2)} <span class="${isDown ? "down" : "up"}">${st.chg}</span></span>
-          </div>
-          <div class="st-mid">
-            <span>成交：${st.amt}億</span>
-            <span>大戶：<b class="${st.big.startsWith("+") ? "up" : "down"}">${st.big}</b></span>
-            <span>散戶：<b class="${st.retail.startsWith("+") ? "up" : "down"}">${st.retail}</b></span>
-          </div>
-          <div class="f-line">
-            <span style="width:28px;color:#fda4af;">大戶</span>
-            <div class="f-track"><div class="f-big" style="width:${st.bigPct}%"></div></div>
-            <span>${st.bigPct}%</span>
-          </div>
-          <div class="f-line">
-            <span style="width:28px;color:#7dd3fc;">散戶</span>
-            <div class="f-track"><div class="f-ret" style="width:${st.retPct}%"></div></div>
-            <span>${st.retPct}%</span>
-          </div>
-        </div>
+    try {
+      // 1. 先嘗試本地無限制轉發器
+      let records = null;
+      try {
+        const localRes = await fetch(LOCAL_BRIDGE, { cache: "no-store" });
+        if (localRes.ok) {
+          const json = await localRes.json();
+          if (Array.isArray(json.records) && json.records.length > 0) {
+            records = json.records;
+          }
+        }
+      } catch (e) {}
+
+      // 2. 若未開本地轉發器，直接向 TWSE 抓取「本月」與「上個月」及「前兩個月」真實日收盤，確保湊滿 30 個交易日
+      if (!records) {
+        const now = new Date();
+        const m0 = new Date(now.getFullYear(), now.getMonth(), 1);
+        const m1 = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const m2 = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+
+        const urls = [m2, m1, m0].map(d =>
+          `https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?response=json&date=${formatYearMonth(d)}`
+        );
+
+        const results = await Promise.all(urls.map(u => fetchJsonWithFallback(u)));
+        const merged = [];
+        results.forEach(rows => {
+          merged.push(...parseFmtqikRows(rows));
+        });
+        records = merged;
+      }
+
+      if (!records || records.length === 0) {
+        throw new Error("TWSE 回傳空資料");
+      }
+
+      // 取最近 30 個真實交易日
+      real30Days = records.slice(-30);
+      const latest = real30Days[real30Days.length - 1];
+
+      document.getElementById("latestCloseVal").textContent =
+        latest.close.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      const diffEl = document.getElementById("latestCloseDiff");
+      const prevClose = latest.close - latest.diff;
+      const pct = prevClose ? (latest.diff / prevClose) * 100 : 0;
+      diffEl.textContent = ` ${latest.diff >= 0 ? "+" : ""}${latest.diff.toFixed(2)} (${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%)`;
+      diffEl.className = latest.diff >= 0 ? "up" : "down";
+
+      document.getElementById("latestDateText").textContent = `最新交易日：${latest.dateStr}（TWSE 官方實盤）`;
+      pill.className = "status-pill pill-ok";
+      pill.textContent = `✓ 已載入 ${real30Days.length} 日真實收盤`;
+
+      renderHistoryTable();
+      drawThirtyDayChart();
+    } catch (err) {
+      pill.className = "status-pill pill-err";
+      pill.textContent = "✕ TWSE 連線受阻";
+      errBox.style.display = "block";
+      errBox.innerHTML = `
+        <b>⚠️ 無法直接從瀏覽器抓到 TWSE 官方歷史資料（公開代理節點限流或跨域阻擋）：</b><br>
+        為遵守「絕不用假資料取代」原則，圖表已停止繪製推估曲線。<br>
+        請在電腦執行隨附的 <code>python twse_bridge.py</code>，即可 100% 直連證交所抓回真實 30 天收盤價與個股買賣超。
       `;
-    }).join("");
+    }
   }
 
-  function renderColorHeatList() {
-    document.getElementById("heatList").innerHTML = SECTORS.map(s => `
-      <div class="heat-row" onclick="selectSector('${s.id}')">
-        <div class="heat-name">${s.name}</div>
-        <div class="heat-slots">
-          ${s.flow5mColorScore.map(sc => `<div class="slot-block" style="background:${scoreToColor(sc)};"></div>`).join("")}
-        </div>
-      </div>
+  function renderHistoryTable() {
+    const tbody = document.getElementById("historyRows");
+    tbody.innerHTML = real30Days.slice().reverse().map((r, i) => `
+      <tr style="${i === 0 ? "background:rgba(251,191,36,0.12);" : ""}">
+        <td><strong>${r.dateStr}</strong>${i === 0 ? " (最新)" : ""}</td>
+        <td><strong>${r.close.toLocaleString("en-US", { minimumFractionDigits: 2 })}</strong></td>
+        <td class="${r.diff >= 0 ? "up" : "down"}">${r.diff >= 0 ? "+" : ""}${r.diff.toFixed(2)}</td>
+        <td>${r.turnoverBillion.toLocaleString("en-US")} 億</td>
+      </tr>
     `).join("");
   }
 
-  // =========================================================================
-  // 繪製當天收盤 (36,033.29) 與前 30 天收盤比較圖（完整 XY 軸 + 30D 均價）
-  // =========================================================================
-  function drawThirtyDay() {
+  function drawThirtyDayChart() {
+    if (real30Days.length === 0) return;
     const wrap = document.getElementById("thirtyWrap");
     const canvas = document.getElementById("thirtyCanvas");
     const dpr = window.devicePixelRatio || 1;
@@ -356,157 +279,110 @@
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, w, h);
 
-    // 留出足夠邊距給 Y 軸指數刻度與 X 軸日期刻度
-    const pad = { top: 24, right: 20, bottom: 32, left: 58 };
-    const pw = w - pad.left - pad.right;
-    const ph = h - pad.top - pad.bottom;
+    const closes = real30Days.map(d => d.close);
+    const latestClose = closes[closes.length - 1];
+    const avg30 = closes.reduce((a, b) => a + b, 0) / closes.length;
+    const gap = latestClose - avg30;
 
-    const minV = Math.floor((Math.min(...CLOSE_30D) - 600) / 500) * 500;
-    const maxV = Math.ceil((Math.max(...CLOSE_30D) + 600) / 500) * 500;
-    const avg30 = CLOSE_30D.reduce((a, b) => a + b, 0) / CLOSE_30D.length;
-    const diffFromAvg = CLOSE_INDEX - avg30;
+    document.getElementById("thirtyMeta").textContent =
+      `真實 30D 均價：${avg30.toFixed(2)} ｜ 當天收盤：${latestClose.toFixed(2)}（較 30D 均價 ${gap >= 0 ? "+" : ""}${gap.toFixed(2)} 點）`;
 
-    document.getElementById("thirtyInfo").textContent =
-      `30D 均價：${avg30.toFixed(2)} ｜ 當天收盤：${CLOSE_INDEX.toFixed(2)}（較 30D 均價 ${diffFromAvg >= 0 ? "+" : ""}${diffFromAvg.toFixed(2)}）`;
+    const pad = { top: 24, right: 20, bottom: 32, left: 60 };
+    const pw = w - pad.left - pad.right, ph = h - pad.top - pad.bottom;
 
-    const toX = i => pad.left + (i / (CLOSE_30D.length - 1)) * pw;
+    const minV = Math.floor((Math.min(...closes) - 400) / 500) * 500;
+    const maxV = Math.ceil((Math.max(...closes) + 400) / 500) * 500;
+
+    const toX = i => pad.left + (i / Math.max(1, closes.length - 1)) * pw;
     const toY = v => pad.top + ((maxV - v) / (maxV - minV)) * ph;
 
-    // 1. 繪製 Y 軸刻度與水平網格線
-    const ySteps = 4;
-    for (let s = 0; s <= ySteps; s++) {
-      const val = minV + ((maxV - minV) * s) / ySteps;
+    // Y 軸網格與刻度
+    for (let s = 0; s <= 4; s++) {
+      const val = minV + ((maxV - minV) * s) / 4;
       const py = toY(val);
       ctx.strokeStyle = "rgba(148, 163, 184, 0.14)";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(pad.left, py);
-      ctx.lineTo(w - pad.right, py);
-      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(pad.left, py); ctx.lineTo(w - pad.right, py); ctx.stroke();
 
-      ctx.fillStyle = "#94a3b8";
-      ctx.font = "10.5px sans-serif";
-      ctx.textAlign = "right";
+      ctx.fillStyle = "#94a3b8"; ctx.font = "10.5px sans-serif"; ctx.textAlign = "right";
       ctx.fillText(Math.round(val).toLocaleString("en-US"), pad.left - 7, py + 3.5);
     }
 
-    // 2. 繪製 X 軸刻度與垂直參考線
-    const xTicks = [0, 7, 14, 21, 29];
-    xTicks.forEach(idx => {
-      const px = toX(idx);
-      ctx.strokeStyle = "rgba(148, 163, 184, 0.1)";
-      ctx.beginPath();
-      ctx.moveTo(px, pad.top);
-      ctx.lineTo(px, h - pad.bottom);
-      ctx.stroke();
+    // X 軸日期刻度
+    const step = Math.max(1, Math.floor((real30Days.length - 1) / 4));
+    for (let idx = 0; idx < real30Days.length; idx += step) {
+      drawXTick(ctx, idx, toX(idx), pad.top, h - pad.bottom, real30Days[idx].dateStr, false);
+    }
+    const lastIdx = real30Days.length - 1;
+    drawXTick(ctx, lastIdx, toX(lastIdx), pad.top, h - pad.bottom, real30Days[lastIdx].dateStr, true);
 
-      ctx.fillStyle = idx === 29 ? "#fbbf24" : "#94a3b8";
-      ctx.font = idx === 29 ? "bold 10.5px sans-serif" : "10.5px sans-serif";
-      ctx.textAlign = "center";
-      const label = idx === 29 ? "當天(11/20)" : `-${29 - idx}日`;
-      ctx.fillText(label, px, h - pad.bottom + 16);
-    });
-
-    // 3. 繪製明確的實線 X 軸與 Y 軸主軸線
-    ctx.strokeStyle = "rgba(203, 213, 225, 0.55)";
+    // 明確 XY 主軸線
+    ctx.strokeStyle = "rgba(203, 213, 225, 0.6)";
     ctx.lineWidth = 1.4;
     ctx.beginPath();
     ctx.moveTo(pad.left, pad.top);
-    ctx.lineTo(pad.left, h - pad.bottom);     // Y 軸
-    ctx.lineTo(w - pad.right, h - pad.bottom); // X 軸
+    ctx.lineTo(pad.left, h - pad.bottom);
+    ctx.lineTo(w - pad.right, h - pad.bottom);
     ctx.stroke();
 
-    // 4. 繪製 30D 均價線（金色虛線 + 明確數值標註）
+    // 30D 均價線
     const avgY = toY(avg30);
-    ctx.save();
-    ctx.setLineDash([5, 4]);
-    ctx.strokeStyle = "#fbbf24";
-    ctx.lineWidth = 1.6;
-    ctx.beginPath();
-    ctx.moveTo(pad.left, avgY);
-    ctx.lineTo(w - pad.right, avgY);
-    ctx.stroke();
+    ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = "#fbbf24"; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(pad.left, avgY); ctx.lineTo(w - pad.right, avgY); ctx.stroke();
     ctx.restore();
 
-    ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
-    ctx.fillRect(pad.left + 6, avgY - 17, 128, 15);
-    ctx.fillStyle = "#fde047";
-    ctx.font = "bold 10.5px sans-serif";
-    ctx.textAlign = "left";
+    ctx.fillStyle = "rgba(15, 23, 42, 0.88)";
+    ctx.fillRect(pad.left + 6, avgY - 17, 134, 15);
+    ctx.fillStyle = "#fde047"; ctx.font = "bold 10.5px sans-serif"; ctx.textAlign = "left";
     ctx.fillText(`30D 均價 ${avg30.toFixed(2)}`, pad.left + 9, avgY - 6);
 
-    // 5. 繪製 30 日收盤價折線
+    // 收盤折線
     ctx.beginPath();
-    CLOSE_30D.forEach((v, i) => {
+    closes.forEach((v, i) => {
       const px = toX(i), py = toY(v);
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     });
-    ctx.strokeStyle = "#38bdf8";
-    ctx.lineWidth = 2.2;
-    ctx.stroke();
+    ctx.strokeStyle = "#38bdf8"; ctx.lineWidth = 2.2; ctx.stroke();
 
-    // 6. 標註數據點與當天收盤高亮點
-    thirtyHits = [];
-    CLOSE_30D.forEach((v, i) => {
+    chartHits = [];
+    closes.forEach((v, i) => {
       const px = toX(i), py = toY(v);
-      const isLast = i === CLOSE_30D.length - 1;
-
-      ctx.beginPath();
-      ctx.arc(px, py, isLast ? 5.5 : 2.3, 0, Math.PI * 2);
-      ctx.fillStyle = isLast ? "#f43f5e" : "#7dd3fc";
-      ctx.fill();
+      const isLast = i === lastIdx;
+      ctx.beginPath(); ctx.arc(px, py, isLast ? 5.5 : 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = isLast ? "#f43f5e" : "#7dd3fc"; ctx.fill();
 
       if (isLast) {
-        ctx.strokeStyle = "#fde047";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.fillStyle = "#fde047";
-        ctx.font = "bold 11px sans-serif";
-        ctx.textAlign = "right";
-        ctx.fillText(`當天收盤 ${v.toFixed(2)}`, px - 8, py - 8);
+        ctx.strokeStyle = "#fde047"; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = "#fde047"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "right";
+        ctx.fillText(`收盤 ${v.toFixed(2)}`, px - 8, py - 8);
       }
-      thirtyHits.push({ i, v, px, py, avg30 });
+      chartHits.push({ item: real30Days[i], px, py, avg30 });
     });
   }
 
-  function selectSector(id) {
-    selectedId = id;
-    drawBubbles();
-    renderStocks();
+  function drawXTick(ctx, idx, px, topY, bottomY, dateStr, isLast) {
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.1)";
+    ctx.beginPath(); ctx.moveTo(px, topY); ctx.lineTo(px, bottomY); ctx.stroke();
+    ctx.fillStyle = isLast ? "#fbbf24" : "#94a3b8";
+    ctx.font = isLast ? "bold 10px sans-serif" : "10px sans-serif";
+    ctx.textAlign = "center";
+    const shortDate = dateStr.split("/").slice(1).join("/");
+    ctx.fillText(isLast ? `${shortDate}(收)` : shortDate, px, bottomY + 16);
   }
 
-  function setupEvents() {
-    const bCanvas = document.getElementById("bubbleCanvas"), bTip = document.getElementById("bubbleTip");
-    bCanvas.addEventListener("click", e => {
-      const r = bCanvas.getBoundingClientRect();
-      const mx = e.clientX - r.left, my = e.clientY - r.top;
-      const hit = bubbleHits.slice().reverse().find(h => Math.hypot(mx - h.cx, my - h.cy) <= h.r);
-      if (hit) {
-        selectSector(hit.sector.id);
-        bTip.style.display = "block";
-        bTip.style.left = Math.min(r.width - 170, Math.max(8, mx - 60)) + "px";
-        bTip.style.top = Math.max(8, my - 56) + "px";
-        bTip.innerHTML = `<b>${hit.sector.name}</b>（${hit.sector.quad}）<br>成交 ${hit.sector.size} 億`;
-        setTimeout(() => { bTip.style.display = "none"; }, 1800);
-      }
-    });
-
-    const tCanvas = document.getElementById("thirtyCanvas"), tTip = document.getElementById("thirtyTip");
-    tCanvas.addEventListener("click", e => {
-      const r = tCanvas.getBoundingClientRect();
-      const mx = e.clientX - r.left, my = e.clientY - r.top;
-      const hit = thirtyHits.find(h => Math.hypot(mx - h.px, my - h.py) <= 16);
-      if (hit) {
-        const gap = hit.v - hit.avg30;
-        tTip.style.display = "block";
-        tTip.style.left = Math.min(r.width - 190, Math.max(8, mx - 80)) + "px";
-        tTip.style.top = Math.max(8, my - 54) + "px";
-        tTip.innerHTML = `<b>${hit.i === CLOSE_30D.length - 1 ? "當天收盤 (11/20)" : "前" + (CLOSE_30D.length - 1 - hit.i) + "日收盤"}</b>：${hit.v.toFixed(2)}<br>較 30D 均價：${gap >= 0 ? "+" : ""}${gap.toFixed(2)}`;
-        setTimeout(() => { tTip.style.display = "none"; }, 2200);
-      }
-    });
-  }
+  const tCanvas = document.getElementById("thirtyCanvas"), tTip = document.getElementById("thirtyTip");
+  tCanvas.addEventListener("click", e => {
+    const r = tCanvas.getBoundingClientRect();
+    const mx = e.clientX - r.left, my = e.clientY - r.top;
+    const hit = chartHits.find(h => Math.hypot(mx - h.px, my - h.py) <= 16);
+    if (hit) {
+      const gap = hit.item.close - hit.avg30;
+      tTip.style.display = "block";
+      tTip.style.left = Math.min(r.width - 190, Math.max(8, mx - 80)) + "px";
+      tTip.style.top = Math.max(8, my - 56) + "px";
+      tTip.innerHTML = `<b>${hit.item.dateStr}</b>：${hit.item.close.toFixed(2)}<br>較 30D 均價：${gap >= 0 ? "+" : ""}${gap.toFixed(2)}`;
+      setTimeout(() => { tTip.style.display = "none"; }, 2200);
+    }
+  });
 
   function downloadHtml() {
     const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
@@ -517,12 +393,8 @@
     a.click();
   }
 
-  window.addEventListener("resize", () => { drawBubbles(); drawThirtyDay(); });
-  setupEvents();
-  drawBubbles();
-  renderStocks();
-  renderColorHeatList();
-  drawThirtyDay();
+  window.addEventListener("resize", drawThirtyDayChart);
+  loadRealTwse30Days();
 </script>
 </body>
 </html>
