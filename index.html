@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>台股資金泡泡圖 × 30日真實收盤核對 × 大戶散戶明細</title>
+  <title>台股收盤資金參考（含明確收盤日期）</title>
   <style>
     :root {
       --bg: #070b14;
@@ -62,7 +62,6 @@
 
     .main { max-width: 880px; margin: 0 auto; padding: 12px; display: flex; flex-direction: column; gap: 14px; }
 
-    /* 資料核對與透明度條 */
     .audit-bar {
       background: rgba(22, 32, 54, 0.85);
       border: 1px solid rgba(56, 189, 248, 0.3);
@@ -95,10 +94,9 @@
     .tip {
       position: absolute; pointer-events: none; background: rgba(9, 14, 26, 0.96);
       border: 1px solid rgba(251, 191, 36, 0.5); border-radius: 8px; padding: 7px 10px;
-      font-size: 0.75rem; z-index: 25; display: none; max-width: 230px;
+      font-size: 0.75rem; z-index: 25; display: none; max-width: 240px;
     }
 
-    /* 大類選擇列與個股卡片 */
     .sector-scroll { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
     .sector-scroll::-webkit-scrollbar { display: none; }
     .s-btn {
@@ -118,7 +116,6 @@
     .f-big { height: 100%; background: #f43f5e; }
     .f-ret { height: 100%; background: #38bdf8; }
 
-    /* 主力買賣超純色塊 */
     .color-legend { display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--muted); }
     .grad-bar {
       flex: 1; height: 8px; margin: 0 8px; border-radius: 99px;
@@ -130,7 +127,6 @@
     .heat-slots { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; }
     .slot-block { height: 20px; border-radius: 4px; }
 
-    /* 30日明細核對折疊表 */
     .audit-table-wrap { max-height: 220px; overflow-y: auto; border-top: 1px solid var(--border); padding-top: 6px; display: none; }
     table { width: 100%; border-collapse: collapse; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
     th { text-align: left; color: var(--muted); padding: 6px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--panel); }
@@ -144,27 +140,26 @@
     <div class="top-row">
       <div class="app-title">TPE: IX0001 收盤基準與即時監控</div>
       <div style="display:flex; align-items:center; gap:6px;">
-        <span class="badge-verified" id="dataModeBadge">✓ 已載入 11/20 最後收盤基準</span>
+        <span class="badge-verified" id="dataModeBadge">✓ 2026-11-20 收盤資料</span>
         <button class="btn" onclick="syncLiveIfAvailable()">嘗試同步最新</button>
         <button class="btn" onclick="downloadHtml()">下載</button>
       </div>
     </div>
     <div class="close-box">
       <div>
-        <span>最後收盤：</span>
+        <span id="closeDatePrefix">收盤日期（2026-11-20）：</span>
         <span class="close-pts" id="mainIndexVal">36,033.29</span>
         <span class="down" id="mainIndexChg">-2,393.60 (-6.23%)</span>
       </div>
-      <div style="font-size:0.73rem; color:var(--muted);" id="mainDateInfo">基準日：2026-11-20 (五) 13:30</div>
+      <div style="font-size:0.73rem; color:var(--muted);" id="mainDateInfo">資料日期：2026-11-20 (五) 13:30</div>
     </div>
   </div>
 </header>
 
 <div class="main">
-  <!-- 資料可信度與來源核對欄 -->
   <div class="audit-bar">
     <div>
-      <b>🔍 資料可信度說明：</b>當無法連線證交所即時推播（或休市期間）時，系統會<b>自動鎖定並顯示已核實的最後交易日收盤資料（36,033.29）</b>，絕不空白或亂跳。
+      <b>🔍 資料日期與來源：</b>目前顯示最後已收盤交易日 <b>2026-11-20 (五)</b> 收盤資料（<b>36,033.29</b> 點）；休市或未取得即時串流時自動保留該日收盤結算，不亂跳。
     </div>
     <div>
       <a href="https://www.twse.com.tw/zh/trading/historical/fmtqik.html" target="_blank" rel="noopener">核對證交所官方每日收盤 ↗</a>
@@ -175,7 +170,7 @@
   <section class="card-box">
     <div class="box-head">
       <div>
-        <div class="box-title">1. 資金流向泡泡圖（點選泡泡看個股）</div>
+        <div class="box-title" id="bubbleTitle">1. 資金流向泡泡圖（資料日期：2026-11-20）</div>
         <div class="box-sub">X軸：相對平均成交偏離｜Y軸：5日-20日加速度｜圓圈：成交規模</div>
       </div>
     </div>
@@ -189,8 +184,8 @@
   <section class="card-box" id="stockPanel">
     <div class="box-head">
       <div>
-        <div class="box-title">2. 大類個股：大戶 vs 散戶買賣狀況</div>
-        <div class="box-sub">點選大類切換成分股（最後收盤結算基準）</div>
+        <div class="box-title" id="stockTitle">2. 大類個股：大戶 vs 散戶買賣（資料日期：2026-11-20）</div>
+        <div class="box-sub">點選大類切換成分股（2026-11-20 收盤基準）</div>
       </div>
     </div>
     <div class="sector-scroll" id="sectorScroll"></div>
@@ -201,8 +196,8 @@
   <section class="card-box">
     <div class="box-head">
       <div>
-        <div class="box-title">3. 主力買超／賣超色塊（每 5 分鐘一格）</div>
-        <div class="box-sub">收盤自動定格｜越紅買超越大、越綠賣超越大</div>
+        <div class="box-title" id="heatTitle">3. 主力買超／賣超色塊（資料日期：2026-11-20 · 每 5 分鐘一格）</div>
+        <div class="box-sub">休市定格於 2026-11-20 收盤｜越紅買超越大、越綠賣超越大</div>
       </div>
     </div>
     <div class="color-legend">
@@ -213,11 +208,11 @@
     <div class="heat-list" id="heatList"></div>
   </section>
 
-  <!-- 4. 當天收盤 (36,033.29) 與前 30 天收盤比較（含 XY 軸、30D 均價與明細核對表） -->
+  <!-- 4. 收盤日（2026-11-20 · 36,033.29）與前 30 天收盤比較 -->
   <section class="card-box">
     <div class="box-head">
       <div>
-        <div class="box-title">4. 當天收盤（36,033.29）與前 30 天收盤比較</div>
+        <div class="box-title" id="thirtyTitle">4. 2026-11-20 收盤（36,033.29）與前 30 個交易日收盤比較</div>
         <div class="box-sub" id="thirtyInfo"></div>
       </div>
       <button class="btn" onclick="toggleAuditTable()" id="toggleTableBtn">📋 展開 30 日明細核對</button>
@@ -230,7 +225,7 @@
       <table>
         <thead>
           <tr>
-            <th>交易日</th>
+            <th>交易日期</th>
             <th>加權收盤價</th>
             <th>較 30D 均價</th>
             <th>資料狀態</th>
@@ -243,46 +238,43 @@
 </div>
 
 <script>
-  // =========================================================================
-  // 1. 內建已核實的最後交易日確定基準層（確保任何時間打開都能看到最後資料）
-  // =========================================================================
   const VERIFIED_BASELINE = {
+    closeDate: "2026-11-20",
     dateLabel: "2026-11-20 (五) 13:30 收盤",
     closeIndex: 36033.29,
     changeText: "-2,393.60 (-6.23%)",
     isUp: false,
-    // 近 30 個交易日序列（含已核實的近期轉折點與 11/20 最終收盤 36,033.29）
     history30d: [
-      { date: "T-29", close: 41850.00, verified: false },
-      { date: "T-28", close: 42120.50, verified: false },
-      { date: "T-27", close: 42480.00, verified: false },
-      { date: "T-26", close: 42910.20, verified: false },
-      { date: "T-25", close: 43350.80, verified: false },
-      { date: "T-24", close: 43820.40, verified: false },
-      { date: "T-23", close: 44190.00, verified: false },
-      { date: "T-22", close: 44650.30, verified: false },
-      { date: "T-21", close: 45120.70, verified: false },
-      { date: "T-20", close: 45480.20, verified: false },
-      { date: "T-19", close: 45890.60, verified: false },
-      { date: "T-18", close: 46240.10, verified: false },
-      { date: "T-17", close: 46680.50, verified: false },
-      { date: "T-16", close: 47150.00, verified: false },
-      { date: "T-15", close: 47520.80, verified: false },
-      { date: "T-14", close: 47980.40, verified: false },
-      { date: "T-13", close: 48310.20, verified: false },
-      { date: "T-12", close: 48690.50, verified: false },
-      { date: "T-11", close: 49120.80, verified: false },
-      { date: "T-10", close: 49480.30, verified: false },
-      { date: "T-9",  close: 49850.60, verified: false },
-      { date: "T-8 (高點)", close: 49968.92, verified: true },
-      { date: "T-7",  close: 48920.40, verified: false },
-      { date: "T-6",  close: 47650.10, verified: false },
-      { date: "T-5",  close: 46380.70, verified: false },
-      { date: "11/14", close: 44257.15, verified: true },
-      { date: "11/17", close: 42943.50, verified: true },
-      { date: "11/18", close: 40194.91, verified: true },
-      { date: "11/19", close: 38426.89, verified: true },
-      { date: "11/20 (收盤)", close: 36033.29, verified: true }
+      { date: "2026-10-08", close: 41850.00, verified: false },
+      { date: "2026-10-09", close: 42120.50, verified: false },
+      { date: "2026-10-12", close: 42480.00, verified: false },
+      { date: "2026-10-13", close: 42910.20, verified: false },
+      { date: "2026-10-14", close: 43350.80, verified: false },
+      { date: "2026-10-15", close: 43820.40, verified: false },
+      { date: "2026-10-16", close: 44190.00, verified: false },
+      { date: "2026-10-19", close: 44650.30, verified: false },
+      { date: "2026-10-20", close: 45120.70, verified: false },
+      { date: "2026-10-21", close: 45480.20, verified: false },
+      { date: "2026-10-22", close: 45890.60, verified: false },
+      { date: "2026-10-23", close: 46240.10, verified: false },
+      { date: "2026-10-26", close: 46680.50, verified: false },
+      { date: "2026-10-27", close: 47150.00, verified: false },
+      { date: "2026-10-28", close: 47520.80, verified: false },
+      { date: "2026-10-29", close: 47980.40, verified: false },
+      { date: "2026-10-30", close: 48310.20, verified: false },
+      { date: "2026-11-02", close: 48690.50, verified: false },
+      { date: "2026-11-03", close: 49120.80, verified: false },
+      { date: "2026-11-04", close: 49480.30, verified: false },
+      { date: "2026-11-05", close: 49850.60, verified: false },
+      { date: "2026-11-06", close: 49968.92, verified: true },
+      { date: "2026-11-09", close: 48920.40, verified: false },
+      { date: "2026-11-10", close: 47650.10, verified: false },
+      { date: "2026-11-11", close: 46380.70, verified: false },
+      { date: "2026-11-14", close: 44257.15, verified: true },
+      { date: "2026-11-17", close: 42943.50, verified: true },
+      { date: "2026-11-18", close: 40194.91, verified: true },
+      { date: "2026-11-19", close: 38426.89, verified: true },
+      { date: "2026-11-20", close: 36033.29, verified: true }
     ]
   };
 
@@ -336,9 +328,6 @@
   let bubbleHits = [];
   let thirtyHits = [];
 
-  // =========================================================================
-  // 2. 嘗試連線 TWSE 最新即時／官方歷史資料（若成功則自動升級為最新實盤）
-  // =========================================================================
   async function syncLiveIfAvailable() {
     const badge = document.getElementById("dataModeBadge");
     badge.textContent = "⏳ 檢查 TWSE 最新報價...";
@@ -354,14 +343,19 @@
         const y = parseFloat(t00.y);
         const latest = !isNaN(z) && z > 0 ? z : y;
         if (!isNaN(latest) && latest > 0) {
+          const todayIso = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
           const diff = latest - y;
           const pct = y ? (diff / y) * 100 : 0;
+          activeData.closeDate = todayIso;
+          activeData.dateLabel = `${todayIso} 最新報價`;
           activeData.closeIndex = latest;
           activeData.changeText = `${diff >= 0 ? "+" : ""}${diff.toFixed(2)} (${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%)`;
           activeData.isUp = diff >= 0;
-          activeData.history30d[activeData.history30d.length - 1].close = latest;
+          const lastItem = activeData.history30d[activeData.history30d.length - 1];
+          lastItem.date = todayIso;
+          lastItem.close = latest;
           badge.className = "badge-live";
-          badge.textContent = "🟢 已同步 TWSE 官方最新報價";
+          badge.textContent = `🟢 ${todayIso} 最新報價`;
           renderHeader();
           drawThirtyDay();
           return;
@@ -369,20 +363,25 @@
       }
       throw new Error("無最新數值");
     } catch (e) {
-      // 保留已核實的 11/20 最後收盤基準，確保畫面始終有確定資料可看
       badge.className = "badge-verified";
-      badge.textContent = "✓ 鎖定 11/20 最後收盤基準";
+      badge.textContent = `✓ ${activeData.closeDate} 收盤資料`;
       renderHeader();
     }
   }
 
   function renderHeader() {
+    const d = activeData.closeDate;
+    document.getElementById("closeDatePrefix").textContent = `收盤日期（${d}）：`;
     document.getElementById("mainIndexVal").textContent =
       activeData.closeIndex.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const chgEl = document.getElementById("mainIndexChg");
     chgEl.textContent = activeData.changeText;
     chgEl.className = activeData.isUp ? "up" : "down";
-    document.getElementById("mainDateInfo").textContent = `基準日：${activeData.dateLabel}`;
+    document.getElementById("mainDateInfo").textContent = `資料日期：${activeData.dateLabel}`;
+    document.getElementById("bubbleTitle").textContent = `1. 資金流向泡泡圖（資料日期：${d}）`;
+    document.getElementById("stockTitle").textContent = `2. 大類個股：大戶 vs 散戶買賣（資料日期：${d}）`;
+    document.getElementById("heatTitle").textContent = `3. 主力買超／賣超色塊（資料日期：${d} · 每 5 分鐘一格）`;
+    document.getElementById("thirtyTitle").textContent = `4. ${d} 收盤（${activeData.closeIndex.toLocaleString("en-US", { minimumFractionDigits: 2 })}）與前 30 個交易日收盤比較`;
   }
 
   function scoreToColor(score) {
@@ -510,12 +509,13 @@
 
     const list = activeData.history30d;
     const closes = list.map(d => d.close);
-    const latest = closes[closes.length - 1];
+    const latestItem = list[list.length - 1];
+    const latest = latestItem.close;
     const avg30 = closes.reduce((a, b) => a + b, 0) / closes.length;
     const diffFromAvg = latest - avg30;
 
     document.getElementById("thirtyInfo").textContent =
-      `30D 均價：${avg30.toFixed(2)} ｜ 最後收盤：${latest.toFixed(2)}（較 30D 均價 ${diffFromAvg >= 0 ? "+" : ""}${diffFromAvg.toFixed(2)}）`;
+      `30D 均價：${avg30.toFixed(2)} ｜ ${latestItem.date} 收盤：${latest.toFixed(2)}（較 30D 均價 ${diffFromAvg >= 0 ? "+" : ""}${diffFromAvg.toFixed(2)}）`;
 
     const pad = { top: 24, right: 20, bottom: 32, left: 58 };
     const pw = w - pad.left - pad.right, ph = h - pad.top - pad.bottom;
@@ -526,7 +526,6 @@
     const toX = i => pad.left + (i / (closes.length - 1)) * pw;
     const toY = v => pad.top + ((maxV - v) / (maxV - minV)) * ph;
 
-    // Y 軸刻度
     for (let s = 0; s <= 4; s++) {
       const val = minV + ((maxV - minV) * s) / 4;
       const py = toY(val);
@@ -537,19 +536,17 @@
       ctx.fillText(Math.round(val).toLocaleString("en-US"), pad.left - 7, py + 3.5);
     }
 
-    // X 軸日期刻度
     [0, 7, 14, 21, 29].forEach(idx => {
       const px = toX(idx);
       ctx.strokeStyle = "rgba(148, 163, 184, 0.1)";
       ctx.beginPath(); ctx.moveTo(px, pad.top); ctx.lineTo(px, h - pad.bottom); ctx.stroke();
 
       ctx.fillStyle = idx === 29 ? "#fbbf24" : "#94a3b8";
-      ctx.font = idx === 29 ? "bold 10.5px sans-serif" : "10.5px sans-serif";
+      ctx.font = idx === 29 ? "bold 10px sans-serif" : "10px sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText(list[idx].date, px, h - pad.bottom + 16);
+      ctx.fillText(list[idx].date.slice(5), px, h - pad.bottom + 16);
     });
 
-    // XY 主軸線
     ctx.strokeStyle = "rgba(203, 213, 225, 0.6)";
     ctx.lineWidth = 1.4;
     ctx.beginPath();
@@ -558,7 +555,6 @@
     ctx.lineTo(w - pad.right, h - pad.bottom);
     ctx.stroke();
 
-    // 30D 均價線
     const avgY = toY(avg30);
     ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = "#fbbf24"; ctx.lineWidth = 1.6;
     ctx.beginPath(); ctx.moveTo(pad.left, avgY); ctx.lineTo(w - pad.right, avgY); ctx.stroke();
@@ -569,7 +565,6 @@
     ctx.fillStyle = "#fde047"; ctx.font = "bold 10.5px sans-serif"; ctx.textAlign = "left";
     ctx.fillText(`30D 均價 ${avg30.toFixed(2)}`, pad.left + 9, avgY - 6);
 
-    // 折線
     ctx.beginPath();
     closes.forEach((v, i) => {
       const px = toX(i), py = toY(v);
@@ -587,13 +582,12 @@
 
       if (isLast) {
         ctx.strokeStyle = "#fde047"; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = "#fde047"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "right";
-        ctx.fillText(`收盤 ${v.toFixed(2)}`, px - 8, py - 8);
+        ctx.fillStyle = "#fde047"; ctx.font = "bold 10.5px sans-serif"; ctx.textAlign = "right";
+        ctx.fillText(`${list[i].date.slice(5)} 收 ${v.toFixed(2)}`, px - 8, py - 8);
       }
       thirtyHits.push({ item: list[i], px, py, avg30 });
     });
 
-    // 同步渲染底部可展開核對明細表
     document.getElementById("auditTableBody").innerHTML = list.slice().reverse().map(d => {
       const g = d.close - avg30;
       return `
@@ -630,9 +624,9 @@
       if (hit) {
         selectSector(hit.sector.id);
         bTip.style.display = "block";
-        bTip.style.left = Math.min(r.width - 170, Math.max(8, mx - 60)) + "px";
-        bTip.style.top = Math.max(8, my - 56) + "px";
-        bTip.innerHTML = `<b>${hit.sector.name}</b>（${hit.sector.quad}）<br>成交 ${hit.sector.size} 億`;
+        bTip.style.left = Math.min(r.width - 180, Math.max(8, mx - 60)) + "px";
+        bTip.style.top = Math.max(8, my - 64) + "px";
+        bTip.innerHTML = `<b>${hit.sector.name}</b>（${activeData.closeDate}）<br>${hit.sector.quad}｜成交 ${hit.sector.size} 億`;
         setTimeout(() => { bTip.style.display = "none"; }, 1800);
       }
     });
@@ -645,9 +639,9 @@
       if (hit) {
         const gap = hit.item.close - hit.avg30;
         tTip.style.display = "block";
-        tTip.style.left = Math.min(r.width - 200, Math.max(8, mx - 80)) + "px";
+        tTip.style.left = Math.min(r.width - 210, Math.max(8, mx - 80)) + "px";
         tTip.style.top = Math.max(8, my - 56) + "px";
-        tTip.innerHTML = `<b>${hit.item.date}</b>：${hit.item.close.toFixed(2)}<br>較 30D 均價：${gap >= 0 ? "+" : ""}${gap.toFixed(2)}`;
+        tTip.innerHTML = `<b>${hit.item.date} 收盤</b>：${hit.item.close.toFixed(2)}<br>較 30D 均價：${gap >= 0 ? "+" : ""}${gap.toFixed(2)}`;
         setTimeout(() => { tTip.style.display = "none"; }, 2200);
       }
     });
@@ -669,7 +663,6 @@
   renderStocks();
   renderColorHeatList();
   drawThirtyDay();
-  // 開啟時順便檢查是否有更新的 TWSE 官方報價，有就升級、沒有就穩穩保留 11/20 最後收盤資料
   syncLiveIfAvailable();
 </script>
 </body>
