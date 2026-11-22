@@ -66,7 +66,7 @@
     .tip {
       position: absolute; pointer-events: none; background: rgba(9, 14, 26, 0.96);
       border: 1px solid rgba(251, 191, 36, 0.5); border-radius: 8px; padding: 7px 10px;
-      font-size: 0.75rem; z-index: 25; display: none; max-width: 210px;
+      font-size: 0.75rem; z-index: 25; display: none; max-width: 220px;
     }
     .sector-scroll { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
     .sector-scroll::-webkit-scrollbar { display: none; }
@@ -121,10 +121,11 @@
 </header>
 
 <div class="main">
+  <!-- 1. 四大區塊資金流向泡泡圖 -->
   <section class="card-box">
     <div>
       <div class="box-title">資金流向泡泡圖（點選泡泡看個股）</div>
-      <div class="box-sub">右＝偏離平均高｜上＝5日-20日加速度高｜圓圈＝成交規模</div>
+      <div class="box-sub">X軸：相對平均成交偏離｜Y軸：5日-20日加速度｜圓圈：成交規模</div>
     </div>
     <div class="canvas-wrap" id="bubbleWrap">
       <canvas id="bubbleCanvas"></canvas>
@@ -132,6 +133,7 @@
     </div>
   </section>
 
+  <!-- 2. 點選大類看個股大戶與散戶買賣 -->
   <section class="card-box" id="stockPanel">
     <div>
       <div class="box-title">大類個股：大戶 vs 散戶買賣狀況</div>
@@ -141,6 +143,7 @@
     <div class="stock-cards" id="stockCards"></div>
   </section>
 
+  <!-- 3. 主力買超／賣超色塊 -->
   <section class="card-box">
     <div>
       <div class="box-title">主力買超／賣超色塊（每 5 分鐘一格）</div>
@@ -154,12 +157,13 @@
     <div class="heat-list" id="heatList"></div>
   </section>
 
+  <!-- 4. 當天收盤 (36,033.29) 與前 30 天收盤比較（含明確 XY 軸與 30D 均價線） -->
   <section class="card-box">
     <div>
       <div class="box-title">當天收盤（36,033.29）與前 30 天收盤比較</div>
       <div class="box-sub" id="thirtyInfo"></div>
     </div>
-    <div class="canvas-wrap" id="thirtyWrap" style="height:220px;">
+    <div class="canvas-wrap" id="thirtyWrap" style="height:260px;">
       <canvas id="thirtyCanvas"></canvas>
       <div class="tip" id="thirtyTip"></div>
     </div>
@@ -213,7 +217,7 @@
     }
   ];
 
-  // 近 30 日收盤價走勢（最後一天為 2026-11-20 真實收盤 36,033.29）
+  // 近 30 個交易日收盤價序列（最後一天為 2026-11-20 收盤 36,033.29）
   const CLOSE_30D = [
     41850.0, 42120.5, 42480.0, 42910.2, 43350.8, 43820.4, 44190.0, 44650.3, 45120.7, 45480.2,
     45890.6, 46240.1, 46680.5, 47150.0, 47520.8, 47980.4, 48310.2, 48690.5, 49120.8, 49480.3,
@@ -244,7 +248,7 @@
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, w, h);
 
-    const pad = { top: 22, right: 16, bottom: 24, left: 38 };
+    const pad = { top: 22, right: 16, bottom: 26, left: 42 };
     const pw = w - pad.left - pad.right, ph = h - pad.top - pad.bottom;
     const minX = -100, maxX = 190, minY = -140, maxY = 140;
     const toX = v => pad.left + ((v - minX) / (maxX - minX)) * pw;
@@ -256,6 +260,16 @@
     ctx.fillStyle = "rgba(56, 189, 248, 0.06)"; ctx.fillRect(pad.left, pad.top, zx - pad.left, zy - pad.top);
     ctx.fillStyle = "rgba(100, 116, 139, 0.06)"; ctx.fillRect(pad.left, zy, zx - pad.left, h - pad.bottom - zy);
 
+    // 繪製外框 XY 軸線
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.35)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, pad.top);
+    ctx.lineTo(pad.left, h - pad.bottom);
+    ctx.lineTo(w - pad.right, h - pad.bottom);
+    ctx.stroke();
+
+    // 中心十字參考線
     ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = "rgba(251, 191, 36, 0.5)";
     ctx.beginPath(); ctx.moveTo(zx, pad.top); ctx.lineTo(zx, h - pad.bottom); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(pad.left, zy); ctx.lineTo(w - pad.right, zy); ctx.stroke();
@@ -329,6 +343,9 @@
     `).join("");
   }
 
+  // =========================================================================
+  // 繪製當天收盤 (36,033.29) 與前 30 天收盤比較圖（完整 XY 軸 + 30D 均價）
+  // =========================================================================
   function drawThirtyDay() {
     const wrap = document.getElementById("thirtyWrap");
     const canvas = document.getElementById("thirtyCanvas");
@@ -339,43 +356,117 @@
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, w, h);
 
-    const pad = { top: 20, right: 16, bottom: 24, left: 52 };
-    const pw = w - pad.left - pad.right, ph = h - pad.top - pad.bottom;
-    const minV = Math.min(...CLOSE_30D) - 500, maxV = Math.max(...CLOSE_30D) + 500;
+    // 留出足夠邊距給 Y 軸指數刻度與 X 軸日期刻度
+    const pad = { top: 24, right: 20, bottom: 32, left: 58 };
+    const pw = w - pad.left - pad.right;
+    const ph = h - pad.top - pad.bottom;
+
+    const minV = Math.floor((Math.min(...CLOSE_30D) - 600) / 500) * 500;
+    const maxV = Math.ceil((Math.max(...CLOSE_30D) + 600) / 500) * 500;
     const avg30 = CLOSE_30D.reduce((a, b) => a + b, 0) / CLOSE_30D.length;
+    const diffFromAvg = CLOSE_INDEX - avg30;
 
     document.getElementById("thirtyInfo").textContent =
-      `近30日均價 ${avg30.toFixed(0)} ｜ 當天收盤 ${CLOSE_INDEX.toFixed(2)}`;
+      `30D 均價：${avg30.toFixed(2)} ｜ 當天收盤：${CLOSE_INDEX.toFixed(2)}（較 30D 均價 ${diffFromAvg >= 0 ? "+" : ""}${diffFromAvg.toFixed(2)}）`;
 
     const toX = i => pad.left + (i / (CLOSE_30D.length - 1)) * pw;
     const toY = v => pad.top + ((maxV - v) / (maxV - minV)) * ph;
 
+    // 1. 繪製 Y 軸刻度與水平網格線
+    const ySteps = 4;
+    for (let s = 0; s <= ySteps; s++) {
+      const val = minV + ((maxV - minV) * s) / ySteps;
+      const py = toY(val);
+      ctx.strokeStyle = "rgba(148, 163, 184, 0.14)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, py);
+      ctx.lineTo(w - pad.right, py);
+      ctx.stroke();
+
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "10.5px sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(Math.round(val).toLocaleString("en-US"), pad.left - 7, py + 3.5);
+    }
+
+    // 2. 繪製 X 軸刻度與垂直參考線
+    const xTicks = [0, 7, 14, 21, 29];
+    xTicks.forEach(idx => {
+      const px = toX(idx);
+      ctx.strokeStyle = "rgba(148, 163, 184, 0.1)";
+      ctx.beginPath();
+      ctx.moveTo(px, pad.top);
+      ctx.lineTo(px, h - pad.bottom);
+      ctx.stroke();
+
+      ctx.fillStyle = idx === 29 ? "#fbbf24" : "#94a3b8";
+      ctx.font = idx === 29 ? "bold 10.5px sans-serif" : "10.5px sans-serif";
+      ctx.textAlign = "center";
+      const label = idx === 29 ? "當天(11/20)" : `-${29 - idx}日`;
+      ctx.fillText(label, px, h - pad.bottom + 16);
+    });
+
+    // 3. 繪製明確的實線 X 軸與 Y 軸主軸線
+    ctx.strokeStyle = "rgba(203, 213, 225, 0.55)";
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, pad.top);
+    ctx.lineTo(pad.left, h - pad.bottom);     // Y 軸
+    ctx.lineTo(w - pad.right, h - pad.bottom); // X 軸
+    ctx.stroke();
+
+    // 4. 繪製 30D 均價線（金色虛線 + 明確數值標註）
     const avgY = toY(avg30);
-    ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = "rgba(251, 191, 36, 0.65)";
-    ctx.beginPath(); ctx.moveTo(pad.left, avgY); ctx.lineTo(w - pad.right, avgY); ctx.stroke();
+    ctx.save();
+    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = "#fbbf24";
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, avgY);
+    ctx.lineTo(w - pad.right, avgY);
+    ctx.stroke();
     ctx.restore();
 
+    ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
+    ctx.fillRect(pad.left + 6, avgY - 17, 128, 15);
+    ctx.fillStyle = "#fde047";
+    ctx.font = "bold 10.5px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText(`30D 均價 ${avg30.toFixed(2)}`, pad.left + 9, avgY - 6);
+
+    // 5. 繪製 30 日收盤價折線
     ctx.beginPath();
     CLOSE_30D.forEach((v, i) => {
       const px = toX(i), py = toY(v);
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     });
-    ctx.strokeStyle = "#38bdf8"; ctx.lineWidth = 2.2; ctx.stroke();
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
 
+    // 6. 標註數據點與當天收盤高亮點
     thirtyHits = [];
     CLOSE_30D.forEach((v, i) => {
       const px = toX(i), py = toY(v);
       const isLast = i === CLOSE_30D.length - 1;
+
+      ctx.beginPath();
+      ctx.arc(px, py, isLast ? 5.5 : 2.3, 0, Math.PI * 2);
+      ctx.fillStyle = isLast ? "#f43f5e" : "#7dd3fc";
+      ctx.fill();
+
       if (isLast) {
-        ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fillStyle = "#fbbf24"; ctx.fill();
-        ctx.fillStyle = "#fde047"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "right";
-        ctx.fillText(`收 ${v.toFixed(2)}`, px - 8, py - 7);
+        ctx.strokeStyle = "#fde047";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = "#fde047";
+        ctx.font = "bold 11px sans-serif";
+        ctx.textAlign = "right";
+        ctx.fillText(`當天收盤 ${v.toFixed(2)}`, px - 8, py - 8);
       }
-      if (i === 0 || i === 15 || isLast) {
-        ctx.fillStyle = "#94a3b8"; ctx.font = "10px sans-serif"; ctx.textAlign = "center";
-        ctx.fillText(isLast ? "當天" : `-${CLOSE_30D.length - 1 - i}日`, px, h - 7);
-      }
-      thirtyHits.push({ i, v, px, py });
+      thirtyHits.push({ i, v, px, py, avg30 });
     });
   }
 
@@ -407,11 +498,12 @@
       const mx = e.clientX - r.left, my = e.clientY - r.top;
       const hit = thirtyHits.find(h => Math.hypot(mx - h.px, my - h.py) <= 16);
       if (hit) {
+        const gap = hit.v - hit.avg30;
         tTip.style.display = "block";
-        tTip.style.left = Math.min(r.width - 170, Math.max(8, mx - 60)) + "px";
-        tTip.style.top = Math.max(8, my - 44) + "px";
-        tTip.innerHTML = `${hit.i === CLOSE_30D.length - 1 ? "當天收盤" : "前" + (CLOSE_30D.length - 1 - hit.i) + "日"}：<b>${hit.v.toFixed(2)}</b>`;
-        setTimeout(() => { tTip.style.display = "none"; }, 1800);
+        tTip.style.left = Math.min(r.width - 190, Math.max(8, mx - 80)) + "px";
+        tTip.style.top = Math.max(8, my - 54) + "px";
+        tTip.innerHTML = `<b>${hit.i === CLOSE_30D.length - 1 ? "當天收盤 (11/20)" : "前" + (CLOSE_30D.length - 1 - hit.i) + "日收盤"}</b>：${hit.v.toFixed(2)}<br>較 30D 均價：${gap >= 0 ? "+" : ""}${gap.toFixed(2)}`;
+        setTimeout(() => { tTip.style.display = "none"; }, 2200);
       }
     });
   }
