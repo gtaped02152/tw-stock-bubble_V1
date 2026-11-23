@@ -192,6 +192,47 @@ def fetch_taiex_30d():
     return records[-30:], "Yahoo Finance (^TWII 實盤收盤)"
 
 
+def fetch_taiex_today_avg(target_date, fallback_close):
+    """抓取大盤 ^TWII 當日 09:00~13:30 真實 5 分 K 計算當天均價；若無則退回日線 (H+L+C)/3"""
+    try:
+        df5 = yf.download("^TWII", period="5d", interval="5m", auto_adjust=False, progress=False)
+        if isinstance(df5.columns, pd.MultiIndex):
+            df5.columns = df5.columns.get_level_values(0)
+        df5 = df5.dropna(subset=["Close"])
+        if len(df5) > 0:
+            if df5.index.tz is None:
+                df5.index = df5.index.tz_localize("UTC").tz_convert(TW_TZ)
+            else:
+                df5.index = df5.index.tz_convert(TW_TZ)
+
+            day_df = df5[df5.index.strftime("%Y-%m-%d") == target_date]
+            if len(day_df) == 0:
+                latest_d = df5.index.max().strftime("%Y-%m-%d")
+                day_df = df5[df5.index.strftime("%Y-%m-%d") == latest_d]
+
+            vals = [float(v) for v in day_df["Close"].tolist() if math.isfinite(float(v)) and float(v) > 0]
+            if vals:
+                return round(sum(vals) / len(vals), 2), f"當日5分K均價 ({len(vals)}筆)"
+    except Exception as e:
+        print(f"TAIEX 5m avg fallback triggered: {e}")
+
+    # 備援：取當日真實日線 (高+低+收)/3
+    try:
+        dfd = yf.download("^TWII", period="5d", auto_adjust=False, progress=False)
+        if isinstance(dfd.columns, pd.MultiIndex):
+            dfd.columns = dfd.columns.get_level_values(0)
+        dfd = dfd.dropna(subset=["High", "Low", "Close"])
+        if len(dfd) > 0:
+            last_row = dfd.iloc[-1]
+            h, l, c = float(last_row["High"]), float(last_row["Low"]), float(last_row["Close"])
+            if all(math.isfinite(x) and x > 0 for x in [h, l, c]):
+                return round((h + l + c) / 3.0, 2), "當日高低收均 (H+L+C)/3"
+    except Exception as e:
+        print(f"TAIEX daily HLC fallback skipped: {e}")
+
+    return round(float(fallback_close), 2), "當日收盤基準"
+
+
 def fetch_twse_t86(date_iso):
     """抓取 TWSE 上市三大法人買賣超（單位：張）"""
     ymd = date_iso.replace("-", "")
@@ -217,7 +258,7 @@ def fetch_twse_t86(date_iso):
 
 
 def fetch_tpex_insti(date_iso):
-    """抓取 TPEx 上櫃三大法人買賣超（新版 /www/zh-tw/insti/dailyTrade，單位：張）"""
+    """抓取 TPEx 上櫃三大法人買賣超（單位：張）"""
     slash_date = date_iso.replace("-", "/")
     url = f"https://www.tpex.org.tw/www/zh-tw/insti/dailyTrade?type=Daily&sect=EW&date={slash_date}&response=json"
     result = {}
@@ -244,7 +285,7 @@ def fetch_tpex_insti(date_iso):
 
 
 def fetch_all_stock_data():
-    """一次批量抓取 80 檔個股近 3 個月日線 + 近 5 日 5 分 K（計算當天 5 分鐘主力色塊）"""
+    """一次批量抓取 80 檔個股近 3 個月日線 + 近 5 日 5 分 K"""
     yf_tickers = []
     ticker_map = {}
     for sec in SECTORS_CONFIG:
@@ -261,7 +302,6 @@ def fetch_all_stock_data():
     latest_intraday_date = None
 
     for code, yt in ticker_map.items():
-        # 日線
         try:
             sub = daily_raw[yt].dropna(subset=["Close", "Volume"]) if isinstance(daily_raw.columns, pd.MultiIndex) else daily_raw.dropna(subset=["Close", "Volume"])
             if len(sub) >= 2:
@@ -269,7 +309,6 @@ def fetch_all_stock_data():
         except Exception as e:
             print(f"Daily skip {yt}: {e}")
 
-        # 5 分 K
         try:
             sub5 = intraday_raw[yt].dropna(subset=["Open", "High", "Low", "Close", "Volume"]) if isinstance(intraday_raw.columns, pd.MultiIndex) else intraday_raw.dropna(subset=["Open", "High", "Low", "Close", "Volume"])
             if len(sub5) > 0:
@@ -311,7 +350,6 @@ def compute_sector_intraday_5m(sec_stocks, intraday_map, target_date):
             if not all(math.isfinite(x) for x in [o, h, l, c, v]) or c <= 0:
                 continue
 
-            # 對齊至 5 分鐘格 (09:00 ~ 13:25；13:30 尾盤歸入 13:25 最後一格)
             mins = ts.hour * 60 + ts.minute
             if mins < 540 or mins > 815:
                 prev_c = c
@@ -322,8 +360,7 @@ def compute_sector_intraday_5m(sec_stocks, intraday_map, target_date):
                 prev_c = c
                 continue
 
-            amt_b = (c * v) / 1e8  # 該 5 分 K 成交額（億元）
-            # 結合 K 棒收盤位置 (CLV) 與開收/前收方向，衡量主動買賣壓
+            amt_b = (c * v) / 1e8
             clv = ((c - l) - (h - c)) / (h - l) if h > l else 0.0
             ref = prev_c if (prev_c and prev_c > 0) else o
             body_dir = max(-1.0, min(1.0, ((c - ref) / ref) / 0.004)) if ref > 0 else 0.0
@@ -338,7 +375,6 @@ def compute_sector_intraday_5m(sec_stocks, intraday_map, target_date):
     if not active_vals:
         return [None] * len(SLOT_LABELS_5M)
 
-    # 以當日該族群 85 百分位作為色階滿刻度，讓強弱對比鮮明且不受極端單筆雜訊壓扁
     sorted_abs = sorted(active_vals)
     scale_ref = max(sorted_abs[int(len(sorted_abs) * 0.85)], 0.05)
 
@@ -362,7 +398,9 @@ def main():
     prev_close = history_30d[-2]["close"] if len(history_30d) >= 2 else latest_taiex["close"]
     taiex_pct = round((latest_taiex["diff"] / prev_close) * 100, 2) if prev_close else 0.0
 
-    # 同時抓上市(TWSE)與上櫃(TPEx)官方三大法人買賣超
+    # 計算大盤當天均價
+    today_avg, today_avg_source = fetch_taiex_today_avg(latest_date, latest_taiex["close"])
+
     inst_map = {}
     inst_map.update(fetch_twse_t86(latest_date))
     inst_map.update(fetch_tpex_insti(latest_date))
@@ -446,7 +484,9 @@ def main():
         "taiex": {
             "close": latest_taiex["close"],
             "diff": latest_taiex["diff"],
-            "pct": taiex_pct
+            "pct": taiex_pct,
+            "todayAvg": today_avg,
+            "todayAvgSource": today_avg_source
         },
         "history30d": history_30d,
         "sectors": sectors_out
@@ -455,7 +495,7 @@ def main():
     os.makedirs("data", exist_ok=True)
     with open("data/market_data.json", "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2, allow_nan=False)
-    print(f"Updated data/market_data.json for {latest_date} ({len(sectors_out)} sectors, intraday: {effective_intraday_date})")
+    print(f"Updated data/market_data.json for {latest_date} (todayAvg: {today_avg})")
 
 
 if __name__ == "__main__":
