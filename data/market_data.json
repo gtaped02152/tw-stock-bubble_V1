@@ -1,11 +1,70 @@
 {
-  "generatedAt": "2026-11-23 21:45:16 CST",
+  "generatedAt": "2026-11-23 22:33:10 CST",
   "dataDate": "2026-11-23",
+  "intradayDate": "2026-11-23",
+  "intradaySlots": [
+    "09:00",
+    "09:05",
+    "09:10",
+    "09:15",
+    "09:20",
+    "09:25",
+    "09:30",
+    "09:35",
+    "09:40",
+    "09:45",
+    "09:50",
+    "09:55",
+    "10:00",
+    "10:05",
+    "10:10",
+    "10:15",
+    "10:20",
+    "10:25",
+    "10:30",
+    "10:35",
+    "10:40",
+    "10:45",
+    "10:50",
+    "10:55",
+    "11:00",
+    "11:05",
+    "11:10",
+    "11:15",
+    "11:20",
+    "11:25",
+    "11:30",
+    "11:35",
+    "11:40",
+    "11:45",
+    "11:50",
+    "11:55",
+    "12:00",
+    "12:05",
+    "12:10",
+    "12:15",
+    "12:20",
+    "12:25",
+    "12:30",
+    "12:35",
+    "12:40",
+    "12:45",
+    "12:50",
+    "12:55",
+    "13:00",
+    "13:05",
+    "13:10",
+    "13:15",
+    "13:20",
+    "13:25"
+  ],
   "taiexSource": "TWSE 官方 FMTQIK",
   "taiex": {
     "close": 36811.89,
     "diff": 778.6,
-    "pct": 2.16
+    "pct": 2.16,
+    "todayAvg": 36494.26,
+    "todayAvgSource": "當日5分K均價 (54筆)"
   },
   "history30d": [
     {
@@ -191,47 +250,69 @@
   ],
   "sectors": [
     {
-      "id": "semi",
-      "name": "半導體",
+      "id": "foundry",
+      "name": "晶圓代工",
       "market": "上市櫃",
-      "turnoverBillion": 2515.44,
-      "avg5": 2148.05,
-      "avg20": 1778.68,
-      "prev4Sum": 8224.82,
-      "y": 369.37,
-      "dailyHeat8d": [
-        {
-          "label": "11-12",
-          "score": -59
-        },
-        {
-          "label": "11-13",
-          "score": 64
-        },
-        {
-          "label": "11-16",
-          "score": -100
-        },
-        {
-          "label": "11-17",
-          "score": -40
-        },
-        {
-          "label": "11-18",
-          "score": 38
-        },
-        {
-          "label": "11-19",
-          "score": -100
-        },
-        {
-          "label": "11-20",
-          "score": -100
-        },
-        {
-          "label": "11-23",
-          "score": 100
-        }
+      "turnoverBillion": 1742.52,
+      "avg5": 1429.53,
+      "avg20": 1190.36,
+      "prev4Sum": 5405.15,
+      "y": 239.17,
+      "intraday5m": [
+        0,
+        -91,
+        -100,
+        -100,
+        23,
+        41,
+        -8,
+        100,
+        -68,
+        100,
+        -32,
+        22,
+        -1,
+        -93,
+        -24,
+        8,
+        -100,
+        36,
+        -35,
+        14,
+        -4,
+        -20,
+        -26,
+        32,
+        40,
+        -5,
+        31,
+        47,
+        100,
+        100,
+        31,
+        14,
+        21,
+        -17,
+        -27,
+        23,
+        19,
+        45,
+        26,
+        -24,
+        -11,
+        12,
+        28,
+        0,
+        -1,
+        -22,
+        17,
+        -35,
+        24,
+        -100,
+        -47,
+        38,
+        74,
+        null
       ],
       "stocks": [
         {
@@ -246,16 +327,6 @@
         },
         {
           "ex": "tse",
-          "code": "2454",
-          "name": "聯發科",
-          "close": 3685.0,
-          "prevClose": 3350.0,
-          "chgPct": 10.0,
-          "turnoverBillion": 659.5,
-          "instNetLots": -5
-        },
-        {
-          "ex": "tse",
           "code": "2303",
           "name": "聯電",
           "close": 88.3,
@@ -264,6 +335,363 @@
           "turnoverBillion": 265.34,
           "instNetLots": 3862
         },
+        {
+          "ex": "tse",
+          "code": "6770",
+          "name": "力積電",
+          "close": 48.5,
+          "prevClose": 44.1,
+          "chgPct": 9.98,
+          "turnoverBillion": 51.23,
+          "instNetLots": 10267
+        },
+        {
+          "ex": "otc",
+          "code": "5347",
+          "name": "世界",
+          "close": 110.0,
+          "prevClose": 106.5,
+          "chgPct": 3.29,
+          "turnoverBillion": 26.31,
+          "instNetLots": -1120
+        },
+        {
+          "ex": "otc",
+          "code": "3707",
+          "name": "漢磊",
+          "close": 43.3,
+          "prevClose": 42.3,
+          "chgPct": 2.36,
+          "turnoverBillion": 1.75,
+          "instNetLots": -114
+        }
+      ],
+      "x": 249.3
+    },
+    {
+      "id": "equip",
+      "name": "設備CoWoS",
+      "market": "上市櫃",
+      "turnoverBillion": 48.63,
+      "avg5": 37.24,
+      "avg20": 39.55,
+      "prev4Sum": 137.59,
+      "y": -2.3,
+      "intraday5m": [
+        0,
+        -100,
+        -81,
+        -100,
+        -98,
+        100,
+        100,
+        88,
+        98,
+        -46,
+        7,
+        100,
+        -93,
+        12,
+        -28,
+        -8,
+        -100,
+        78,
+        -41,
+        -4,
+        15,
+        -6,
+        -8,
+        50,
+        62,
+        61,
+        83,
+        71,
+        100,
+        75,
+        84,
+        -6,
+        -3,
+        -60,
+        10,
+        69,
+        87,
+        100,
+        12,
+        -7,
+        -31,
+        -15,
+        -23,
+        -38,
+        52,
+        41,
+        20,
+        58,
+        -25,
+        -38,
+        49,
+        -5,
+        15,
+        null
+      ],
+      "stocks": [
+        {
+          "ex": "tse",
+          "code": "3583",
+          "name": "辛耘",
+          "close": 371.0,
+          "prevClose": 355.5,
+          "chgPct": 4.36,
+          "turnoverBillion": 4.51,
+          "instNetLots": 239
+        },
+        {
+          "ex": "otc",
+          "code": "3131",
+          "name": "弘塑",
+          "close": 1335.0,
+          "prevClose": 1315.0,
+          "chgPct": 1.52,
+          "turnoverBillion": 7.85,
+          "instNetLots": -23
+        },
+        {
+          "ex": "otc",
+          "code": "6187",
+          "name": "萬潤",
+          "close": 673.0,
+          "prevClose": 625.0,
+          "chgPct": 7.68,
+          "turnoverBillion": 24.44,
+          "instNetLots": -231
+        },
+        {
+          "ex": "otc",
+          "code": "3680",
+          "name": "家登",
+          "close": 329.0,
+          "prevClose": 299.5,
+          "chgPct": 9.85,
+          "turnoverBillion": 4.49,
+          "instNetLots": -62
+        },
+        {
+          "ex": "tse",
+          "code": "2467",
+          "name": "志聖",
+          "close": 221.0,
+          "prevClose": 218.0,
+          "chgPct": 1.38,
+          "turnoverBillion": 6.6,
+          "instNetLots": 272
+        },
+        {
+          "ex": "otc",
+          "code": "5443",
+          "name": "均豪",
+          "close": 65.8,
+          "prevClose": 62.9,
+          "chgPct": 4.61,
+          "turnoverBillion": 0.74,
+          "instNetLots": 120
+        }
+      ],
+      "x": -90.3
+    },
+    {
+      "id": "fab",
+      "name": "廠務無塵室",
+      "market": "上市櫃",
+      "turnoverBillion": 61.19,
+      "avg5": 53.69,
+      "avg20": 41.93,
+      "prev4Sum": 207.27,
+      "y": 11.76,
+      "intraday5m": [
+        0,
+        -100,
+        100,
+        100,
+        -25,
+        100,
+        100,
+        100,
+        100,
+        -29,
+        -33,
+        82,
+        -73,
+        -73,
+        -9,
+        -3,
+        -88,
+        23,
+        -56,
+        -21,
+        3,
+        -24,
+        -7,
+        33,
+        56,
+        -14,
+        61,
+        26,
+        49,
+        47,
+        32,
+        24,
+        20,
+        -25,
+        -1,
+        25,
+        100,
+        27,
+        -7,
+        8,
+        -14,
+        -14,
+        -9,
+        13,
+        24,
+        12,
+        -9,
+        15,
+        -17,
+        -23,
+        5,
+        7,
+        -37,
+        null
+      ],
+      "stocks": [
+        {
+          "ex": "tse",
+          "code": "2404",
+          "name": "漢唐",
+          "close": 851.0,
+          "prevClose": 817.0,
+          "chgPct": 4.16,
+          "turnoverBillion": 14.31,
+          "instNetLots": 126
+        },
+        {
+          "ex": "tse",
+          "code": "6139",
+          "name": "亞翔",
+          "close": 551.0,
+          "prevClose": 501.0,
+          "chgPct": 9.98,
+          "turnoverBillion": 20.8,
+          "instNetLots": 769
+        },
+        {
+          "ex": "tse",
+          "code": "6691",
+          "name": "洋基工程",
+          "close": 487.5,
+          "prevClose": 466.5,
+          "chgPct": 4.5,
+          "turnoverBillion": 6.6,
+          "instNetLots": 116
+        },
+        {
+          "ex": "tse",
+          "code": "6196",
+          "name": "帆宣",
+          "close": 307.0,
+          "prevClose": 291.0,
+          "chgPct": 5.5,
+          "turnoverBillion": 6.42,
+          "instNetLots": -104
+        },
+        {
+          "ex": "otc",
+          "code": "5536",
+          "name": "聖暉*",
+          "close": 594.0,
+          "prevClose": 591.0,
+          "chgPct": 0.51,
+          "turnoverBillion": 11.85,
+          "instNetLots": -162
+        },
+        {
+          "ex": "otc",
+          "code": "6667",
+          "name": "信紘科",
+          "close": 215.0,
+          "prevClose": 201.5,
+          "chgPct": 6.7,
+          "turnoverBillion": 1.22,
+          "instNetLots": -5
+        }
+      ],
+      "x": -87.7
+    },
+    {
+      "id": "osat",
+      "name": "封測介面",
+      "market": "上市櫃",
+      "turnoverBillion": 339.08,
+      "avg5": 297.36,
+      "avg20": 303.07,
+      "prev4Sum": 1147.7,
+      "y": -5.72,
+      "intraday5m": [
+        0,
+        -100,
+        -100,
+        -100,
+        -16,
+        95,
+        55,
+        100,
+        86,
+        -9,
+        -54,
+        100,
+        -82,
+        -92,
+        7,
+        -9,
+        -100,
+        100,
+        -56,
+        -9,
+        -8,
+        -19,
+        7,
+        95,
+        60,
+        35,
+        44,
+        100,
+        100,
+        80,
+        91,
+        -33,
+        -58,
+        -46,
+        -13,
+        40,
+        85,
+        44,
+        4,
+        -29,
+        -55,
+        -24,
+        -33,
+        -8,
+        26,
+        0,
+        -2,
+        9,
+        -22,
+        -54,
+        28,
+        29,
+        77,
+        null
+      ],
+      "stocks": [
         {
           "ex": "tse",
           "code": "3711",
@@ -275,60 +703,241 @@
           "instNetLots": -1791
         },
         {
+          "ex": "tse",
+          "code": "2449",
+          "name": "京元電子",
+          "close": 157.0,
+          "prevClose": 157.5,
+          "chgPct": -0.32,
+          "turnoverBillion": 53.61,
+          "instNetLots": 2162
+        },
+        {
+          "ex": "tse",
+          "code": "6239",
+          "name": "力成",
+          "close": 191.0,
+          "prevClose": 181.5,
+          "chgPct": 5.23,
+          "turnoverBillion": 20.57,
+          "instNetLots": 943
+        },
+        {
+          "ex": "tse",
+          "code": "6515",
+          "name": "穎崴",
+          "close": 2930.0,
+          "prevClose": 2885.0,
+          "chgPct": 1.56,
+          "turnoverBillion": 23.12,
+          "instNetLots": 114
+        },
+        {
           "ex": "otc",
-          "code": "5347",
-          "name": "世界",
-          "close": 110.0,
-          "prevClose": 106.5,
-          "chgPct": 3.29,
-          "turnoverBillion": 26.31,
-          "instNetLots": null
+          "code": "6223",
+          "name": "旺矽",
+          "close": 3805.0,
+          "prevClose": 3560.0,
+          "chgPct": 6.88,
+          "turnoverBillion": 75.39,
+          "instNetLots": -162
         }
       ],
-      "x": 327.5
+      "x": -32.0
+    },
+    {
+      "id": "ic_design",
+      "name": "IC設計IP",
+      "market": "上市櫃",
+      "turnoverBillion": 1340.11,
+      "avg5": 1090.35,
+      "avg20": 910.94,
+      "prev4Sum": 4111.64,
+      "y": 179.41,
+      "intraday5m": [
+        -23,
+        -100,
+        -83,
+        -11,
+        17,
+        75,
+        100,
+        100,
+        100,
+        11,
+        -68,
+        100,
+        -58,
+        -72,
+        15,
+        -18,
+        -100,
+        31,
+        -23,
+        5,
+        19,
+        -3,
+        9,
+        12,
+        22,
+        -14,
+        100,
+        69,
+        100,
+        33,
+        19,
+        -9,
+        -11,
+        -17,
+        9,
+        15,
+        24,
+        13,
+        16,
+        -13,
+        -7,
+        -6,
+        2,
+        -8,
+        7,
+        8,
+        -6,
+        -7,
+        -16,
+        -12,
+        5,
+        6,
+        5,
+        null
+      ],
+      "stocks": [
+        {
+          "ex": "tse",
+          "code": "2454",
+          "name": "聯發科",
+          "close": 3685.0,
+          "prevClose": 3350.0,
+          "chgPct": 10.0,
+          "turnoverBillion": 659.5,
+          "instNetLots": -5
+        },
+        {
+          "ex": "tse",
+          "code": "3661",
+          "name": "世芯-KY",
+          "close": 3560.0,
+          "prevClose": 3240.0,
+          "chgPct": 9.88,
+          "turnoverBillion": 146.19,
+          "instNetLots": 543
+        },
+        {
+          "ex": "tse",
+          "code": "3443",
+          "name": "創意",
+          "close": 5120.0,
+          "prevClose": 5400.0,
+          "chgPct": -5.19,
+          "turnoverBillion": 441.53,
+          "instNetLots": 297
+        },
+        {
+          "ex": "tse",
+          "code": "3034",
+          "name": "聯詠",
+          "close": 431.0,
+          "prevClose": 416.5,
+          "chgPct": 3.48,
+          "turnoverBillion": 14.19,
+          "instNetLots": 590
+        },
+        {
+          "ex": "tse",
+          "code": "2379",
+          "name": "瑞昱",
+          "close": 666.0,
+          "prevClose": 668.0,
+          "chgPct": -0.3,
+          "turnoverBillion": 19.02,
+          "instNetLots": 320
+        },
+        {
+          "ex": "otc",
+          "code": "5274",
+          "name": "信驊",
+          "close": 8310.0,
+          "prevClose": 7860.0,
+          "chgPct": 5.73,
+          "turnoverBillion": 59.66,
+          "instNetLots": -25
+        }
+      ],
+      "x": 168.6
     },
     {
       "id": "mem",
       "name": "記憶體",
       "market": "上市櫃",
-      "turnoverBillion": 428.49,
-      "avg5": 360.36,
-      "avg20": 381.3,
-      "prev4Sum": 1373.32,
-      "y": -20.94,
-      "dailyHeat8d": [
-        {
-          "label": "11-12",
-          "score": -100
-        },
-        {
-          "label": "11-13",
-          "score": -12
-        },
-        {
-          "label": "11-16",
-          "score": -100
-        },
-        {
-          "label": "11-17",
-          "score": -42
-        },
-        {
-          "label": "11-18",
-          "score": -27
-        },
-        {
-          "label": "11-19",
-          "score": -100
-        },
-        {
-          "label": "11-20",
-          "score": -100
-        },
-        {
-          "label": "11-23",
-          "score": 100
-        }
+      "turnoverBillion": 482.47,
+      "avg5": 408.61,
+      "avg20": 436.46,
+      "prev4Sum": 1560.6,
+      "y": -27.85,
+      "intraday5m": [
+        0,
+        -100,
+        -100,
+        -64,
+        -100,
+        77,
+        100,
+        70,
+        100,
+        64,
+        -46,
+        100,
+        -52,
+        -64,
+        12,
+        -1,
+        -100,
+        63,
+        -37,
+        -46,
+        8,
+        2,
+        -12,
+        35,
+        65,
+        -13,
+        9,
+        11,
+        100,
+        65,
+        37,
+        -19,
+        -6,
+        -36,
+        -23,
+        21,
+        44,
+        62,
+        -7,
+        -12,
+        -31,
+        0,
+        -27,
+        -5,
+        20,
+        16,
+        -10,
+        7,
+        -6,
+        -31,
+        12,
+        -8,
+        37,
+        null
       ],
       "stocks": [
         {
@@ -352,6 +961,16 @@
           "instNetLots": -263
         },
         {
+          "ex": "tse",
+          "code": "2337",
+          "name": "旺宏",
+          "close": 61.9,
+          "prevClose": 58.9,
+          "chgPct": 5.09,
+          "turnoverBillion": 43.48,
+          "instNetLots": -7715
+        },
+        {
           "ex": "otc",
           "code": "3260",
           "name": "威剛",
@@ -359,7 +978,7 @@
           "prevClose": 235.5,
           "chgPct": 5.94,
           "turnoverBillion": 22.59,
-          "instNetLots": null
+          "instNetLots": 1153
         },
         {
           "ex": "otc",
@@ -369,53 +988,85 @@
           "prevClose": 1320.0,
           "chgPct": 9.85,
           "turnoverBillion": 88.2,
-          "instNetLots": null
+          "instNetLots": 1028
+        },
+        {
+          "ex": "tse",
+          "code": "4967",
+          "name": "十銓",
+          "close": 233.0,
+          "prevClose": 216.5,
+          "chgPct": 7.62,
+          "turnoverBillion": 10.5,
+          "instNetLots": 855
         }
       ],
-      "x": -27.2
+      "x": -3.3
     },
     {
       "id": "ai",
       "name": "AI伺服器",
       "market": "上市",
-      "turnoverBillion": 634.74,
-      "avg5": 520.69,
-      "avg20": 509.21,
-      "prev4Sum": 1968.74,
-      "y": 11.49,
-      "dailyHeat8d": [
-        {
-          "label": "11-12",
-          "score": -99
-        },
-        {
-          "label": "11-13",
-          "score": 15
-        },
-        {
-          "label": "11-16",
-          "score": -100
-        },
-        {
-          "label": "11-17",
-          "score": -86
-        },
-        {
-          "label": "11-18",
-          "score": 24
-        },
-        {
-          "label": "11-19",
-          "score": -99
-        },
-        {
-          "label": "11-20",
-          "score": -100
-        },
-        {
-          "label": "11-23",
-          "score": 100
-        }
+      "turnoverBillion": 644.95,
+      "avg5": 531.36,
+      "avg20": 520.47,
+      "prev4Sum": 2011.87,
+      "y": 10.89,
+      "intraday5m": [
+        0,
+        -100,
+        -100,
+        -88,
+        86,
+        100,
+        100,
+        100,
+        100,
+        9,
+        -45,
+        91,
+        -76,
+        -80,
+        -36,
+        -42,
+        -68,
+        59,
+        -38,
+        15,
+        -33,
+        -3,
+        13,
+        45,
+        44,
+        -21,
+        45,
+        76,
+        100,
+        100,
+        10,
+        -5,
+        23,
+        -34,
+        -28,
+        15,
+        15,
+        3,
+        -3,
+        -10,
+        -34,
+        -30,
+        -17,
+        -5,
+        -5,
+        -34,
+        23,
+        34,
+        -7,
+        -13,
+        10,
+        5,
+        20,
+        0
       ],
       "stocks": [
         {
@@ -460,6 +1111,16 @@
         },
         {
           "ex": "tse",
+          "code": "2356",
+          "name": "英業達",
+          "close": 38.75,
+          "prevClose": 39.25,
+          "chgPct": -1.27,
+          "turnoverBillion": 10.21,
+          "instNetLots": -1480
+        },
+        {
+          "ex": "tse",
           "code": "2308",
           "name": "台達電",
           "close": 990.0,
@@ -469,50 +1130,72 @@
           "instNetLots": 480
         }
       ],
-      "x": 7.9
+      "x": 29.3
     },
     {
       "id": "cool",
       "name": "散熱機殼",
       "market": "上市櫃",
-      "turnoverBillion": 394.58,
-      "avg5": 283.05,
-      "avg20": 299.54,
-      "prev4Sum": 1020.7,
-      "y": -16.49,
-      "dailyHeat8d": [
-        {
-          "label": "11-12",
-          "score": -100
-        },
-        {
-          "label": "11-13",
-          "score": 7
-        },
-        {
-          "label": "11-16",
-          "score": -100
-        },
-        {
-          "label": "11-17",
-          "score": -100
-        },
-        {
-          "label": "11-18",
-          "score": 100
-        },
-        {
-          "label": "11-19",
-          "score": -100
-        },
-        {
-          "label": "11-20",
-          "score": -40
-        },
-        {
-          "label": "11-23",
-          "score": 84
-        }
+      "turnoverBillion": 453.59,
+      "avg5": 336.63,
+      "avg20": 357.86,
+      "prev4Sum": 1229.58,
+      "y": -21.23,
+      "intraday5m": [
+        100,
+        -100,
+        -94,
+        -100,
+        -90,
+        96,
+        100,
+        46,
+        100,
+        -16,
+        -33,
+        68,
+        -19,
+        -68,
+        -26,
+        -10,
+        -100,
+        78,
+        -28,
+        -9,
+        24,
+        22,
+        24,
+        100,
+        89,
+        -20,
+        57,
+        93,
+        100,
+        18,
+        79,
+        -92,
+        3,
+        -57,
+        -7,
+        25,
+        47,
+        38,
+        -2,
+        -27,
+        -10,
+        -8,
+        -27,
+        -36,
+        22,
+        7,
+        4,
+        90,
+        -45,
+        -17,
+        17,
+        10,
+        44,
+        null
       ],
       "stocks": [
         {
@@ -533,7 +1216,7 @@
           "prevClose": 794.0,
           "chgPct": -2.14,
           "turnoverBillion": 56.75,
-          "instNetLots": null
+          "instNetLots": 678
         },
         {
           "ex": "tse",
@@ -547,6 +1230,16 @@
         },
         {
           "ex": "tse",
+          "code": "2059",
+          "name": "川湖",
+          "close": 5640.0,
+          "prevClose": 5350.0,
+          "chgPct": 5.42,
+          "turnoverBillion": 56.55,
+          "instNetLots": -13
+        },
+        {
+          "ex": "tse",
           "code": "8210",
           "name": "勤誠",
           "close": 433.0,
@@ -554,52 +1247,84 @@
           "chgPct": 2.12,
           "turnoverBillion": 9.13,
           "instNetLots": 291
+        },
+        {
+          "ex": "tse",
+          "code": "2421",
+          "name": "建準",
+          "close": 116.5,
+          "prevClose": 111.0,
+          "chgPct": 4.95,
+          "turnoverBillion": 2.46,
+          "instNetLots": -65
         }
       ],
-      "x": -32.9
+      "x": -9.1
     },
     {
       "id": "cpo",
-      "name": "網通CPO",
+      "name": "矽光子CPO",
       "market": "上市櫃",
-      "turnoverBillion": 83.48,
-      "avg5": 61.76,
-      "avg20": 70.99,
-      "prev4Sum": 225.32,
-      "y": -9.23,
-      "dailyHeat8d": [
-        {
-          "label": "11-12",
-          "score": -100
-        },
-        {
-          "label": "11-13",
-          "score": 100
-        },
-        {
-          "label": "11-16",
-          "score": -100
-        },
-        {
-          "label": "11-17",
-          "score": -100
-        },
-        {
-          "label": "11-18",
-          "score": 100
-        },
-        {
-          "label": "11-19",
-          "score": -100
-        },
-        {
-          "label": "11-20",
-          "score": -48
-        },
-        {
-          "label": "11-23",
-          "score": -35
-        }
+      "turnoverBillion": 188.56,
+      "avg5": 165.48,
+      "avg20": 155.33,
+      "prev4Sum": 638.84,
+      "y": 10.14,
+      "intraday5m": [
+        35,
+        -100,
+        -100,
+        41,
+        68,
+        100,
+        87,
+        100,
+        41,
+        100,
+        -18,
+        49,
+        -54,
+        -32,
+        -16,
+        0,
+        -44,
+        100,
+        -8,
+        100,
+        -47,
+        13,
+        -3,
+        62,
+        32,
+        -12,
+        30,
+        33,
+        100,
+        77,
+        100,
+        36,
+        -22,
+        -23,
+        -12,
+        32,
+        51,
+        25,
+        3,
+        -8,
+        -25,
+        0,
+        -8,
+        -14,
+        15,
+        20,
+        -9,
+        19,
+        -10,
+        -21,
+        5,
+        17,
+        -16,
+        0
       ],
       "stocks": [
         {
@@ -620,17 +1345,7 @@
           "prevClose": 266.0,
           "chgPct": -4.14,
           "turnoverBillion": 25.38,
-          "instNetLots": null
-        },
-        {
-          "ex": "otc",
-          "code": "3163",
-          "name": "波若威",
-          "close": 322.0,
-          "prevClose": 342.0,
-          "chgPct": -5.85,
-          "turnoverBillion": 14.94,
-          "instNetLots": null
+          "instNetLots": 244
         },
         {
           "ex": "tse",
@@ -641,64 +1356,106 @@
           "chgPct": 3.01,
           "turnoverBillion": 27.83,
           "instNetLots": 261
+        },
+        {
+          "ex": "otc",
+          "code": "3163",
+          "name": "波若威",
+          "close": 322.0,
+          "prevClose": 342.0,
+          "chgPct": -5.85,
+          "turnoverBillion": 14.94,
+          "instNetLots": 746
+        },
+        {
+          "ex": "otc",
+          "code": "3363",
+          "name": "上詮",
+          "close": 247.5,
+          "prevClose": 256.5,
+          "chgPct": -3.51,
+          "turnoverBillion": 9.35,
+          "instNetLots": 349
+        },
+        {
+          "ex": "tse",
+          "code": "2345",
+          "name": "智邦",
+          "close": 1350.0,
+          "prevClose": 1230.0,
+          "chgPct": 9.76,
+          "turnoverBillion": 95.73,
+          "instNetLots": -486
         }
       ],
-      "x": -85.8
+      "x": -62.2
     },
     {
       "id": "pcb",
       "name": "PCB載板",
-      "market": "上市",
-      "turnoverBillion": 913.36,
-      "avg5": 626.03,
-      "avg20": 645.17,
-      "prev4Sum": 2216.79,
-      "y": -19.14,
-      "dailyHeat8d": [
-        {
-          "label": "11-12",
-          "score": -100
-        },
-        {
-          "label": "11-13",
-          "score": 10
-        },
-        {
-          "label": "11-16",
-          "score": -100
-        },
-        {
-          "label": "11-17",
-          "score": -100
-        },
-        {
-          "label": "11-18",
-          "score": 100
-        },
-        {
-          "label": "11-19",
-          "score": -100
-        },
-        {
-          "label": "11-20",
-          "score": -66
-        },
-        {
-          "label": "11-23",
-          "score": 100
-        }
+      "market": "上市櫃",
+      "turnoverBillion": 1155.98,
+      "avg5": 792.33,
+      "avg20": 862.32,
+      "prev4Sum": 2805.68,
+      "y": -69.98,
+      "intraday5m": [
+        48,
+        -100,
+        -100,
+        -94,
+        -51,
+        54,
+        32,
+        91,
+        100,
+        75,
+        -2,
+        100,
+        -20,
+        -76,
+        -17,
+        -2,
+        -83,
+        100,
+        -1,
+        -24,
+        1,
+        6,
+        36,
+        38,
+        43,
+        20,
+        53,
+        87,
+        100,
+        100,
+        100,
+        -45,
+        3,
+        -29,
+        -11,
+        23,
+        21,
+        26,
+        26,
+        -8,
+        -15,
+        -14,
+        -9,
+        -4,
+        9,
+        5,
+        -7,
+        9,
+        4,
+        -14,
+        3,
+        2,
+        -2,
+        null
       ],
       "stocks": [
-        {
-          "ex": "tse",
-          "code": "3037",
-          "name": "欣興",
-          "close": 558.0,
-          "prevClose": 537.0,
-          "chgPct": 3.91,
-          "turnoverBillion": 259.52,
-          "instNetLots": -2680
-        },
         {
           "ex": "tse",
           "code": "2383",
@@ -708,6 +1465,26 @@
           "chgPct": 9.96,
           "turnoverBillion": 268.19,
           "instNetLots": -218
+        },
+        {
+          "ex": "tse",
+          "code": "2368",
+          "name": "金像電",
+          "close": 782.0,
+          "prevClose": 711.0,
+          "chgPct": 9.99,
+          "turnoverBillion": 117.59,
+          "instNetLots": 1368
+        },
+        {
+          "ex": "tse",
+          "code": "3037",
+          "name": "欣興",
+          "close": 558.0,
+          "prevClose": 537.0,
+          "chgPct": 3.91,
+          "turnoverBillion": 259.52,
+          "instNetLots": -2680
         },
         {
           "ex": "tse",
@@ -728,52 +1505,84 @@
           "chgPct": -0.53,
           "turnoverBillion": 255.97,
           "instNetLots": -5309
+        },
+        {
+          "ex": "otc",
+          "code": "6274",
+          "name": "台燿",
+          "close": 685.0,
+          "prevClose": 623.0,
+          "chgPct": 9.95,
+          "turnoverBillion": 125.03,
+          "instNetLots": -1866
         }
       ],
-      "x": 55.2
+      "x": 131.7
     },
     {
-      "id": "ind",
-      "name": "重電機器人",
+      "id": "power",
+      "name": "重電電網",
       "market": "上市",
-      "turnoverBillion": 26.9,
-      "avg5": 24.82,
-      "avg20": 26.33,
-      "prev4Sum": 97.19,
-      "y": -1.51,
-      "dailyHeat8d": [
-        {
-          "label": "11-12",
-          "score": -100
-        },
-        {
-          "label": "11-13",
-          "score": 62
-        },
-        {
-          "label": "11-16",
-          "score": -100
-        },
-        {
-          "label": "11-17",
-          "score": -56
-        },
-        {
-          "label": "11-18",
-          "score": 15
-        },
-        {
-          "label": "11-19",
-          "score": -100
-        },
-        {
-          "label": "11-20",
-          "score": -100
-        },
-        {
-          "label": "11-23",
-          "score": 100
-        }
+      "turnoverBillion": 17.11,
+      "avg5": 17.25,
+      "avg20": 17.5,
+      "prev4Sum": 69.15,
+      "y": -0.25,
+      "intraday5m": [
+        0,
+        -100,
+        100,
+        -93,
+        -28,
+        100,
+        100,
+        100,
+        100,
+        -100,
+        -82,
+        66,
+        -48,
+        -79,
+        -28,
+        2,
+        -85,
+        83,
+        -28,
+        2,
+        -19,
+        -38,
+        -2,
+        18,
+        47,
+        -14,
+        30,
+        14,
+        35,
+        73,
+        -5,
+        100,
+        -18,
+        -20,
+        1,
+        7,
+        47,
+        11,
+        -17,
+        9,
+        -30,
+        -23,
+        -49,
+        25,
+        31,
+        -29,
+        -6,
+        -31,
+        5,
+        -23,
+        45,
+        11,
+        57,
+        null
       ],
       "stocks": [
         {
@@ -798,6 +1607,105 @@
         },
         {
           "ex": "tse",
+          "code": "1503",
+          "name": "士電",
+          "close": 147.0,
+          "prevClose": 144.0,
+          "chgPct": 2.08,
+          "turnoverBillion": 2.56,
+          "instNetLots": 140
+        },
+        {
+          "ex": "tse",
+          "code": "1514",
+          "name": "亞力",
+          "close": 69.5,
+          "prevClose": 66.8,
+          "chgPct": 4.04,
+          "turnoverBillion": 0.99,
+          "instNetLots": 139
+        },
+        {
+          "ex": "tse",
+          "code": "1609",
+          "name": "大亞",
+          "close": 25.8,
+          "prevClose": 25.0,
+          "chgPct": 3.2,
+          "turnoverBillion": 0.92,
+          "instNetLots": 517
+        }
+      ],
+      "x": -96.6
+    },
+    {
+      "id": "robot",
+      "name": "機器人光學",
+      "market": "上市",
+      "turnoverBillion": 180.3,
+      "avg5": 143.06,
+      "avg20": 151.95,
+      "prev4Sum": 535.01,
+      "y": -8.89,
+      "intraday5m": [
+        0,
+        -100,
+        -100,
+        -44,
+        -94,
+        100,
+        53,
+        39,
+        100,
+        77,
+        -56,
+        100,
+        -100,
+        -77,
+        -30,
+        -49,
+        -70,
+        68,
+        13,
+        -23,
+        -13,
+        4,
+        -33,
+        41,
+        45,
+        3,
+        40,
+        36,
+        100,
+        100,
+        67,
+        -50,
+        -19,
+        -47,
+        -21,
+        11,
+        31,
+        -11,
+        21,
+        -14,
+        -14,
+        16,
+        -14,
+        -10,
+        9,
+        18,
+        -16,
+        10,
+        -7,
+        -33,
+        19,
+        26,
+        -22,
+        null
+      ],
+      "stocks": [
+        {
+          "ex": "tse",
           "code": "2049",
           "name": "上銀",
           "close": 266.5,
@@ -815,52 +1723,233 @@
           "chgPct": 2.28,
           "turnoverBillion": 1.46,
           "instNetLots": 61
+        },
+        {
+          "ex": "tse",
+          "code": "3019",
+          "name": "亞光",
+          "close": 109.0,
+          "prevClose": 104.0,
+          "chgPct": 4.81,
+          "turnoverBillion": 3.97,
+          "instNetLots": 501
+        },
+        {
+          "ex": "tse",
+          "code": "4576",
+          "name": "大銀微系統",
+          "close": 162.0,
+          "prevClose": 147.5,
+          "chgPct": 9.83,
+          "turnoverBillion": 2.96,
+          "instNetLots": 139
+        },
+        {
+          "ex": "tse",
+          "code": "2464",
+          "name": "盟立",
+          "close": 127.0,
+          "prevClose": 117.5,
+          "chgPct": 8.09,
+          "turnoverBillion": 9.03,
+          "instNetLots": 175
+        },
+        {
+          "ex": "tse",
+          "code": "3008",
+          "name": "大立光",
+          "close": 3620.0,
+          "prevClose": 3670.0,
+          "chgPct": -1.36,
+          "turnoverBillion": 150.09,
+          "instNetLots": -445
         }
       ],
-      "x": -95.4
+      "x": -63.9
+    },
+    {
+      "id": "ship",
+      "name": "航運航空",
+      "market": "上市",
+      "turnoverBillion": 95.61,
+      "avg5": 87.2,
+      "avg20": 77.68,
+      "prev4Sum": 340.38,
+      "y": 9.52,
+      "intraday5m": [
+        0,
+        -100,
+        -94,
+        100,
+        -73,
+        -66,
+        100,
+        100,
+        -20,
+        -100,
+        -48,
+        -35,
+        -3,
+        -54,
+        38,
+        -22,
+        -51,
+        22,
+        -21,
+        -39,
+        -84,
+        -57,
+        -73,
+        78,
+        78,
+        -44,
+        -100,
+        55,
+        100,
+        44,
+        81,
+        -69,
+        -36,
+        -6,
+        -63,
+        -37,
+        100,
+        -28,
+        -61,
+        24,
+        -85,
+        12,
+        -4,
+        -15,
+        -69,
+        -4,
+        -12,
+        55,
+        32,
+        -83,
+        94,
+        -76,
+        16,
+        null
+      ],
+      "stocks": [
+        {
+          "ex": "tse",
+          "code": "2603",
+          "name": "長榮",
+          "close": 234.5,
+          "prevClose": 233.0,
+          "chgPct": 0.64,
+          "turnoverBillion": 56.78,
+          "instNetLots": -830
+        },
+        {
+          "ex": "tse",
+          "code": "2609",
+          "name": "陽明",
+          "close": 54.5,
+          "prevClose": 53.0,
+          "chgPct": 2.83,
+          "turnoverBillion": 6.75,
+          "instNetLots": 910
+        },
+        {
+          "ex": "tse",
+          "code": "2615",
+          "name": "萬海",
+          "close": 96.1,
+          "prevClose": 95.0,
+          "chgPct": 1.16,
+          "turnoverBillion": 12.53,
+          "instNetLots": -37
+        },
+        {
+          "ex": "tse",
+          "code": "2618",
+          "name": "長榮航",
+          "close": 44.2,
+          "prevClose": 44.65,
+          "chgPct": -1.01,
+          "turnoverBillion": 12.33,
+          "instNetLots": 1366
+        },
+        {
+          "ex": "tse",
+          "code": "2610",
+          "name": "華航",
+          "close": 21.1,
+          "prevClose": 21.3,
+          "chgPct": -0.94,
+          "turnoverBillion": 7.23,
+          "instNetLots": -343
+        }
+      ],
+      "x": -80.8
     },
     {
       "id": "fin",
-      "name": "金融保險",
+      "name": "金融傳產",
       "market": "上市",
-      "turnoverBillion": 206.27,
-      "avg5": 172.44,
-      "avg20": 127.18,
-      "prev4Sum": 655.95,
-      "y": 45.26,
-      "dailyHeat8d": [
-        {
-          "label": "11-12",
-          "score": -1
-        },
-        {
-          "label": "11-13",
-          "score": 70
-        },
-        {
-          "label": "11-16",
-          "score": -96
-        },
-        {
-          "label": "11-17",
-          "score": 8
-        },
-        {
-          "label": "11-18",
-          "score": -76
-        },
-        {
-          "label": "11-19",
-          "score": -60
-        },
-        {
-          "label": "11-20",
-          "score": -100
-        },
-        {
-          "label": "11-23",
-          "score": -100
-        }
+      "turnoverBillion": 234.62,
+      "avg5": 204.65,
+      "avg20": 157.53,
+      "prev4Sum": 788.61,
+      "y": 47.12,
+      "intraday5m": [
+        0,
+        -100,
+        -96,
+        -17,
+        -10,
+        -40,
+        -54,
+        17,
+        -100,
+        -33,
+        -100,
+        -24,
+        -10,
+        -100,
+        10,
+        -100,
+        -100,
+        -76,
+        50,
+        -13,
+        -100,
+        -78,
+        -62,
+        25,
+        79,
+        100,
+        15,
+        73,
+        57,
+        80,
+        65,
+        36,
+        49,
+        20,
+        -74,
+        -39,
+        -11,
+        4,
+        -15,
+        -39,
+        19,
+        1,
+        -49,
+        -13,
+        -13,
+        -56,
+        17,
+        -1,
+        9,
+        -91,
+        28,
+        -12,
+        63,
+        null
       ],
       "stocks": [
         {
@@ -902,73 +1991,6 @@
           "chgPct": -3.47,
           "turnoverBillion": 33.82,
           "instNetLots": 21213
-        }
-      ],
-      "x": -64.9
-    },
-    {
-      "id": "trad",
-      "name": "航運傳產",
-      "market": "上市",
-      "turnoverBillion": 91.88,
-      "avg5": 78.79,
-      "avg20": 70.44,
-      "prev4Sum": 302.07,
-      "y": 8.35,
-      "dailyHeat8d": [
-        {
-          "label": "11-12",
-          "score": -42
-        },
-        {
-          "label": "11-13",
-          "score": 56
-        },
-        {
-          "label": "11-16",
-          "score": -45
-        },
-        {
-          "label": "11-17",
-          "score": 5
-        },
-        {
-          "label": "11-18",
-          "score": -38
-        },
-        {
-          "label": "11-19",
-          "score": -100
-        },
-        {
-          "label": "11-20",
-          "score": -100
-        },
-        {
-          "label": "11-23",
-          "score": 23
-        }
-      ],
-      "stocks": [
-        {
-          "ex": "tse",
-          "code": "2603",
-          "name": "長榮",
-          "close": 234.5,
-          "prevClose": 233.0,
-          "chgPct": 0.64,
-          "turnoverBillion": 56.78,
-          "instNetLots": -830
-        },
-        {
-          "ex": "tse",
-          "code": "2609",
-          "name": "陽明",
-          "close": 54.5,
-          "prevClose": 53.0,
-          "chgPct": 2.83,
-          "turnoverBillion": 6.75,
-          "instNetLots": 910
         },
         {
           "ex": "tse",
@@ -991,7 +2013,7 @@
           "instNetLots": -12581
         }
       ],
-      "x": -84.4
+      "x": -53.0
     }
   ]
 }
