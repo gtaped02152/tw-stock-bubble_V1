@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>台股實盤資金泡泡圖（盤中即時 × 盤後自動更新）</title>
+  <title>台股實盤資金泡泡圖（14細分族群 × 當天5分主力色塊）</title>
   <style>
     :root {
       --bg: #070b14;
@@ -30,7 +30,7 @@
       top: 0;
       z-index: 40;
     }
-    .top-bar { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+    .top-bar { max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
     .top-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .app-title { font-size: 0.96rem; font-weight: 800; }
     .pill {
@@ -52,7 +52,15 @@
       background: var(--card); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.4);
       padding: 4px 10px; border-radius: 6px; font-size: 0.74rem; font-weight: 700; cursor: pointer;
     }
-    .main { max-width: 900px; margin: 0 auto; padding: 12px; display: flex; flex-direction: column; gap: 14px; }
+    .btn-tab {
+      background: var(--card); color: var(--muted); border: 1px solid var(--border);
+      padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer;
+    }
+    .btn-tab.active {
+      background: rgba(56, 189, 248, 0.2); border-color: #38bdf8; color: #bae6fd;
+    }
+
+    .main { max-width: 920px; margin: 0 auto; padding: 12px; display: flex; flex-direction: column; gap: 14px; }
     .alert-box {
       background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.45);
       color: #fecaca; border-radius: 9px; padding: 10px 12px; font-size: 0.78rem; display: none;
@@ -65,7 +73,7 @@
     .box-title { font-size: 0.94rem; font-weight: 800; }
     .box-sub { font-size: 0.73rem; color: var(--muted); }
     .canvas-wrap {
-      position: relative; width: 100%; height: 330px;
+      position: relative; width: 100%; height: 360px;
       background: radial-gradient(circle at 50% 45%, #131d33 0%, #080d18 100%);
       border-radius: 9px; border: 1px solid rgba(148, 163, 184, 0.15); overflow: hidden;
     }
@@ -76,7 +84,7 @@
       font-size: 0.75rem; z-index: 25; display: none; max-width: 240px;
     }
 
-    /* 四大區塊排行榜（手機兩欄／窄屏單欄） */
+    /* 四大區塊排行榜 */
     .rank-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
     @media (max-width: 600px) { .rank-grid { grid-template-columns: 1fr; } }
     .rank-card { background: var(--card); border-radius: 9px; padding: 9px; border-top: 3px solid #64748b; }
@@ -86,12 +94,12 @@
       border-radius: 6px; cursor: pointer; background: rgba(15, 23, 42, 0.55); margin-bottom: 4px;
     }
 
-    /* 成分股明細 */
-    .sector-scroll { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    /* 細分大類選擇列與個股明細 */
+    .sector-scroll { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
     .sector-scroll::-webkit-scrollbar { display: none; }
     .s-btn {
       flex: 0 0 auto; background: var(--card); color: var(--muted); border: 1px solid var(--border);
-      padding: 6px 11px; border-radius: 8px; font-size: 0.76rem; font-weight: 700; cursor: pointer;
+      padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer;
     }
     .s-btn.active { background: rgba(251, 191, 36, 0.18); border-color: var(--gold); color: #fde68a; }
     .stock-cards { display: flex; flex-direction: column; gap: 7px; }
@@ -101,25 +109,50 @@
       display: flex; flex-direction: column; gap: 4px;
     }
     .st-row { display: flex; justify-content: space-between; align-items: center; }
+    .ex-tag {
+      font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; margin-left: 5px;
+      background: rgba(148, 163, 184, 0.18); color: #cbd5e1; font-weight: 600;
+    }
 
-    /* 純色動能色塊 */
+    /* 當天主力 5 分鐘買賣色塊 */
     .color-legend { display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--muted); }
     .grad-bar {
       flex: 1; height: 8px; margin: 0 8px; border-radius: 99px;
       background: linear-gradient(90deg, #065f46 0%, #10b981 25%, #1e293b 50%, #ef4444 75%, #991b1b 100%);
     }
-    .heat-list { display: flex; flex-direction: column; gap: 7px; }
-    .heat-row { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-    .heat-name { width: 82px; flex: 0 0 82px; font-size: 0.76rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .heat-slots { flex: 1; display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; }
-    .slot-block { height: 20px; border-radius: 4px; }
+    .heat-axis {
+      display: flex; align-items: center; gap: 8px; font-size: 0.68rem; color: var(--muted);
+      padding-bottom: 2px; border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .heat-axis-labels {
+      flex: 1; display: flex; justify-content: space-between; font-variant-numeric: tabular-nums;
+    }
+    .heat-list { display: flex; flex-direction: column; gap: 6px; }
+    .heat-row { display: flex; align-items: center; gap: 8px; }
+    .heat-name {
+      width: 78px; flex: 0 0 78px; font-size: 0.75rem; font-weight: 700;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;
+    }
+    .heat-name.selected { color: var(--gold); }
+    .heat-slots {
+      flex: 1; display: flex; gap: 1.5px; height: 19px; align-items: stretch;
+    }
+    .heat-slots.zoom-1h { gap: 3px; height: 22px; }
+    .slot-block {
+      flex: 1; border-radius: 2px; cursor: pointer; min-width: 2px;
+    }
+    .heat-slots.zoom-1h .slot-block { border-radius: 4px; }
+    .heat-inspect {
+      font-size: 0.74rem; color: #fde68a; background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 7px;
+      padding: 5px 9px; display: none;
+    }
 
     .audit-table-wrap { max-height: 220px; overflow-y: auto; border-top: 1px solid var(--border); padding-top: 6px; display: none; }
     table { width: 100%; border-collapse: collapse; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
     th { text-align: left; color: var(--muted); padding: 6px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--panel); }
     td { padding: 6px; border-bottom: 1px solid rgba(148, 163, 184, 0.08); }
 
-    /* 設定彈窗 */
     .modal-bg {
       position: fixed; inset: 0; background: rgba(2, 6, 23, 0.8); display: none;
       align-items: center; justify-content: center; z-index: 100; padding: 16px;
@@ -139,7 +172,7 @@
 <header>
   <div class="top-bar">
     <div class="top-row">
-      <div class="app-title">台股實盤資金泡泡圖</div>
+      <div class="app-title">台股實盤資金泡泡圖（14細分族群）</div>
       <div style="display:flex; align-items:center; gap:6px;">
         <span class="pill pill-close" id="statusPill">載入實盤資料中...</span>
         <button class="btn" onclick="openConfig()">⚙️ 即時源</button>
@@ -163,10 +196,10 @@
   <section class="card-box">
     <div class="box-head">
       <div>
-        <div class="box-title" id="bubbleTitle">1. 資金流向熱力泡泡圖（上市櫃合併）</div>
+        <div class="box-title" id="bubbleTitle">1. 資金流向熱力泡泡圖（上市櫃合併 14 族群）</div>
         <div class="box-sub">橫軸：相對平均成交偏離(%)｜縱軸：5日均−20日均加速度(億)｜圓圈：成交規模(億)</div>
       </div>
-      <button class="btn" id="syncNowBtn" onclick="pollLiveWorker(true)">🔄 手動同步即時</button>
+      <button class="btn" onclick="pollLiveWorker(true)">🔄 手動同步即時</button>
     </div>
     <div class="canvas-wrap" id="bubbleWrap">
       <canvas id="bubbleCanvas"></canvas>
@@ -175,24 +208,28 @@
     <div class="rank-grid" id="rankGrid"></div>
   </section>
 
-  <!-- 2. 點選大類看成分股真實報價與三大法人 -->
+  <!-- 2. 細分大類成分股明細（80檔上市櫃 + 官方三大法人） -->
   <section class="card-box" id="stockSection">
     <div class="box-head">
       <div>
-        <div class="box-title">2. 大類成分股明細（真實成交額 & 法人買賣超）</div>
-        <div class="box-sub">盤中顯示即時價量；盤後顯示 TWSE 官方三大法人買賣超（張）</div>
+        <div class="box-title" id="stockTitle">2. 細分族群成分股明細（含廠務、設備、封測等 14 類）</div>
+        <div class="box-sub">盤中顯示即時價量；盤後顯示上市櫃官方三大法人買賣超（張）</div>
       </div>
     </div>
     <div class="sector-scroll" id="sectorScroll"></div>
     <div class="stock-cards" id="stockCards"></div>
   </section>
 
-  <!-- 3. 主力買賣超純色塊 -->
+  <!-- 3. 當天主力買賣色塊（每 5 分鐘一格，純色呈現） -->
   <section class="card-box">
     <div class="box-head">
       <div>
-        <div class="box-title" id="heatTitle">3. 資金買賣動能色塊</div>
-        <div class="box-sub" id="heatSub">盤中每 5 分鐘記錄真實量價色塊；盤後顯示近 8 日真實日線色塊</div>
+        <div class="box-title" id="heatTitle">3. 當天主力買賣色塊（每 5 分鐘一格）</div>
+        <div class="box-sub" id="heatSub">僅顯示當天 09:00–13:30 分時買賣力道｜點擊任一色塊可看確切時間</div>
+      </div>
+      <div style="display:flex; gap:5px;">
+        <button class="btn-tab active" id="tabFullDay" onclick="setHeatView('FULL')">全天 5分</button>
+        <button class="btn-tab" id="tabLast1H" onclick="setHeatView('1H')">近1小時 (12格)</button>
       </div>
     </div>
     <div class="color-legend">
@@ -200,10 +237,15 @@
       <div class="grad-bar"></div>
       <span>越紅＝買盤越強</span>
     </div>
+    <div class="heat-inspect" id="heatInspect"></div>
+    <div class="heat-axis">
+      <span style="width:78px; flex:0 0 78px;">族群 \ 時間</span>
+      <div class="heat-axis-labels" id="heatAxisLabels"></div>
+    </div>
     <div class="heat-list" id="heatList"></div>
   </section>
 
-  <!-- 4. 近 30 日真實收盤比較圖（XY軸 + 30D均價 + 日期明細） -->
+  <!-- 4. 近 30 個交易日真實收盤比較（含 30D 均價與明細核對） -->
   <section class="card-box">
     <div class="box-head">
       <div>
@@ -235,9 +277,9 @@
       <button class="btn" onclick="closeConfig()">✕</button>
     </div>
     <div style="font-size:0.76rem; color:var(--muted);">
-      貼上你部署好的 Cloudflare Worker 網址（例如 <code>https://tw-stock-live.xxx.workers.dev</code>），盤中 09:00–13:30 就會每分鐘自動抓 TWSE 即時成交量價。
+      已預設為你的即時轉發網址，盤中 09:00–13:30 每 60 秒自動抓取 80 檔最新價量並每 5 分鐘記錄一格色塊。
     </div>
-    <input type="text" id="workerInput" placeholder="https://tw-stock-live.yourname.workers.dev" />
+    <input type="text" id="workerInput" />
     <div style="display:flex; justify-content:flex-end; gap:8px;">
       <button class="btn" onclick="saveWorkerUrl()">儲存並連線測試</button>
     </div>
@@ -245,16 +287,26 @@
 </div>
 
 <script>
-  // 部署完 Cloudflare Worker 後，把網址直接填在這裡，分享給朋友就不用各自設定
   const DEFAULT_WORKER_URL = "https://tw-stock-live.gtaped02152.workers.dev";
-
   let WORKER_URL = localStorage.getItem("tw_worker_url") || DEFAULT_WORKER_URL;
-  let postCloseData = null;   // 來自 GitHub Actions 真實 data/market_data.json
-  let liveSectors = [];       // 當前繪圖用（盤後＝postCloseData，盤中＝即時覆蓋）
-  let selectedId = "semi";
+  if (!WORKER_URL.startsWith("http")) WORKER_URL = DEFAULT_WORKER_URL;
+
+  // 標準 54 個 5 分鐘時間格 (09:00 ~ 13:25)
+  const FULL_DAY_SLOTS = (() => {
+    const arr = [];
+    for (let m = 540; m < 810; m += 5) {
+      arr.push(`${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`);
+    }
+    return arr;
+  })();
+
+  let postCloseData = null;
+  let liveSectors = [];
+  let selectedId = "fab";
+  let heatViewMode = "FULL"; // 'FULL' (54格) or '1H' (最新12格)
   let bubbleHits = [];
   let thirtyHits = [];
-  let prev5mSnapshot = null;  // 用於計算每 5 分鐘真實量價差
+  let prev5mSnapshot = null;
 
   function getTaiwanNow() {
     return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }));
@@ -264,7 +316,14 @@
     const tw = getTaiwanNow();
     const d = tw.getDay();
     const mins = tw.getHours() * 60 + tw.getMinutes();
-    return d >= 1 && d <= 5 && mins >= 540 && mins <= 815; // 09:00 ~ 13:35
+    return d >= 1 && d <= 5 && mins >= 540 && mins <= 815;
+  }
+
+  function getCurrent5mSlotIndex() {
+    const tw = getTaiwanNow();
+    const mins = tw.getHours() * 60 + tw.getMinutes();
+    if (mins < 540) return -1;
+    return Math.min(53, Math.floor((mins - 540) / 5));
   }
 
   function showError(msg) {
@@ -285,22 +344,34 @@
   }
 
   function scoreToColor(score) {
+    if (score === null || score === undefined) return "#111827"; // 未發生時段留空
     if (score >= 70) return "#991b1b";
-    if (score >= 30) return "#dc2626";
-    if (score > 8)   return "#ef4444";
-    if (score >= -8) return "#334155";
-    if (score > -30) return "#10b981";
+    if (score >= 35) return "#dc2626";
+    if (score > 10)  return "#ef4444";
+    if (score >= -10) return "#334155";
+    if (score > -35) return "#10b981";
     if (score > -70) return "#059669";
     return "#065f46";
   }
 
+  function scoreToText(score) {
+    if (score === null || score === undefined) return "無該時段成交紀錄";
+    if (score >= 70) return "強烈買盤湧入";
+    if (score >= 35) return "明顯主動買超";
+    if (score > 10)  return "溫和偏買";
+    if (score >= -10) return "多空平衡";
+    if (score > -35) return "溫和偏賣";
+    if (score > -70) return "明顯主動賣超";
+    return "重度賣壓湧出";
+  }
+
   // =========================================================================
-  // 1. 載入 GitHub Actions 產出的真實盤後 JSON（零假資料）
+  // 1. 載入 GitHub Actions 產出的真實盤後 JSON
   // =========================================================================
   async function loadPostCloseJson() {
     try {
       const res = await fetch(`./data/market_data.json?t=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) throw new Error(`找不到 data/market_data.json (HTTP ${res.status})`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       postCloseData = await res.json();
       liveSectors = JSON.parse(JSON.stringify(postCloseData.sectors || []));
       if (liveSectors.length > 0 && !liveSectors.some(s => s.id === selectedId)) {
@@ -311,7 +382,6 @@
       renderHeaderFromPostClose();
       renderAllCharts();
 
-      // 若目前在盤中，且有設定 Worker，立即啟動即時同步
       if (isMarketHours() && WORKER_URL) {
         pollLiveWorker(false);
       }
@@ -320,7 +390,7 @@
       document.getElementById("statusPill").textContent = "尚未產出盤後檔";
       showError(
         `<b>尚未讀取到真實盤後資料（data/market_data.json）：</b><br>` +
-        `請到你的 GitHub 倉庫點選上方 <b>Actions</b> → <b>Update Taiwan Stock Post-Close Data</b> → 按 <b>Run workflow</b> 手動觸發第一次抓取，1 分鐘內就會自動產生今天真實收盤資料。`
+        `請到 GitHub 倉庫上方點 <b>Actions</b> → <b>Update Taiwan Stock Post-Close Data</b> → 按 <b>Run workflow</b> 觸發抓取，完成後重新整理即可。`
       );
     }
   }
@@ -342,7 +412,7 @@
   }
 
   // =========================================================================
-  // 2. 盤中即時同步（透過個人 Cloudflare Worker 直連 TWSE MIS）
+  // 2. 盤中即時同步（透過 Cloudflare Worker 直連 TWSE MIS）
   // =========================================================================
   async function pollLiveWorker(isManual = false) {
     if (!WORKER_URL) {
@@ -357,7 +427,6 @@
       const data = await res.json();
       if (!data.ok || !data.twse) throw new Error(data.error || "Worker 回傳無效資料");
 
-      // 更新頂部加權指數（直接使用 TWSE 即時回傳日期與時間）
       const twse = data.twse;
       const dRaw = twse.date;
       const isoDate = dRaw.length === 8 ? `${dRaw.slice(0,4)}-${dRaw.slice(4,6)}-${dRaw.slice(6,8)}` : getTaiwanNow().toLocaleDateString("sv-SE");
@@ -370,9 +439,8 @@
       const chgEl = document.getElementById("taiexChg");
       chgEl.textContent = ` ${twse.diff >= 0 ? "+" : ""}${twse.diff.toFixed(2)} (${twse.pct >= 0 ? "+" : ""}${twse.pct.toFixed(2)}%)`;
       chgEl.className = twse.diff >= 0 ? "up" : "down";
-      document.getElementById("metaTime").textContent = `TWSE MIS 即時同步：${isoDate} ${twse.time}`;
+      document.getElementById("metaTime").textContent = `TWSE MIS 即時同步：${isoDate} ${twse.time}（${data.count || 0} 檔）`;
 
-      // 用真實即時成交額更新各族群泡泡座標（結合盤後基準的 prev4Sum 與 avg20）
       if (postCloseData && postCloseData.sectors) {
         const quotes = data.quotes || {};
         liveSectors = postCloseData.sectors.map(sec => {
@@ -403,12 +471,10 @@
           s.x = +(((s.turnoverBillion - avgAll) / avgAll) * 100).toFixed(1);
         });
 
-        // 記錄盤中真實 5 分鐘動能色塊
         if (isMarketHours()) {
-          recordFiveMinColorBlock(isoDate);
+          recordIntraday5mSlot(isoDate);
         }
 
-        // 若今天尚未收盤進 30 日表，同步把今天最新點位顯示在 30 日圖尾端
         const hist = postCloseData.history30d;
         if (hist.length > 0 && hist[hist.length - 1].date === isoDate) {
           hist[hist.length - 1].close = twse.price;
@@ -421,38 +487,42 @@
     } catch (err) {
       pill.className = "pill pill-err";
       pill.textContent = "✕ 即時連線失敗";
-      showError(`<b>盤中即時同步失敗：</b>${err.message}（請確認 Cloudflare Worker 網址正確且已部署）。畫面維持最後一次有效實盤資料。`);
+      showError(`<b>盤中即時同步失敗：</b>${err.message}。畫面維持最後一次有效實盤資料。`);
     }
   }
 
-  function recordFiveMinColorBlock(isoDate) {
-    const key = `tw_5m_heat_${isoDate}`;
-    const saved = JSON.parse(localStorage.getItem(key) || "{}");
-    const nowMinSlot = Math.floor(getTaiwanNow().getMinutes() / 5) + "_" + getTaiwanNow().getHours();
+  function recordIntraday5mSlot(isoDate) {
+    const slotIdx = getCurrent5mSlotIndex();
+    if (slotIdx < 0) return;
 
-    if (prev5mSnapshot && saved._lastSlot !== nowMinSlot) {
+    const key = `tw_intraday5m_${isoDate}`;
+    const saved = JSON.parse(localStorage.getItem(key) || "{}");
+
+    if (prev5mSnapshot) {
       liveSectors.forEach(sec => {
         const prevSec = prev5mSnapshot[sec.id];
         if (!prevSec) return;
         let signedFlow = 0;
+        let totalDeltaAmt = 0;
         sec.stocks.forEach(st => {
           const pSt = prevSec[st.code];
           if (!pSt) return;
           const dAmt = Math.max(0, st.turnoverBillion - pSt.amt);
           const dPrice = st.close - pSt.price;
-          const dir = dPrice > 0 ? 1 : (dPrice < 0 ? -1 : (st.chgPct >= 0 ? 0.3 : -0.3));
+          const dir = dPrice > 0 ? 1 : (dPrice < 0 ? -1 : (st.chgPct >= 0 ? 0.35 : -0.35));
           signedFlow += dAmt * dir;
+          totalDeltaAmt += dAmt;
         });
-        const score = Math.max(-100, Math.min(100, Math.round(signedFlow * 12)));
-        saved[sec.id] = saved[sec.id] || [];
-        saved[sec.id].push(score);
-        if (saved[sec.id].length > 8) saved[sec.id].shift();
+        if (!Array.isArray(saved[sec.id]) || saved[sec.id].length !== 54) {
+          saved[sec.id] = Array(54).fill(null);
+        }
+        const normBase = Math.max(totalDeltaAmt * 0.65, 0.25);
+        const score = totalDeltaAmt > 0 ? Math.max(-100, Math.min(100, Math.round((signedFlow / normBase) * 100))) : 0;
+        saved[sec.id][slotIdx] = score;
       });
-      saved._lastSlot = nowMinSlot;
       localStorage.setItem(key, JSON.stringify(saved));
     }
 
-    // 儲存當下快照供下一個 5 分鐘比較
     const snap = {};
     liveSectors.forEach(sec => {
       snap[sec.id] = {};
@@ -478,9 +548,9 @@
     const pad = { top: 24, right: 20, bottom: 28, left: 46 };
     const pw = w - pad.left - pad.right, ph = h - pad.top - pad.bottom;
 
-    const maxX = Math.max(100, ...liveSectors.map(s => s.x + 30));
-    const minX = Math.min(-80, ...liveSectors.map(s => s.x - 20));
-    const maxAbsY = Math.max(30, ...liveSectors.map(s => Math.abs(s.y) * 1.25));
+    const maxX = Math.max(100, ...liveSectors.map(s => s.x + 28));
+    const minX = Math.min(-90, ...liveSectors.map(s => s.x - 18));
+    const maxAbsY = Math.max(25, ...liveSectors.map(s => Math.abs(s.y) * 1.25));
     const minY = -maxAbsY, maxY = maxAbsY;
 
     const toX = v => pad.left + ((v - minX) / (maxX - minX)) * pw;
@@ -508,21 +578,23 @@
 
     const maxAmt = Math.max(10, ...liveSectors.map(s => s.turnoverBillion));
     bubbleHits = [];
-    liveSectors.forEach(s => {
+    // 先畫較大泡泡再畫小泡泡，避免小泡泡被遮住點不到
+    const drawOrder = [...liveSectors].sort((a, b) => b.turnoverBillion - a.turnoverBillion);
+    drawOrder.forEach(s => {
       const cx = toX(s.x), cy = toY(s.y);
-      const r = 16 + Math.sqrt(s.turnoverBillion / maxAmt) * 26;
+      const r = 14 + Math.sqrt(s.turnoverBillion / maxAmt) * 24;
       const q = getQuad(s.x, s.y);
       const isSel = s.id === selectedId;
 
       ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fillStyle = q.color + "bb"; ctx.fill();
-      ctx.lineWidth = isSel ? 3 : 1.4;
+      ctx.fillStyle = q.color + (isSel ? "dd" : "99"); ctx.fill();
+      ctx.lineWidth = isSel ? 3 : 1.3;
       ctx.strokeStyle = isSel ? "#fde047" : q.color; ctx.stroke();
 
-      ctx.fillStyle = "#fff"; ctx.font = "bold 10.5px sans-serif"; ctx.textAlign = "center";
+      ctx.fillStyle = "#fff"; ctx.font = "bold 9.5px sans-serif"; ctx.textAlign = "center";
       ctx.fillText(s.name, cx, cy - 1);
-      ctx.fillStyle = "#fef08a"; ctx.font = "9.5px sans-serif";
-      ctx.fillText(Math.round(s.turnoverBillion) + "億", cx, cy + 11);
+      ctx.fillStyle = "#fef08a"; ctx.font = "9px sans-serif";
+      ctx.fillText(Math.round(s.turnoverBillion) + "億", cx, cy + 10);
 
       bubbleHits.push({ sector: s, cx, cy, r, quad: q });
     });
@@ -552,17 +624,22 @@
     document.getElementById("sectorScroll").innerHTML = liveSectors.map(s =>
       `<button class="s-btn ${s.id === selectedId ? "active" : ""}" onclick="selectSector('${s.id}')">${s.name}</button>`
     ).join("");
+
     const sec = liveSectors.find(s => s.id === selectedId) || liveSectors[0];
     if (!sec) return;
-    document.getElementById("stockCards").innerHTML = sec.stocks.map(st => {
+    document.getElementById("stockTitle").textContent = `2. ${sec.name} 成分股明細（${sec.stocks.length} 檔）`;
+
+    const sortedStocks = [...sec.stocks].sort((a, b) => b.turnoverBillion - a.turnoverBillion);
+    document.getElementById("stockCards").innerHTML = sortedStocks.map(st => {
       const isUp = st.chgPct >= 0;
+      const mktLabel = st.ex === "otc" ? "上櫃" : "上市";
       const instText = st.instNetLots === null || st.instNetLots === undefined
-        ? `<span style="color:var(--muted);">法人：盤後更新/上櫃</span>`
+        ? `<span style="color:var(--muted);">三大法人：盤後更新</span>`
         : `三大法人：<b class="${st.instNetLots >= 0 ? "up" : "down"}">${st.instNetLots >= 0 ? "+" : ""}${st.instNetLots.toLocaleString()} 張</b>`;
       return `
         <div class="st-item">
           <div class="st-row">
-            <strong>${st.code} ${st.name}</strong>
+            <span><strong>${st.code} ${st.name}</strong><span class="ex-tag">${mktLabel}</span></span>
             <span><b>${Number(st.close).toFixed(2)}</b> <span class="${isUp ? "up" : "down"}">${isUp ? "+" : ""}${Number(st.chgPct).toFixed(2)}%</span></span>
           </div>
           <div class="st-row" style="font-size:0.74rem; color:var(--muted);">
@@ -574,34 +651,84 @@
     }).join("");
   }
 
+  // =========================================================================
+  // 4. 當天主力買賣色塊（每 5 分鐘一格，純色呈現，絕不顯示多日）
+  // =========================================================================
+  function setHeatView(mode) {
+    heatViewMode = mode;
+    document.getElementById("tabFullDay").classList.toggle("active", mode === "FULL");
+    document.getElementById("tabLast1H").classList.toggle("active", mode === "1H");
+    renderHeatBlocks();
+  }
+
+  function inspectHeatSlot(secName, timeLabel, score) {
+    const box = document.getElementById("heatInspect");
+    box.style.display = "block";
+    box.innerHTML = `🕒 <b>${secName}</b> ｜ <b>${timeLabel}</b>（5分K）：<b>${scoreToText(score)}</b>`;
+  }
+
   function renderHeatBlocks() {
     const todayIso = getTaiwanNow().toLocaleDateString("sv-SE");
-    const saved5m = JSON.parse(localStorage.getItem(`tw_5m_heat_${todayIso}`) || "{}");
-    const hasIntraday = isMarketHours() && Object.keys(saved5m).length > 1;
+    const saved5m = JSON.parse(localStorage.getItem(`tw_intraday5m_${todayIso}`) || "{}");
+    const useLiveToday = isMarketHours() && Object.keys(saved5m).length > 0;
+    const displayDate = useLiveToday ? todayIso : ((postCloseData && postCloseData.intradayDate) || (postCloseData && postCloseData.dataDate) || todayIso);
 
-    document.getElementById("heatTitle").textContent = hasIntraday
-      ? `3. 盤中 5 分鐘資金買賣色塊（${todayIso} 即時累積）`
-      : `3. 近 8 個交易日資金買賣色塊（盤後真實日線）`;
+    document.getElementById("heatTitle").textContent = useLiveToday
+      ? `3. 當天主力買賣色塊（${displayDate} 盤中 5 分鐘即時）`
+      : `3. 當天主力買賣色塊（${displayDate} 當日 5 分鐘結算）`;
+
+    const allSlots = (postCloseData && Array.isArray(postCloseData.intradaySlots) && postCloseData.intradaySlots.length === 54)
+      ? postCloseData.intradaySlots
+      : FULL_DAY_SLOTS;
+
+    // 決定顯示區間：全天 54 格，或近 1 小時（最新 12 格）
+    let startIdx = 0;
+    let endIdx = 54;
+    if (heatViewMode === "1H") {
+      if (useLiveToday) {
+        const curIdx = Math.max(11, getCurrent5mSlotIndex());
+        endIdx = Math.min(54, curIdx + 1);
+        startIdx = Math.max(0, endIdx - 12);
+      } else {
+        startIdx = 42; // 12:30 ~ 13:25 尾盤最後 1 小時
+        endIdx = 54;
+      }
+    }
+
+    const visibleSlots = allSlots.slice(startIdx, endIdx);
+    const axisLabels = heatViewMode === "FULL"
+      ? ["09:00", "10:00", "11:00", "12:00", "13:00", "13:30"]
+      : [visibleSlots[0], visibleSlots[Math.floor(visibleSlots.length / 2)], visibleSlots[visibleSlots.length - 1]];
+
+    document.getElementById("heatAxisLabels").innerHTML = axisLabels.map(t => `<span>${t}</span>`).join("");
 
     document.getElementById("heatList").innerHTML = liveSectors.map(s => {
-      let scores = [];
-      if (hasIntraday && Array.isArray(saved5m[s.id])) {
-        scores = saved5m[s.id];
-        while (scores.length < 8) scores = [0, ...scores];
-      } else {
-        scores = (s.dailyHeat8d || []).map(d => d.score);
+      let fullScores = Array(54).fill(null);
+      if (useLiveToday && Array.isArray(saved5m[s.id])) {
+        fullScores = saved5m[s.id];
+      } else if (Array.isArray(s.intraday5m) && s.intraday5m.length === 54) {
+        fullScores = s.intraday5m;
       }
+
+      const sliceScores = fullScores.slice(startIdx, endIdx);
+      const blocksHtml = sliceScores.map((sc, i) => {
+        const tLabel = visibleSlots[i];
+        const safeSc = sc === null || sc === undefined ? "null" : sc;
+        return `<div class="slot-block" style="background:${scoreToColor(sc)};" title="${s.name} ${tLabel}" onclick="inspectHeatSlot('${s.name}', '${tLabel}', ${safeSc})"></div>`;
+      }).join("");
+
       return `
-        <div class="heat-row" onclick="selectSector('${s.id}')">
-          <div class="heat-name">${s.name}</div>
-          <div class="heat-slots">
-            ${scores.map(sc => `<div class="slot-block" style="background:${scoreToColor(sc)};"></div>`).join("")}
-          </div>
+        <div class="heat-row">
+          <div class="heat-name ${s.id === selectedId ? "selected" : ""}" onclick="selectSector('${s.id}')">${s.name}</div>
+          <div class="heat-slots ${heatViewMode === "1H" ? "zoom-1h" : ""}">${blocksHtml}</div>
         </div>
       `;
     }).join("");
   }
 
+  // =========================================================================
+  // 5. 近 30 日真實收盤比較（XY 軸 + 30D 均價）
+  // =========================================================================
   function drawThirtyDay() {
     if (!postCloseData || !postCloseData.history30d || !postCloseData.history30d.length) return;
     const list = postCloseData.history30d;
@@ -630,7 +757,6 @@
     const toX = i => pad.left + (i / Math.max(1, closes.length - 1)) * pw;
     const toY = v => pad.top + ((maxV - v) / Math.max(1, maxV - minV)) * ph;
 
-    // Y軸刻度
     for (let s = 0; s <= 4; s++) {
       const val = minV + ((maxV - minV) * s) / 4;
       const py = toY(val);
@@ -640,7 +766,6 @@
       ctx.fillText(Math.round(val).toLocaleString("en-US"), pad.left - 7, py + 3.5);
     }
 
-    // X軸日期刻度
     const lastIdx = list.length - 1;
     const tickIdxs = [...new Set([0, Math.floor(lastIdx * 0.25), Math.floor(lastIdx * 0.5), Math.floor(lastIdx * 0.75), lastIdx])];
     tickIdxs.forEach(idx => {
@@ -653,12 +778,10 @@
       ctx.fillText(list[idx].date.slice(5), px, h - pad.bottom + 16);
     });
 
-    // XY主軸線
     ctx.strokeStyle = "rgba(203, 213, 225, 0.6)";
     ctx.lineWidth = 1.4;
     ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, h - pad.bottom); ctx.lineTo(w - pad.right, h - pad.bottom); ctx.stroke();
 
-    // 30D 均價虛線
     const avgY = toY(avg30);
     ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = "#fbbf24"; ctx.lineWidth = 1.6;
     ctx.beginPath(); ctx.moveTo(pad.left, avgY); ctx.lineTo(w - pad.right, avgY); ctx.stroke();
@@ -668,7 +791,6 @@
     ctx.fillStyle = "#fde047"; ctx.font = "bold 10.5px sans-serif"; ctx.textAlign = "left";
     ctx.fillText(`30D 均價 ${avg30.toFixed(2)}`, pad.left + 9, avgY - 6);
 
-    // 折線與端點
     ctx.beginPath();
     closes.forEach((v, i) => {
       const px = toX(i), py = toY(v);
@@ -707,6 +829,7 @@
     selectedId = id;
     drawBubbles();
     renderStocks();
+    renderHeatBlocks();
   }
 
   function toggleAuditTable() {
@@ -737,7 +860,6 @@
     drawThirtyDay();
   }
 
-  // Canvas 點擊互動
   document.getElementById("bubbleCanvas").addEventListener("click", e => {
     const r = e.target.getBoundingClientRect();
     const mx = e.clientX - r.left, my = e.clientY - r.top;
@@ -770,7 +892,6 @@
 
   window.addEventListener("resize", () => { drawBubbles(); drawThirtyDay(); });
 
-  // 啟動載入真實盤後資料，並設定盤中每 60 秒自動輪詢 Worker
   loadPostCloseJson();
   setInterval(() => {
     if (isMarketHours() && WORKER_URL) pollLiveWorker(false);
