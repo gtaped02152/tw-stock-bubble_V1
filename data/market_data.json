@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-24 16:00:44 CST",
+  "generatedAt": "2026-11-24 17:24:01 CST",
   "dataDate": "2026-11-24",
   "intradayDate": "2026-11-24",
   "intradaySlots": [
@@ -323,7 +323,7 @@
           "prevClose": 2030.0,
           "chgPct": 9.85,
           "turnoverBillion": 256.24,
-          "instNetLots": null
+          "instNetLots": -2792
         },
         {
           "ex": "tse",
@@ -333,7 +333,7 @@
           "prevClose": 88.3,
           "chgPct": 9.97,
           "turnoverBillion": 40.11,
-          "instNetLots": null
+          "instNetLots": -18744
         },
         {
           "ex": "tse",
@@ -343,7 +343,7 @@
           "prevClose": 48.5,
           "chgPct": 9.9,
           "turnoverBillion": 3.72,
-          "instNetLots": null
+          "instNetLots": 572
         },
         {
           "ex": "otc",
@@ -442,7 +442,7 @@
           "prevClose": 371.0,
           "chgPct": 9.97,
           "turnoverBillion": 0.19,
-          "instNetLots": null
+          "instNetLots": 11
         },
         {
           "ex": "otc",
@@ -482,7 +482,7 @@
           "prevClose": 221.0,
           "chgPct": 9.95,
           "turnoverBillion": 0.41,
-          "instNetLots": null
+          "instNetLots": -29
         },
         {
           "ex": "otc",
@@ -571,7 +571,7 @@
           "prevClose": 851.0,
           "chgPct": 9.99,
           "turnoverBillion": 1.66,
-          "instNetLots": null
+          "instNetLots": -20
         },
         {
           "ex": "tse",
@@ -581,7 +581,7 @@
           "prevClose": 551.0,
           "chgPct": 9.98,
           "turnoverBillion": 1.58,
-          "instNetLots": null
+          "instNetLots": 9
         },
         {
           "ex": "tse",
@@ -591,7 +591,7 @@
           "prevClose": 487.5,
           "chgPct": 9.95,
           "turnoverBillion": 0.4,
-          "instNetLots": null
+          "instNetLots": -2
         },
         {
           "ex": "tse",
@@ -601,7 +601,7 @@
           "prevClose": 307.0,
           "chgPct": 9.93,
           "turnoverBillion": 1.63,
-          "instNetLots": null
+          "instNetLots": -346
         },
         {
           "ex": "otc",
@@ -700,7 +700,7 @@
           "prevClose": 482.0,
           "chgPct": 9.96,
           "turnoverBillion": 35.23,
-          "instNetLots": null
+          "instNetLots": -5049
         },
         {
           "ex": "tse",
@@ -710,7 +710,7 @@
           "prevClose": 157.0,
           "chgPct": 9.87,
           "turnoverBillion": 27.3,
-          "instNetLots": null
+          "instNetLots": -8224
         },
         {
           "ex": "tse",
@@ -720,7 +720,7 @@
           "prevClose": 191.0,
           "chgPct": 9.95,
           "turnoverBillion": 2.33,
-          "instNetLots": null
+          "instNetLots": -143
         },
         {
           "ex": "tse",
@@ -730,7 +730,7 @@
           "prevClose": 2930.0,
           "chgPct": 9.9,
           "turnoverBillion": 0.68,
-          "instNetLots": null
+          "instNetLots": -6
         },
         {
           "ex": "otc",
@@ -819,7 +819,7 @@
           "prevClose": 3685.0,
           "chgPct": 9.91,
           "turnoverBillion": 52.21,
-          "instNetLots": null
+          "instNetLots": -127
         },
         {
           "ex": "tse",
@@ -829,7 +829,7 @@
           "prevClose": 3560.0,
           "chgPct": 9.97,
           "turnoverBillion": 7.99,
-          "instNetLots": null
+          "instNetLots": -111
         },
         {
           "ex": "tse",
@@ -839,7 +839,7 @@
           "prevClose": 5120.0,
           "chgPct": 9.96,
           "turnoverBillion": 7.25,
-          "instNetLots": null
+          "instNetLots": -51
         },
         {
           "ex": "tse",
@@ -849,7 +849,7 @@
           "prevClose": 431.0,
           "chgPct": 1.04,
           "turnoverBillion": 48.86,
-          "instNetLots": null
+          "instNetLots": -2858
         },
         {
           "ex": "tse",
@@ -859,7 +859,7 @@
           "prevClose": 666.0,
           "chgPct": 4.2,
           "turnoverBillion": 58.0,
-          "instNetLots": null
+          "instNetLots": -1288
         },
         {
           "ex": "otc",
@@ -948,7 +948,7 @@
           "prevClose": 281.0,
           "chgPct": 9.96,
           "turnoverBillion": 9.77,
-          "instNetLots": null
+          "instNetLots": -1044
         },
         {
           "ex": "tse",
@@ -958,7 +958,7 @@
           "prevClose": 95.5,
           "chgPct": 9.95,
           "turnoverBillion": 4.88,
-          "instNetLots": null
+          "instNetLots": -853
         },
         {
           "ex": "tse",
@@ -968,7 +968,7 @@
           "prevClose": 61.9,
           "chgPct": 9.85,
           "turnoverBillion": 2.02,
-          "instNetLots": null
+          "instNetLots": -661
         },
         {
           "ex": "otc",
@@ -998,7 +998,7 @@
           "prevClose": 233.0,
           "chgPct": 5.58,
           "turnoverBillion": 10.83,
-          "instNetLots": null
+          "instNetLots": -940
         }
       ],
       "x": -32.5
@@ -1077,7 +1077,7 @@
           "prevClose": 206.0,
           "chgPct": 9.95,
           "turnoverBillion": 43.32,
-          "instNetLots": null
+          "instNetLots": 2012
         },
         {
           "ex": "tse",
@@ -1087,7 +1087,7 @@
           "prevClose": 257.0,
           "chgPct": 9.92,
           "turnoverBillion": 70.64,
-          "instNetLots": null
+          "instNetLots": -8877
         },
         {
           "ex": "tse",
@@ -1097,7 +1097,7 @@
           "prevClose": 148.5,
           "chgPct": 9.76,
           "turnoverBillion": 13.5,
-          "instNetLots": null
+          "instNetLots": -2188
         },
         {
           "ex": "tse",
@@ -1107,7 +1107,7 @@
           "prevClose": 1375.0,
           "chgPct": 9.82,
           "turnoverBillion": 11.46,
-          "instNetLots": null
+          "instNetLots": -246
         },
         {
           "ex": "tse",
@@ -1117,7 +1117,7 @@
           "prevClose": 38.75,
           "chgPct": 8.9,
           "turnoverBillion": 14.08,
-          "instNetLots": null
+          "instNetLots": -15229
         },
         {
           "ex": "tse",
@@ -1127,7 +1127,7 @@
           "prevClose": 990.0,
           "chgPct": 9.6,
           "turnoverBillion": 11.52,
-          "instNetLots": null
+          "instNetLots": -487
         }
       ],
       "x": 73.6
@@ -1206,7 +1206,7 @@
           "prevClose": 2365.0,
           "chgPct": 9.94,
           "turnoverBillion": 8.52,
-          "instNetLots": null
+          "instNetLots": -117
         },
         {
           "ex": "otc",
@@ -1226,7 +1226,7 @@
           "prevClose": 3685.0,
           "chgPct": 9.91,
           "turnoverBillion": 2.45,
-          "instNetLots": null
+          "instNetLots": -41
         },
         {
           "ex": "tse",
@@ -1236,7 +1236,7 @@
           "prevClose": 5640.0,
           "chgPct": 9.93,
           "turnoverBillion": 1.37,
-          "instNetLots": null
+          "instNetLots": -12
         },
         {
           "ex": "tse",
@@ -1246,7 +1246,7 @@
           "prevClose": 433.0,
           "chgPct": 9.93,
           "turnoverBillion": 0.49,
-          "instNetLots": null
+          "instNetLots": 9
         },
         {
           "ex": "tse",
@@ -1256,7 +1256,7 @@
           "prevClose": 116.5,
           "chgPct": 9.87,
           "turnoverBillion": 0.61,
-          "instNetLots": null
+          "instNetLots": 118
         }
       ],
       "x": -84.3
@@ -1335,7 +1335,7 @@
           "prevClose": 258.5,
           "chgPct": 9.86,
           "turnoverBillion": 0.41,
-          "instNetLots": null
+          "instNetLots": 0
         },
         {
           "ex": "otc",
@@ -1355,7 +1355,7 @@
           "prevClose": 890.0,
           "chgPct": 10.0,
           "turnoverBillion": 1.05,
-          "instNetLots": null
+          "instNetLots": -14
         },
         {
           "ex": "otc",
@@ -1385,7 +1385,7 @@
           "prevClose": 1350.0,
           "chgPct": 10.0,
           "turnoverBillion": 6.81,
-          "instNetLots": null
+          "instNetLots": -363
         }
       ],
       "x": -87.9
@@ -1464,7 +1464,7 @@
           "prevClose": 3090.0,
           "chgPct": 9.87,
           "turnoverBillion": 4.5,
-          "instNetLots": null
+          "instNetLots": -44
         },
         {
           "ex": "tse",
@@ -1474,7 +1474,7 @@
           "prevClose": 782.0,
           "chgPct": 9.97,
           "turnoverBillion": 2.63,
-          "instNetLots": null
+          "instNetLots": -152
         },
         {
           "ex": "tse",
@@ -1484,7 +1484,7 @@
           "prevClose": 558.0,
           "chgPct": 9.86,
           "turnoverBillion": 7.0,
-          "instNetLots": null
+          "instNetLots": -188
         },
         {
           "ex": "tse",
@@ -1494,7 +1494,7 @@
           "prevClose": 670.0,
           "chgPct": 10.0,
           "turnoverBillion": 3.23,
-          "instNetLots": null
+          "instNetLots": -224
         },
         {
           "ex": "tse",
@@ -1504,7 +1504,7 @@
           "prevClose": 467.5,
           "chgPct": 9.95,
           "turnoverBillion": 6.39,
-          "instNetLots": null
+          "instNetLots": -666
         },
         {
           "ex": "otc",
@@ -1593,7 +1593,7 @@
           "prevClose": 425.0,
           "chgPct": 10.0,
           "turnoverBillion": 0.96,
-          "instNetLots": null
+          "instNetLots": 70
         },
         {
           "ex": "tse",
@@ -1603,7 +1603,7 @@
           "prevClose": 132.5,
           "chgPct": 6.04,
           "turnoverBillion": 6.23,
-          "instNetLots": null
+          "instNetLots": -1756
         },
         {
           "ex": "tse",
@@ -1613,7 +1613,7 @@
           "prevClose": 147.0,
           "chgPct": 9.86,
           "turnoverBillion": 1.89,
-          "instNetLots": null
+          "instNetLots": -257
         },
         {
           "ex": "tse",
@@ -1623,7 +1623,7 @@
           "prevClose": 69.5,
           "chgPct": 9.93,
           "turnoverBillion": 0.21,
-          "instNetLots": null
+          "instNetLots": 101
         },
         {
           "ex": "tse",
@@ -1633,7 +1633,7 @@
           "prevClose": 25.8,
           "chgPct": 9.88,
           "turnoverBillion": 1.06,
-          "instNetLots": null
+          "instNetLots": -1429
         }
       ],
       "x": -89.1
@@ -1712,7 +1712,7 @@
           "prevClose": 266.5,
           "chgPct": 2.44,
           "turnoverBillion": 23.87,
-          "instNetLots": null
+          "instNetLots": -3034
         },
         {
           "ex": "tse",
@@ -1722,7 +1722,7 @@
           "prevClose": 71.7,
           "chgPct": 9.9,
           "turnoverBillion": 0.29,
-          "instNetLots": null
+          "instNetLots": 86
         },
         {
           "ex": "tse",
@@ -1732,7 +1732,7 @@
           "prevClose": 109.0,
           "chgPct": 4.59,
           "turnoverBillion": 6.61,
-          "instNetLots": null
+          "instNetLots": -2532
         },
         {
           "ex": "tse",
@@ -1742,7 +1742,7 @@
           "prevClose": 162.0,
           "chgPct": 9.88,
           "turnoverBillion": 0.28,
-          "instNetLots": null
+          "instNetLots": 52
         },
         {
           "ex": "tse",
@@ -1752,7 +1752,7 @@
           "prevClose": 127.0,
           "chgPct": 9.84,
           "turnoverBillion": 0.37,
-          "instNetLots": null
+          "instNetLots": 45
         },
         {
           "ex": "tse",
@@ -1762,7 +1762,7 @@
           "prevClose": 3620.0,
           "chgPct": 9.94,
           "turnoverBillion": 3.99,
-          "instNetLots": null
+          "instNetLots": 0
         }
       ],
       "x": -62.6
@@ -1841,7 +1841,7 @@
           "prevClose": 234.5,
           "chgPct": 9.59,
           "turnoverBillion": 113.66,
-          "instNetLots": null
+          "instNetLots": 1592
         },
         {
           "ex": "tse",
@@ -1851,7 +1851,7 @@
           "prevClose": 54.5,
           "chgPct": 3.3,
           "turnoverBillion": 22.15,
-          "instNetLots": null
+          "instNetLots": -9948
         },
         {
           "ex": "tse",
@@ -1861,7 +1861,7 @@
           "prevClose": 96.1,
           "chgPct": 1.04,
           "turnoverBillion": 29.26,
-          "instNetLots": null
+          "instNetLots": -9306
         },
         {
           "ex": "tse",
@@ -1871,7 +1871,7 @@
           "prevClose": 44.2,
           "chgPct": 9.95,
           "turnoverBillion": 43.01,
-          "instNetLots": null
+          "instNetLots": 12042
         },
         {
           "ex": "tse",
@@ -1881,7 +1881,7 @@
           "prevClose": 21.1,
           "chgPct": 6.64,
           "turnoverBillion": 22.86,
-          "instNetLots": null
+          "instNetLots": 26497
         }
       ],
       "x": 143.7
@@ -1960,7 +1960,7 @@
           "prevClose": 130.5,
           "chgPct": 9.96,
           "turnoverBillion": 38.0,
-          "instNetLots": null
+          "instNetLots": 4485
         },
         {
           "ex": "tse",
@@ -1970,7 +1970,7 @@
           "prevClose": 95.0,
           "chgPct": 10.0,
           "turnoverBillion": 49.25,
-          "instNetLots": null
+          "instNetLots": 3702
         },
         {
           "ex": "tse",
@@ -1980,7 +1980,7 @@
           "prevClose": 63.8,
           "chgPct": 9.56,
           "turnoverBillion": 48.84,
-          "instNetLots": null
+          "instNetLots": -451
         },
         {
           "ex": "tse",
@@ -1990,7 +1990,7 @@
           "prevClose": 50.0,
           "chgPct": 10.0,
           "turnoverBillion": 21.75,
-          "instNetLots": null
+          "instNetLots": 8490
         },
         {
           "ex": "tse",
@@ -2000,7 +2000,7 @@
           "prevClose": 56.8,
           "chgPct": 7.22,
           "turnoverBillion": 28.75,
-          "instNetLots": null
+          "instNetLots": -21967
         },
         {
           "ex": "tse",
@@ -2010,7 +2010,7 @@
           "prevClose": 16.85,
           "chgPct": 4.15,
           "turnoverBillion": 9.04,
-          "instNetLots": null
+          "instNetLots": -4753
         }
       ],
       "x": 106.4
