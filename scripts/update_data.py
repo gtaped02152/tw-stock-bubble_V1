@@ -150,95 +150,73 @@ def safe_int(val):
         return 0
 
 
+def calc_day_avg(high_val, low_val):
+    """當日均價 = ((當天最高價 - 當天最低價) / 2) + 當天最低價"""
+    return round(((high_val - low_val) / 2.0) + low_val, 2)
+
+
 def fetch_taiex_30d():
+    """優先抓 TWSE 官方 MI_5MINS_HIST (含開高低收)，遇限流自動切換 yfinance ^TWII"""
     now = datetime.now(TW_TZ)
-    records = []
+    by_date = {}
     try:
         for offset in [2, 1, 0]:
             y, m = now.year, now.month - offset
             if m <= 0:
                 m += 12
                 y -= 1
-            url = f"https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?response=json&date={y}{m:02d}01"
+            url = f"https://www.twse.com.tw/rwd/zh/indicesReport/MI_5MINS_HIST?response=json&date={y}{m:02d}01"
             r = requests.get(url, headers=HEADERS, timeout=10)
             js = r.json()
             if js.get("stat") == "OK":
                 for row in js.get("data", []):
                     parts = row[0].strip().split("/")
                     iso_date = f"{int(parts[0]) + 1911}-{parts[1].zfill(2)}-{parts[2].zfill(2)}"
-                    turnover_b = round(float(row[2].replace(",", "")) / 1e8, 1)
+                    high_val = float(row[2].replace(",", ""))
+                    low_val = float(row[3].replace(",", ""))
                     close_val = float(row[4].replace(",", ""))
-                    diff_val = float(row[5].replace(",", ""))
-                    records.append({
+                    by_date[iso_date] = {
                         "date": iso_date,
+                        "high": round(high_val, 2),
+                        "low": round(low_val, 2),
                         "close": round(close_val, 2),
-                        "diff": round(diff_val, 2),
-                        "turnoverBillion": turnover_b
-                    })
+                        "dayAvg": calc_day_avg(high_val, low_val)
+                    }
             time.sleep(1.2)
     except Exception as e:
-        print(f"TWSE FMTQIK fallback triggered: {e}")
+        print(f"TWSE MI_5MINS_HIST fallback triggered: {e}")
 
-    if len(records) >= 30:
-        records.sort(key=lambda x: x["date"])
-        return records[-30:], "TWSE 官方 FMTQIK"
+    if len(by_date) >= 31:
+        ordered = [by_date[d] for d in sorted(by_date.keys())]
+        for i in range(len(ordered)):
+            prev_c = ordered[i - 1]["close"] if i > 0 else ordered[i]["close"]
+            ordered[i]["diff"] = round(ordered[i]["close"] - prev_c, 2)
+        return ordered[-30:], "TWSE 官方 MI_5MINS_HIST"
 
+    # 備援：Yahoo Finance ^TWII（同樣具備真實每日高、低、收盤價）
     df = yf.download("^TWII", period="3mo", auto_adjust=False, progress=False)
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.get_level_values(0)
-    df = df.dropna(subset=["Close"])
+    df = df.dropna(subset=["High", "Low", "Close"])
     records = []
+    highs = df["High"].tolist()
+    lows = df["Low"].tolist()
     closes = df["Close"].tolist()
     dates = [idx.strftime("%Y-%m-%d") for idx in df.index]
     for i in range(len(closes)):
+        h = round(float(highs[i]), 2)
+        l = round(float(lows[i]), 2)
         c = round(float(closes[i]), 2)
         prev = round(float(closes[i - 1]), 2) if i > 0 else c
         records.append({
             "date": dates[i],
+            "high": h,
+            "low": l,
             "close": c,
             "diff": round(c - prev, 2),
-            "turnoverBillion": None
+            "dayAvg": calc_day_avg(h, l)
         })
-    return records[-30:], "Yahoo Finance (^TWII 實盤收盤)"
-
-
-def fetch_taiex_today_avg(target_date, fallback_close):
-    try:
-        df5 = yf.download("^TWII", period="5d", interval="5m", auto_adjust=False, progress=False)
-        if isinstance(df5.columns, pd.MultiIndex):
-            df5.columns = df5.columns.get_level_values(0)
-        df5 = df5.dropna(subset=["Close"])
-        if len(df5) > 0:
-            if df5.index.tz is None:
-                df5.index = df5.index.tz_localize("UTC").tz_convert(TW_TZ)
-            else:
-                df5.index = df5.index.tz_convert(TW_TZ)
-
-            day_df = df5[df5.index.strftime("%Y-%m-%d") == target_date]
-            if len(day_df) == 0:
-                latest_d = df5.index.max().strftime("%Y-%m-%d")
-                day_df = df5[df5.index.strftime("%Y-%m-%d") == latest_d]
-
-            vals = [float(v) for v in day_df["Close"].tolist() if math.isfinite(float(v)) and float(v) > 0]
-            if vals:
-                return round(sum(vals) / len(vals), 2), f"當日5分K均價 ({len(vals)}筆)"
-    except Exception as e:
-        print(f"TAIEX 5m avg fallback triggered: {e}")
-
-    try:
-        dfd = yf.download("^TWII", period="5d", auto_adjust=False, progress=False)
-        if isinstance(dfd.columns, pd.MultiIndex):
-            dfd.columns = dfd.columns.get_level_values(0)
-        dfd = dfd.dropna(subset=["High", "Low", "Close"])
-        if len(dfd) > 0:
-            last_row = dfd.iloc[-1]
-            h, l, c = float(last_row["High"]), float(last_row["Low"]), float(last_row["Close"])
-            if all(math.isfinite(x) and x > 0 for x in [h, l, c]):
-                return round((h + l + c) / 3.0, 2), "當日高低收均 (H+L+C)/3"
-    except Exception as e:
-        print(f"TAIEX daily HLC fallback skipped: {e}")
-
-    return round(float(fallback_close), 2), "當日收盤基準"
+    return records[-30:], "Yahoo Finance (^TWII 實盤高低收)"
 
 
 def fetch_twse_t86(date_iso):
@@ -290,7 +268,6 @@ def fetch_tpex_insti(date_iso):
         t0 = tables[0]
         fields = t0.get("fields", [])
         code_idx = next((i for i, f in enumerate(fields) if "代號" in f), 0)
-        # 優先取已合計的外資及陸資買賣超，避免重複計算
         f_total_idx = next((i for i, f in enumerate(fields) if ("外資及陸資" in f) and ("不含" not in f) and ("買賣超" in f or "淨買" in f)), -1)
         f_ex_idx = next((i for i, f in enumerate(fields) if ("外資及陸資" in f) and ("不含" in f) and ("買賣超" in f or "淨買" in f)), -1)
         f_deal_idx = next((i for i, f in enumerate(fields) if ("外資自營商" in f) and ("買賣超" in f or "淨買" in f)), -1)
@@ -319,7 +296,6 @@ def fetch_tpex_insti(date_iso):
 
 
 def fetch_inst_with_date_fallback(candidate_dates):
-    """優先抓取最新交易日法人資料；若 14:40 尚未公布，自動回退前一日並標記正確法人資料日"""
     for d in candidate_dates:
         merged = {}
         merged.update(fetch_twse_t86(d))
@@ -330,12 +306,6 @@ def fetch_inst_with_date_fallback(candidate_dates):
 
 
 def fetch_tdcc_weekly_and_update_history(target_codes):
-    """
-    抓取集保結算所 (TDCC) 每週官方《集保戶股權分散表》開放資料 CSV：
-    - 100張以下散戶：第 1~9 級（1股 ~ 100,000股）
-    - 400張以上大戶：第 12~15 級（400,001股以上，完整涵蓋所有500張以上大戶）
-    自動與 data/tdcc_history.json 上週快照相減，計算真實週增減張數。
-    """
     urls = [
         "https://opendata.tdcc.com.tw/getOD.ashx?id=1-5",
         "https://smart.tdcc.com.tw/opendata/getOD.ashx?id=1-5"
@@ -365,7 +335,7 @@ def fetch_tdcc_weekly_and_update_history(target_codes):
 
     if csv_text:
         reader = csv.reader(io.StringIO(csv_text))
-        header = next(reader, None)
+        next(reader, None)
         for row in reader:
             if len(row) < 6:
                 continue
@@ -402,7 +372,6 @@ def fetch_tdcc_weekly_and_update_history(target_codes):
                 "m400Pct": round(info["m400Pct"], 2)
             }
         tdcc_hist[tdcc_date] = compact
-        # 只保留最近 12 週快照，避免檔案膨脹
         sorted_weeks = sorted(tdcc_hist.keys())[-12:]
         tdcc_hist = {k: tdcc_hist[k] for k in sorted_weeks}
         os.makedirs("data", exist_ok=True)
@@ -545,13 +514,12 @@ def main():
     prev_close = history_30d[-2]["close"] if len(history_30d) >= 2 else latest_taiex["close"]
     taiex_pct = round((latest_taiex["diff"] / prev_close) * 100, 2) if prev_close else 0.0
 
-    today_avg, today_avg_source = fetch_taiex_today_avg(latest_date, latest_taiex["close"])
+    # 當日均價 = ((當天最高價 - 最低價) / 2) + 最低價
+    today_avg = latest_taiex["dayAvg"]
 
-    # 抓取外資 + 三大法人（最新日若尚未公布則自動取前一交易日並標記日期）
     inst_candidates = [h["date"] for h in reversed(history_30d[-3:])]
     inst_map, inst_date = fetch_inst_with_date_fallback(inst_candidates)
 
-    # 抓取 TDCC 官方每週集保戶股權分散表（100張↓散戶 / 400張↑大戶）
     target_codes = {code for sec in SECTORS_CONFIG for _, code, _ in sec["stocks"]}
     tdcc_map, tdcc_date, tdcc_prev_date = fetch_tdcc_weekly_and_update_history(target_codes)
 
@@ -646,10 +614,12 @@ def main():
         "taiexSource": taiex_source,
         "taiex": {
             "close": latest_taiex["close"],
+            "high": latest_taiex["high"],
+            "low": latest_taiex["low"],
             "diff": latest_taiex["diff"],
             "pct": taiex_pct,
             "todayAvg": today_avg,
-            "todayAvgSource": today_avg_source
+            "todayAvgSource": "((最高-最低)/2)+最低"
         },
         "history30d": history_30d,
         "sectors": sectors_out
@@ -658,7 +628,7 @@ def main():
     os.makedirs("data", exist_ok=True)
     with open("data/market_data.json", "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2, allow_nan=False)
-    print(f"Updated data/market_data.json ({latest_date}, inst: {inst_date}, tdcc: {tdcc_date})")
+    print(f"Updated data/market_data.json ({latest_date}, dayAvg: {today_avg})")
 
 
 if __name__ == "__main__":
