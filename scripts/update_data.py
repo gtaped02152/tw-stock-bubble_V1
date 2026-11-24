@@ -1,3 +1,5 @@
+import csv
+import io
 import json
 import math
 import os
@@ -127,7 +129,6 @@ HEADERS = {
 
 
 def build_5m_slot_labels():
-    """產生台股當日 09:00 ~ 13:25 共 54 個 5 分鐘時間標籤"""
     labels = []
     cur = 9 * 60
     while cur < 13 * 60 + 30:
@@ -139,8 +140,17 @@ def build_5m_slot_labels():
 SLOT_LABELS_5M = build_5m_slot_labels()
 
 
+def safe_int(val):
+    s = str(val).replace(",", "").strip()
+    if not s or s in ("--", "-", "nan", "None"):
+        return 0
+    try:
+        return int(float(s))
+    except Exception:
+        return 0
+
+
 def fetch_taiex_30d():
-    """優先抓 TWSE FMTQIK 官方日收盤，遇雲端限流則自動切換 yfinance ^TWII"""
     now = datetime.now(TW_TZ)
     records = []
     try:
@@ -193,7 +203,6 @@ def fetch_taiex_30d():
 
 
 def fetch_taiex_today_avg(target_date, fallback_close):
-    """抓取大盤 ^TWII 當日 09:00~13:30 真實 5 分 K 計算當天均價；若無則退回日線 (H+L+C)/3"""
     try:
         df5 = yf.download("^TWII", period="5d", interval="5m", auto_adjust=False, progress=False)
         if isinstance(df5.columns, pd.MultiIndex):
@@ -216,7 +225,6 @@ def fetch_taiex_today_avg(target_date, fallback_close):
     except Exception as e:
         print(f"TAIEX 5m avg fallback triggered: {e}")
 
-    # 備援：取當日真實日線 (高+低+收)/3
     try:
         dfd = yf.download("^TWII", period="5d", auto_adjust=False, progress=False)
         if isinstance(dfd.columns, pd.MultiIndex):
@@ -234,7 +242,7 @@ def fetch_taiex_today_avg(target_date, fallback_close):
 
 
 def fetch_twse_t86(date_iso):
-    """抓取 TWSE 上市三大法人買賣超（單位：張）"""
+    """抓取 TWSE 上市：外資合計(張) 與 三大法人合計(張)"""
     ymd = date_iso.replace("-", "")
     url = f"https://www.twse.com.tw/rwd/zh/fund/T86?response=json&date={ymd}&selectType=ALLBUT0999"
     result = {}
@@ -245,20 +253,31 @@ def fetch_twse_t86(date_iso):
             return result
         fields = js.get("fields", [])
         code_idx = next((i for i, f in enumerate(fields) if "證券代號" in f), 0)
-        net_idx = next((i for i, f in enumerate(fields) if "三大法人買賣超股數" in f), -1)
-        if net_idx == -1:
+        f_ex_idx = next((i for i, f in enumerate(fields) if "外陸資買賣超股數" in f), -1)
+        f_deal_idx = next((i for i, f in enumerate(fields) if "外資自營商買賣超股數" in f), -1)
+        inst_idx = next((i for i, f in enumerate(fields) if "三大法人買賣超股數" in f), -1)
+        if inst_idx == -1:
             return result
+
         for row in js.get("data", []):
             code = str(row[code_idx]).strip()
-            shares = int(str(row[net_idx]).replace(",", "").strip() or 0)
-            result[code] = round(shares / 1000)
+            f_shares = 0
+            if f_ex_idx != -1:
+                f_shares += safe_int(row[f_ex_idx])
+            if f_deal_idx != -1:
+                f_shares += safe_int(row[f_deal_idx])
+            inst_shares = safe_int(row[inst_idx])
+            result[code] = {
+                "foreign": round(f_shares / 1000) if (f_ex_idx != -1 or f_deal_idx != -1) else None,
+                "inst": round(inst_shares / 1000)
+            }
     except Exception as e:
-        print(f"TWSE T86 skipped: {e}")
+        print(f"TWSE T86 skipped ({date_iso}): {e}")
     return result
 
 
 def fetch_tpex_insti(date_iso):
-    """抓取 TPEx 上櫃三大法人買賣超（單位：張）"""
+    """抓取 TPEx 上櫃：外資合計(張) 與 三大法人合計(張)"""
     slash_date = date_iso.replace("-", "/")
     url = f"https://www.tpex.org.tw/www/zh-tw/insti/dailyTrade?type=Daily&sect=EW&date={slash_date}&response=json"
     result = {}
@@ -271,21 +290,150 @@ def fetch_tpex_insti(date_iso):
         t0 = tables[0]
         fields = t0.get("fields", [])
         code_idx = next((i for i, f in enumerate(fields) if "代號" in f), 0)
-        net_idx = next((i for i, f in enumerate(fields) if "三大法人買賣超股數" in f), -1)
-        if net_idx == -1:
-            net_idx = len(fields) - 1
+        # 優先取已合計的外資及陸資買賣超，避免重複計算
+        f_total_idx = next((i for i, f in enumerate(fields) if ("外資及陸資" in f) and ("不含" not in f) and ("買賣超" in f or "淨買" in f)), -1)
+        f_ex_idx = next((i for i, f in enumerate(fields) if ("外資及陸資" in f) and ("不含" in f) and ("買賣超" in f or "淨買" in f)), -1)
+        f_deal_idx = next((i for i, f in enumerate(fields) if ("外資自營商" in f) and ("買賣超" in f or "淨買" in f)), -1)
+        inst_idx = next((i for i, f in enumerate(fields) if "三大法人" in f and ("買賣超" in f or "合計" in f)), len(fields) - 1)
+
         for row in t0.get("data", []):
             code = str(row[code_idx]).strip()
-            raw_val = str(row[net_idx]).replace(",", "").strip()
-            if raw_val and raw_val != "--":
-                result[code] = round(int(float(raw_val)) / 1000)
+            if f_total_idx != -1:
+                f_shares = safe_int(row[f_total_idx])
+                has_f = True
+            elif f_ex_idx != -1 or f_deal_idx != -1:
+                f_shares = (safe_int(row[f_ex_idx]) if f_ex_idx != -1 else 0) + (safe_int(row[f_deal_idx]) if f_deal_idx != -1 else 0)
+                has_f = True
+            else:
+                f_shares = 0
+                has_f = False
+
+            inst_shares = safe_int(row[inst_idx])
+            result[code] = {
+                "foreign": round(f_shares / 1000) if has_f else None,
+                "inst": round(inst_shares / 1000)
+            }
     except Exception as e:
-        print(f"TPEx insti skipped: {e}")
+        print(f"TPEx insti skipped ({date_iso}): {e}")
     return result
 
 
+def fetch_inst_with_date_fallback(candidate_dates):
+    """優先抓取最新交易日法人資料；若 14:40 尚未公布，自動回退前一日並標記正確法人資料日"""
+    for d in candidate_dates:
+        merged = {}
+        merged.update(fetch_twse_t86(d))
+        merged.update(fetch_tpex_insti(d))
+        if merged:
+            return merged, d
+    return {}, None
+
+
+def fetch_tdcc_weekly_and_update_history(target_codes):
+    """
+    抓取集保結算所 (TDCC) 每週官方《集保戶股權分散表》開放資料 CSV：
+    - 100張以下散戶：第 1~9 級（1股 ~ 100,000股）
+    - 400張以上大戶：第 12~15 級（400,001股以上，完整涵蓋所有500張以上大戶）
+    自動與 data/tdcc_history.json 上週快照相減，計算真實週增減張數。
+    """
+    urls = [
+        "https://opendata.tdcc.com.tw/getOD.ashx?id=1-5",
+        "https://smart.tdcc.com.tw/opendata/getOD.ashx?id=1-5"
+    ]
+    csv_text = None
+    for url in urls:
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=25)
+            if r.ok and len(r.text) > 10000 and ("資料日期" in r.text[:200] or "," in r.text[:200]):
+                r.encoding = "utf-8-sig"
+                csv_text = r.text
+                break
+        except Exception as e:
+            print(f"TDCC fetch failed ({url}): {e}")
+
+    hist_path = os.path.join("data", "tdcc_history.json")
+    tdcc_hist = {}
+    if os.path.exists(hist_path):
+        try:
+            with open(hist_path, "r", encoding="utf-8") as f:
+                tdcc_hist = json.load(f)
+        except Exception:
+            tdcc_hist = {}
+
+    tdcc_date = None
+    cur_week = {}
+
+    if csv_text:
+        reader = csv.reader(io.StringIO(csv_text))
+        header = next(reader, None)
+        for row in reader:
+            if len(row) < 6:
+                continue
+            code = row[1].strip()
+            if code not in target_codes:
+                continue
+            raw_d = row[0].strip()
+            if not tdcc_date and len(raw_d) == 8 and raw_d.isdigit():
+                tdcc_date = f"{raw_d[:4]}-{raw_d[4:6]}-{raw_d[6:8]}"
+            level = safe_int(row[2])
+            shares = safe_int(row[4])
+            try:
+                pct = float(row[5].strip())
+            except Exception:
+                pct = 0.0
+
+            if code not in cur_week:
+                cur_week[code] = {"r100Shares": 0, "r100Pct": 0.0, "m400Shares": 0, "m400Pct": 0.0}
+
+            if 1 <= level <= 9:
+                cur_week[code]["r100Shares"] += shares
+                cur_week[code]["r100Pct"] += pct
+            elif 12 <= level <= 15:
+                cur_week[code]["m400Shares"] += shares
+                cur_week[code]["m400Pct"] += pct
+
+    if tdcc_date and cur_week:
+        compact = {}
+        for code, info in cur_week.items():
+            compact[code] = {
+                "r100": round(info["r100Shares"] / 1000),
+                "r100Pct": round(info["r100Pct"], 2),
+                "m400": round(info["m400Shares"] / 1000),
+                "m400Pct": round(info["m400Pct"], 2)
+            }
+        tdcc_hist[tdcc_date] = compact
+        # 只保留最近 12 週快照，避免檔案膨脹
+        sorted_weeks = sorted(tdcc_hist.keys())[-12:]
+        tdcc_hist = {k: tdcc_hist[k] for k in sorted_weeks}
+        os.makedirs("data", exist_ok=True)
+        with open(hist_path, "w", encoding="utf-8") as f:
+            json.dump(tdcc_hist, f, ensure_ascii=False, indent=2)
+    elif tdcc_hist:
+        tdcc_date = sorted(tdcc_hist.keys())[-1]
+
+    if not tdcc_date or tdcc_date not in tdcc_hist:
+        return {}, None, None
+
+    prev_weeks = [d for d in sorted(tdcc_hist.keys()) if d < tdcc_date]
+    prev_date = prev_weeks[-1] if prev_weeks else None
+    prev_map = tdcc_hist.get(prev_date, {}) if prev_date else {}
+    latest_map = tdcc_hist[tdcc_date]
+
+    tdcc_out = {}
+    for code, cur in latest_map.items():
+        prev = prev_map.get(code)
+        tdcc_out[code] = {
+            "retail100Lots": cur["r100"],
+            "retail100Pct": cur["r100Pct"],
+            "retail100Diff": (cur["r100"] - prev["r100"]) if prev else None,
+            "major400Lots": cur["m400"],
+            "major400Pct": cur["m400Pct"],
+            "major400Diff": (cur["m400"] - prev["m400"]) if prev else None
+        }
+    return tdcc_out, tdcc_date, prev_date
+
+
 def fetch_all_stock_data():
-    """一次批量抓取 80 檔個股近 3 個月日線 + 近 5 日 5 分 K"""
     yf_tickers = []
     ticker_map = {}
     for sec in SECTORS_CONFIG:
@@ -328,7 +476,6 @@ def fetch_all_stock_data():
 
 
 def compute_sector_intraday_5m(sec_stocks, intraday_map, target_date):
-    """計算該族群在 target_date 當天 09:00~13:25 每 5 分鐘真實主力買賣力道 (-100 ~ +100)"""
     if not target_date:
         return [None] * len(SLOT_LABELS_5M)
 
@@ -398,12 +545,15 @@ def main():
     prev_close = history_30d[-2]["close"] if len(history_30d) >= 2 else latest_taiex["close"]
     taiex_pct = round((latest_taiex["diff"] / prev_close) * 100, 2) if prev_close else 0.0
 
-    # 計算大盤當天均價
     today_avg, today_avg_source = fetch_taiex_today_avg(latest_date, latest_taiex["close"])
 
-    inst_map = {}
-    inst_map.update(fetch_twse_t86(latest_date))
-    inst_map.update(fetch_tpex_insti(latest_date))
+    # 抓取外資 + 三大法人（最新日若尚未公布則自動取前一交易日並標記日期）
+    inst_candidates = [h["date"] for h in reversed(history_30d[-3:])]
+    inst_map, inst_date = fetch_inst_with_date_fallback(inst_candidates)
+
+    # 抓取 TDCC 官方每週集保戶股權分散表（100張↓散戶 / 400張↑大戶）
+    target_codes = {code for sec in SECTORS_CONFIG for _, code, _ in sec["stocks"]}
+    tdcc_map, tdcc_date, tdcc_prev_date = fetch_tdcc_weekly_and_update_history(target_codes)
 
     daily_map, intraday_map, intraday_date = fetch_all_stock_data()
     effective_intraday_date = latest_date if intraday_date == latest_date else (intraday_date or latest_date)
@@ -434,6 +584,9 @@ def main():
             chg_pct = round(((last_close - prev_c) / prev_c) * 100, 2) if prev_c else 0.0
             last_amt_b = round((last_close * float(vols[-1])) / 1e8, 2)
 
+            inst_info = inst_map.get(code, {})
+            tdcc_info = tdcc_map.get(code, {})
+
             stocks_out.append({
                 "ex": mkt,
                 "code": code,
@@ -442,7 +595,14 @@ def main():
                 "prevClose": round(prev_c, 2),
                 "chgPct": chg_pct,
                 "turnoverBillion": last_amt_b,
-                "instNetLots": inst_map.get(code, None)
+                "foreignNetLots": inst_info.get("foreign", None),
+                "instNetLots": inst_info.get("inst", None),
+                "retail100Lots": tdcc_info.get("retail100Lots", None),
+                "retail100Pct": tdcc_info.get("retail100Pct", None),
+                "retail100Diff": tdcc_info.get("retail100Diff", None),
+                "major400Lots": tdcc_info.get("major400Lots", None),
+                "major400Pct": tdcc_info.get("major400Pct", None),
+                "major400Diff": tdcc_info.get("major400Diff", None)
             })
 
         sorted_dates = sorted(sec_daily_turnover.keys())
@@ -478,6 +638,9 @@ def main():
     output = {
         "generatedAt": datetime.now(TW_TZ).strftime("%Y-%m-%d %H:%M:%S CST"),
         "dataDate": latest_date,
+        "instDate": inst_date,
+        "tdccDate": tdcc_date,
+        "tdccPrevDate": tdcc_prev_date,
         "intradayDate": effective_intraday_date,
         "intradaySlots": SLOT_LABELS_5M,
         "taiexSource": taiex_source,
@@ -495,7 +658,7 @@ def main():
     os.makedirs("data", exist_ok=True)
     with open("data/market_data.json", "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2, allow_nan=False)
-    print(f"Updated data/market_data.json for {latest_date} (todayAvg: {today_avg})")
+    print(f"Updated data/market_data.json ({latest_date}, inst: {inst_date}, tdcc: {tdcc_date})")
 
 
 if __name__ == "__main__":
