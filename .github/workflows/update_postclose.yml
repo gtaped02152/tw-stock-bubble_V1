@@ -2,9 +2,11 @@ name: Update Taiwan Stock Post-Close Data
 
 on:
   schedule:
-    # 台灣時間週一至週五 14:40 (UTC 06:40) 與 16:20 (UTC 08:20，含三大法人T86)
+    # 台灣時間週一至週五 14:40 (UTC 06:40) 與 16:20 (UTC 08:20，含外資與三大法人)
     - cron: '40 6 * * 1-5'
     - cron: '20 8 * * 1-5'
+    # 台灣時間每週六 08:30 (UTC 00:30)，自動抓取最新一週集保戶股權分散表
+    - cron: '30 0 * * 6'
   workflow_dispatch:
 
 permissions:
@@ -33,5 +35,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/market_data.json
-          git diff --staged --quiet || git commit -m "Update post-close market data ($(date +'%Y-%m-%d'))"
+          if [ -f data/tdcc_history.json ]; then git add data/tdcc_history.json; fi
+          git diff --staged --quiet || git commit -m "Update market & chip data ($(date +'%Y-%m-%d'))"
           git push
