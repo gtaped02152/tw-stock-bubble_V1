@@ -85,7 +85,7 @@
     .tip {
       position: absolute; pointer-events: none; background: rgba(9, 14, 26, 0.96);
       border: 1px solid rgba(251, 191, 36, 0.55); border-radius: 8px; padding: 7px 10px;
-      font-size: 0.75rem; z-index: 25; display: none; max-width: 240px;
+      font-size: 0.75rem; z-index: 25; display: none; max-width: 245px;
     }
 
     /* 四大區塊排行榜 */
@@ -162,10 +162,17 @@
       padding: 5px 9px; display: none;
     }
 
-    .audit-table-wrap { max-height: 220px; overflow-y: auto; border-top: 1px solid var(--border); padding-top: 6px; display: none; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
-    th { text-align: left; color: var(--muted); padding: 6px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--panel); }
-    td { padding: 6px; border-bottom: 1px solid rgba(148, 163, 184, 0.08); }
+    .line-legend {
+      display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.73rem; color: var(--muted);
+    }
+    .line-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .swatch-solid { width: 16px; height: 2.5px; background: #38bdf8; display: inline-block; }
+    .swatch-dash { width: 16px; height: 0; border-top: 2px dashed #fbbf24; display: inline-block; }
+
+    .audit-table-wrap { max-height: 240px; overflow-y: auto; border-top: 1px solid var(--border); padding-top: 6px; display: none; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.76rem; font-variant-numeric: tabular-nums; }
+    th { text-align: left; color: var(--muted); padding: 6px 4px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--panel); white-space: nowrap; }
+    td { padding: 6px 4px; border-bottom: 1px solid rgba(148, 163, 184, 0.08); white-space: nowrap; }
 
     .modal-bg {
       position: fixed; inset: 0; background: rgba(2, 6, 23, 0.8); display: none;
@@ -199,7 +206,7 @@
           <span class="pts" id="taiexVal">--</span>
           <span id="taiexChg"></span>
         </div>
-        <span class="avg-chip" id="topTodayAvg">當天均價：--</span>
+        <span class="avg-chip" id="topTodayAvg">當日均價：--</span>
       </div>
       <div style="font-size:0.72rem; color:var(--muted);" id="metaTime">等待讀取 data/market_data.json</div>
     </div>
@@ -262,23 +269,27 @@
     <div class="heat-list" id="heatList"></div>
   </section>
 
-  <!-- 4. 近 30 個交易日真實收盤比較（含當天均價與明細核對） -->
+  <!-- 4. 近 30 個交易日收盤 vs 當日均價 ((最高-最低)/2 + 最低) -->
   <section class="card-box">
     <div class="box-head">
       <div>
-        <div class="box-title" id="thirtyTitle">4. 近 30 個交易日真實收盤比較（含當天均價）</div>
+        <div class="box-title" id="thirtyTitle">4. 近 30 個交易日收盤與當日均價比較</div>
         <div class="box-sub" id="thirtyInfo"></div>
       </div>
       <button class="btn" onclick="toggleAuditTable()" id="toggleTableBtn">📋 展開 30 日明細核對</button>
     </div>
-    <div class="canvas-wrap" id="thirtyWrap" style="height:260px;">
+    <div class="line-legend">
+      <span><i class="swatch-solid"></i>當日收盤價</span>
+      <span><i class="swatch-dash"></i>當日均價 = ((最高 − 最低) / 2) + 最低</span>
+    </div>
+    <div class="canvas-wrap" id="thirtyWrap" style="height:265px;">
       <canvas id="thirtyCanvas"></canvas>
       <div class="tip" id="thirtyTip"></div>
     </div>
     <div class="audit-table-wrap" id="auditTableWrap">
       <table>
         <thead>
-          <tr><th>交易日期</th><th>加權收盤</th><th>漲跌</th><th>較當天均價</th></tr>
+          <tr><th>交易日期</th><th>收盤</th><th>最高 / 最低</th><th>當日均價</th><th>收盤−均價</th></tr>
         </thead>
         <tbody id="auditTableBody"></tbody>
       </table>
@@ -294,7 +305,7 @@
       <button class="btn" onclick="closeConfig()">✕</button>
     </div>
     <div style="font-size:0.76rem; color:var(--muted);">
-      已預設為你的即時轉發網址，盤中 09:00–13:30 每 60 秒自動抓取 80 檔最新價量並更新當天均價與色塊。
+      已預設為你的即時轉發網址，盤中 09:00–13:30 每 60 秒自動抓取最新高低點計算當日均價與族群資金流向。
     </div>
     <input type="text" id="workerInput" />
     <div style="display:flex; justify-content:flex-end; gap:8px;">
@@ -318,13 +329,17 @@
 
   let postCloseData = null;
   let liveSectors = [];
+  let liveTaiexPoint = null;  // 盤中即時 { date, close, high, low, diff, dayAvg }
   let currentTodayAvg = null;
-  let currentTodayAvgSource = "";
   let selectedId = "fab";
   let heatViewMode = "FULL";
   let bubbleHits = [];
   let thirtyHits = [];
   let prev5mSnapshot = null;
+
+  function calcDayAvg(high, low) {
+    return +(((high - low) / 2) + low).toFixed(2);
+  }
 
   function getTaiwanNow() {
     return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Taipei" }));
@@ -409,12 +424,15 @@
         selectedId = liveSectors[0].id;
       }
 
-      if (postCloseData.taiex && typeof postCloseData.taiex.todayAvg === "number") {
-        currentTodayAvg = postCloseData.taiex.todayAvg;
-        currentTodayAvgSource = postCloseData.taiex.todayAvgSource || "當日均價";
-      } else {
-        currentTodayAvg = null;
-        currentTodayAvgSource = "請重跑 Actions 產出當天均價";
+      if (postCloseData.taiex) {
+        const t = postCloseData.taiex;
+        if (typeof t.high === "number" && typeof t.low === "number") {
+          currentTodayAvg = calcDayAvg(t.high, t.low);
+        } else if (typeof t.todayAvg === "number") {
+          currentTodayAvg = t.todayAvg;
+        } else {
+          currentTodayAvg = null;
+        }
       }
 
       clearError();
@@ -437,8 +455,8 @@
   function updateTopAvgChip() {
     const el = document.getElementById("topTodayAvg");
     el.textContent = currentTodayAvg !== null
-      ? `當天均價：${Number(currentTodayAvg).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-      : "當天均價：待更新";
+      ? `當日均價：${Number(currentTodayAvg).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      : "當日均價：待更新";
   }
 
   function renderHeaderFromPostClose() {
@@ -459,7 +477,7 @@
   }
 
   // =========================================================================
-  // 2. 盤中即時同步（透過 Cloudflare Worker 直連 TWSE MIS + 當天均價）
+  // 2. 盤中即時同步（透過 Cloudflare Worker 直連 TWSE MIS）
   // =========================================================================
   async function pollLiveWorker(isManual = false) {
     if (!WORKER_URL) {
@@ -478,10 +496,19 @@
       const dRaw = twse.date;
       const isoDate = dRaw.length === 8 ? `${dRaw.slice(0,4)}-${dRaw.slice(4,6)}-${dRaw.slice(6,8)}` : getTaiwanNow().toLocaleDateString("sv-SE");
 
-      if (typeof twse.todayAvg === "number" && twse.todayAvg > 0) {
-        currentTodayAvg = twse.todayAvg;
-        currentTodayAvgSource = twse.todayAvgSource || "盤中當天均價";
-      }
+      const high = typeof twse.high === "number" && twse.high > 0 ? twse.high : twse.price;
+      const low = typeof twse.low === "number" && twse.low > 0 ? twse.low : twse.price;
+      const liveDayAvg = calcDayAvg(high, low);
+      currentTodayAvg = liveDayAvg;
+
+      liveTaiexPoint = {
+        date: isoDate,
+        close: twse.price,
+        high,
+        low,
+        diff: twse.diff,
+        dayAvg: liveDayAvg
+      };
 
       pill.className = isMarketHours() ? "pill pill-live" : "pill pill-close";
       pill.textContent = isMarketHours() ? `🟢 盤中即時 ${twse.time}` : `🔒 TWSE 收盤 ${isoDate}`;
@@ -492,7 +519,7 @@
       chgEl.textContent = ` ${twse.diff >= 0 ? "+" : ""}${twse.diff.toFixed(2)} (${twse.pct >= 0 ? "+" : ""}${twse.pct.toFixed(2)}%)`;
       chgEl.className = twse.diff >= 0 ? "up" : "down";
       updateTopAvgChip();
-      document.getElementById("metaTime").textContent = `TWSE MIS 即時同步：${isoDate} ${twse.time}（${data.count || 0} 檔）`;
+      document.getElementById("metaTime").textContent = `TWSE MIS 即時同步：${isoDate} ${twse.time}（高 ${high.toFixed(2)} / 低 ${low.toFixed(2)}）`;
 
       if (postCloseData && postCloseData.sectors) {
         const quotes = data.quotes || {};
@@ -526,12 +553,6 @@
 
         if (isMarketHours()) {
           recordIntraday5mSlot(isoDate);
-        }
-
-        const hist = postCloseData.history30d;
-        if (hist.length > 0 && hist[hist.length - 1].date === isoDate) {
-          hist[hist.length - 1].close = twse.price;
-          hist[hist.length - 1].diff = twse.diff;
         }
       }
 
@@ -673,7 +694,7 @@
   }
 
   // =========================================================================
-  // 4. 成分股明細：外資(日) / 三大法人(日) / 100張↓散戶(集保週) / 400張↑大戶(集保週)
+  // 4. 成分股明細：外資 / 三大法人 / 100張↓散戶 / 400張↑大戶
   // =========================================================================
   function renderStocks() {
     document.getElementById("sectorScroll").innerHTML = liveSectors.map(s =>
@@ -824,22 +845,48 @@
   }
 
   // =========================================================================
-  // 6. 近 30 日真實收盤比較（XY 軸 + 當天均價基準線）
+  // 6. 近 30 個交易日：收盤價 vs 當日均價 (((最高-最低)/2) + 最低)
   // =========================================================================
+  function getDisplayHistory30d() {
+    if (!postCloseData || !Array.isArray(postCloseData.history30d)) return [];
+    const list = postCloseData.history30d.map(d => {
+      const hasHL = typeof d.high === "number" && typeof d.low === "number";
+      const dayAvg = typeof d.dayAvg === "number" ? d.dayAvg : (hasHL ? calcDayAvg(d.high, d.low) : null);
+      return { ...d, dayAvg };
+    });
+
+    if (liveTaiexPoint && list.length > 0) {
+      const last = list[list.length - 1];
+      if (liveTaiexPoint.date === last.date) {
+        list[list.length - 1] = { ...last, ...liveTaiexPoint };
+      } else if (liveTaiexPoint.date > last.date) {
+        list.push(liveTaiexPoint);
+        return list.slice(-30);
+      }
+    }
+    return list;
+  }
+
   function drawThirtyDay() {
-    if (!postCloseData || !postCloseData.history30d || !postCloseData.history30d.length) return;
-    const list = postCloseData.history30d;
-    const closes = list.map(d => d.close);
+    const list = getDisplayHistory30d();
+    if (!list.length) return;
+
     const latest = list[list.length - 1];
-    const refAvg = currentTodayAvg !== null ? currentTodayAvg : latest.close;
-    const gap = latest.close - refAvg;
+    const hasLatestAvg = typeof latest.dayAvg === "number";
+    const latestGap = hasLatestAvg ? latest.close - latest.dayAvg : null;
 
     document.getElementById("thirtyTitle").textContent =
-      `4. ${latest.date} 收盤（${latest.close.toLocaleString("en-US", { minimumFractionDigits: 2 })}）與前 30 個交易日比較（含當天均價）`;
+      `4. ${latest.date} 收盤（${latest.close.toLocaleString("en-US", { minimumFractionDigits: 2 })}）與前 30 個交易日「當日均價」比較`;
 
-    document.getElementById("thirtyInfo").textContent = currentTodayAvg !== null
-      ? `當天均價：${refAvg.toFixed(2)}（${currentTodayAvgSource}）｜ 較當天均價：${gap >= 0 ? "+" : ""}${gap.toFixed(2)} 點`
-      : `尚未產出當天均價（請重跑 Actions 或點上方手動同步即時）`;
+    if (hasLatestAvg) {
+      const hlStr = (typeof latest.high === "number" && typeof latest.low === "number")
+        ? `（高 ${latest.high.toFixed(2)} / 低 ${latest.low.toFixed(2)}）` : "";
+      document.getElementById("thirtyInfo").textContent =
+        `${latest.date} 當日均價：${latest.dayAvg.toFixed(2)}${hlStr}｜收盤較均價：${latestGap >= 0 ? "+" : ""}${latestGap.toFixed(2)} 點`;
+    } else {
+      document.getElementById("thirtyInfo").textContent =
+        "尚未寫入每日最高／最低價（請重跑 GitHub Actions 即可繪出 30 日當日均價線）";
+    }
 
     const wrap = document.getElementById("thirtyWrap");
     const canvas = document.getElementById("thirtyCanvas");
@@ -853,13 +900,18 @@
     const pad = { top: 24, right: 20, bottom: 32, left: 60 };
     const pw = w - pad.left - pad.right, ph = h - pad.top - pad.bottom;
 
-    const allPoints = currentTodayAvg !== null ? [...closes, currentTodayAvg] : closes;
+    const allPoints = [];
+    list.forEach(d => {
+      allPoints.push(d.close);
+      if (typeof d.dayAvg === "number") allPoints.push(d.dayAvg);
+    });
     const minV = Math.floor((Math.min(...allPoints) - 300) / 500) * 500;
     const maxV = Math.ceil((Math.max(...allPoints) + 300) / 500) * 500;
 
-    const toX = i => pad.left + (i / Math.max(1, closes.length - 1)) * pw;
+    const toX = i => pad.left + (i / Math.max(1, list.length - 1)) * pw;
     const toY = v => pad.top + ((maxV - v) / Math.max(1, maxV - minV)) * ph;
 
+    // Y 軸刻度
     for (let s = 0; s <= 4; s++) {
       const val = minV + ((maxV - minV) * s) / 4;
       const py = toY(val);
@@ -869,6 +921,7 @@
       ctx.fillText(Math.round(val).toLocaleString("en-US"), pad.left - 7, py + 3.5);
     }
 
+    // X 軸日期刻度
     const lastIdx = list.length - 1;
     const tickIdxs = [...new Set([0, Math.floor(lastIdx * 0.25), Math.floor(lastIdx * 0.5), Math.floor(lastIdx * 0.75), lastIdx])];
     tickIdxs.forEach(idx => {
@@ -881,54 +934,80 @@
       ctx.fillText(list[idx].date.slice(5), px, h - pad.bottom + 16);
     });
 
+    // XY 主軸線
     ctx.strokeStyle = "rgba(203, 213, 225, 0.6)";
     ctx.lineWidth = 1.4;
     ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, h - pad.bottom); ctx.lineTo(w - pad.right, h - pad.bottom); ctx.stroke();
 
-    if (currentTodayAvg !== null) {
-      const avgY = toY(refAvg);
-      ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = "#fbbf24"; ctx.lineWidth = 1.6;
-      ctx.beginPath(); ctx.moveTo(pad.left, avgY); ctx.lineTo(w - pad.right, avgY); ctx.stroke();
-      ctx.restore();
-
-      const labelY = Math.max(pad.top + 18, Math.min(h - pad.bottom - 4, avgY));
-      ctx.fillStyle = "rgba(15, 23, 42, 0.9)";
-      ctx.fillRect(pad.left + 6, labelY - 17, 138, 15);
-      ctx.fillStyle = "#fde047"; ctx.font = "bold 10.5px sans-serif"; ctx.textAlign = "left";
-      ctx.fillText(`當天均價 ${refAvg.toFixed(2)}`, pad.left + 9, labelY - 6);
-    }
-
+    // 1. 繪製「30日每日當日均價」金色虛線
+    let startedAvg = false;
+    ctx.save();
+    ctx.setLineDash([5, 3]);
+    ctx.strokeStyle = "#fbbf24";
+    ctx.lineWidth = 1.9;
     ctx.beginPath();
-    closes.forEach((v, i) => {
-      const px = toX(i), py = toY(v);
+    list.forEach((d, i) => {
+      if (typeof d.dayAvg !== "number") return;
+      const px = toX(i), py = toY(d.dayAvg);
+      if (!startedAvg) { ctx.moveTo(px, py); startedAvg = true; }
+      else ctx.lineTo(px, py);
+    });
+    if (startedAvg) ctx.stroke();
+    ctx.restore();
+
+    // 2. 繪製「30日收盤價」藍色實線
+    ctx.beginPath();
+    list.forEach((d, i) => {
+      const px = toX(i), py = toY(d.close);
       if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
     });
     ctx.strokeStyle = "#38bdf8"; ctx.lineWidth = 2.2; ctx.stroke();
 
+    // 3. 標記端點與最後一天數值
     thirtyHits = [];
-    closes.forEach((v, i) => {
-      const px = toX(i), py = toY(v);
+    list.forEach((d, i) => {
+      const px = toX(i), py = toY(d.close);
       const isLast = i === lastIdx;
+
+      if (typeof d.dayAvg === "number") {
+        const ay = toY(d.dayAvg);
+        ctx.beginPath(); ctx.arc(px, ay, isLast ? 4 : 1.8, 0, Math.PI * 2);
+        ctx.fillStyle = "#fbbf24"; ctx.fill();
+      }
+
       ctx.beginPath(); ctx.arc(px, py, isLast ? 5.5 : 2.3, 0, Math.PI * 2);
       ctx.fillStyle = isLast ? "#f43f5e" : "#7dd3fc"; ctx.fill();
+
       if (isLast) {
         ctx.strokeStyle = "#fde047"; ctx.lineWidth = 2; ctx.stroke();
         ctx.fillStyle = "#fde047"; ctx.font = "bold 10.5px sans-serif"; ctx.textAlign = "right";
-        ctx.fillText(`${list[i].date.slice(5)} 收 ${v.toFixed(2)}`, px - 8, py - 8);
+        const labelTop = py - 8;
+        ctx.fillText(`收 ${d.close.toFixed(2)}`, px - 8, labelTop);
+        if (typeof d.dayAvg === "number") {
+          ctx.fillStyle = "#fbbf24"; ctx.font = "bold 10px sans-serif";
+          ctx.fillText(`均 ${d.dayAvg.toFixed(2)}`, px - 8, labelTop + 14);
+        }
       }
-      thirtyHits.push({ item: list[i], px, py, refAvg });
+      thirtyHits.push({ item: d, px, py });
     });
 
+    // 4. 30 日明細核對表
     document.getElementById("auditTableBody").innerHTML = list.slice().reverse().map(d => {
-      const g = d.close - refAvg;
-      const gapCell = currentTodayAvg !== null
-        ? `<td class="${g >= 0 ? "up" : "down"}">${g >= 0 ? "+" : ""}${g.toFixed(2)}</td>`
-        : `<td style="color:var(--muted);">--</td>`;
+      const hl = (typeof d.high === "number" && typeof d.low === "number")
+        ? `${d.high.toFixed(0)} / ${d.low.toFixed(0)}`
+        : "--";
+      const avgCell = typeof d.dayAvg === "number" ? `<strong>${d.dayAvg.toFixed(2)}</strong>` : "--";
+      let gapCell = `<td style="color:var(--muted);">--</td>`;
+      if (typeof d.dayAvg === "number") {
+        const g = d.close - d.dayAvg;
+        gapCell = `<td class="${g >= 0 ? "up" : "down"}">${g >= 0 ? "+" : ""}${g.toFixed(2)}</td>`;
+      }
       return `
         <tr>
           <td><strong>${d.date}</strong></td>
           <td><strong>${d.close.toFixed(2)}</strong></td>
-          <td class="${d.diff >= 0 ? "up" : "down"}">${d.diff >= 0 ? "+" : ""}${d.diff.toFixed(2)}</td>
+          <td style="color:var(--muted);">${hl}</td>
+          <td style="color:#fde68a;">${avgCell}</td>
           ${gapCell}
         </tr>
       `;
@@ -990,16 +1069,21 @@
     const mx = e.clientX - r.left, my = e.clientY - r.top;
     const hit = thirtyHits.find(h => Math.hypot(mx - h.px, my - h.py) <= 16);
     if (hit) {
-      const gap = hit.item.close - hit.refAvg;
+      const it = hit.item;
       const tip = document.getElementById("thirtyTip");
       tip.style.display = "block";
-      tip.style.left = Math.min(r.width - 200, Math.max(8, mx - 80)) + "px";
-      tip.style.top = Math.max(8, my - 56) + "px";
-      const gapLine = currentTodayAvg !== null
-        ? `<br>較當天均價：${gap >= 0 ? "+" : ""}${gap.toFixed(2)}`
-        : "";
-      tip.innerHTML = `<b>${hit.item.date}</b>：${hit.item.close.toFixed(2)}${gapLine}`;
-      setTimeout(() => { tip.style.display = "none"; }, 2200);
+      tip.style.left = Math.min(r.width - 220, Math.max(8, mx - 90)) + "px";
+      tip.style.top = Math.max(8, my - 72) + "px";
+      let detail = `<b>${it.date}</b><br>收盤：<b>${it.close.toFixed(2)}</b>`;
+      if (typeof it.high === "number" && typeof it.low === "number") {
+        detail += `<br>高 / 低：${it.high.toFixed(2)} / ${it.low.toFixed(2)}`;
+      }
+      if (typeof it.dayAvg === "number") {
+        const gap = it.close - it.dayAvg;
+        detail += `<br>當日均價：<b>${it.dayAvg.toFixed(2)}</b>（收−均 ${gap >= 0 ? "+" : ""}${gap.toFixed(2)}）`;
+      }
+      tip.innerHTML = detail;
+      setTimeout(() => { tip.style.display = "none"; }, 2500);
     }
   });
 
