@@ -1,6 +1,9 @@
 {
-  "generatedAt": "2026-11-24 23:05:57 CST",
+  "generatedAt": "2026-11-24 23:16:55 CST",
   "dataDate": "2026-11-24",
+  "instDate": "2026-11-24",
+  "tdccDate": "2026-11-20",
+  "tdccPrevDate": null,
   "intradayDate": "2026-11-24",
   "intradaySlots": [
     "09:00",
@@ -323,7 +326,14 @@
           "prevClose": 2030.0,
           "chgPct": 9.85,
           "turnoverBillion": 256.24,
-          "instNetLots": -2792
+          "foreignNetLots": -4098,
+          "instNetLots": -2792,
+          "retail100Lots": 2732193,
+          "retail100Pct": 10.5,
+          "retail100Diff": null,
+          "major400Lots": 22538530,
+          "major400Pct": 86.89,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -333,7 +343,14 @@
           "prevClose": 88.3,
           "chgPct": 9.97,
           "turnoverBillion": 40.11,
-          "instNetLots": -18744
+          "foreignNetLots": -18764,
+          "instNetLots": -18744,
+          "retail100Lots": 3468600,
+          "retail100Pct": 27.55,
+          "retail100Diff": null,
+          "major400Lots": 8626622,
+          "major400Pct": 68.61,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -343,7 +360,14 @@
           "prevClose": 48.5,
           "chgPct": 9.9,
           "turnoverBillion": 3.72,
-          "instNetLots": 572
+          "foreignNetLots": 437,
+          "instNetLots": 572,
+          "retail100Lots": 2371190,
+          "retail100Pct": 50.08,
+          "retail100Diff": null,
+          "major400Lots": 1981726,
+          "major400Pct": 41.86,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -353,7 +377,14 @@
           "prevClose": 110.0,
           "chgPct": 10.0,
           "turnoverBillion": 5.43,
-          "instNetLots": -2996
+          "foreignNetLots": null,
+          "instNetLots": -2996,
+          "retail100Lots": 245230,
+          "retail100Pct": 13.0,
+          "retail100Diff": null,
+          "major400Lots": 1570079,
+          "major400Pct": 83.56,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -363,7 +394,14 @@
           "prevClose": 43.3,
           "chgPct": 9.93,
           "turnoverBillion": 0.26,
-          "instNetLots": 105
+          "foreignNetLots": null,
+          "instNetLots": 105,
+          "retail100Lots": 198910,
+          "retail100Pct": 49.31,
+          "retail100Diff": null,
+          "major400Lots": 184313,
+          "major400Pct": 45.73,
+          "major400Diff": null
         }
       ],
       "x": 222.6
@@ -442,7 +480,14 @@
           "prevClose": 371.0,
           "chgPct": 9.97,
           "turnoverBillion": 0.19,
-          "instNetLots": 11
+          "foreignNetLots": 7,
+          "instNetLots": 11,
+          "retail100Lots": 27190,
+          "retail100Pct": 32.37,
+          "retail100Diff": null,
+          "major400Lots": 49481,
+          "major400Pct": 58.98,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -452,7 +497,14 @@
           "prevClose": 1335.0,
           "chgPct": 9.74,
           "turnoverBillion": 0.32,
-          "instNetLots": -2
+          "foreignNetLots": null,
+          "instNetLots": -2,
+          "retail100Lots": 9450,
+          "retail100Pct": 31.01,
+          "retail100Diff": null,
+          "major400Lots": 14168,
+          "major400Pct": 46.57,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -462,7 +514,14 @@
           "prevClose": 673.0,
           "chgPct": 9.96,
           "turnoverBillion": 0.8,
-          "instNetLots": -56
+          "foreignNetLots": null,
+          "instNetLots": -56,
+          "retail100Lots": 30936,
+          "retail100Pct": 31.44,
+          "retail100Diff": null,
+          "major400Lots": 49357,
+          "major400Pct": 50.21,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -472,7 +531,14 @@
           "prevClose": 329.0,
           "chgPct": 9.88,
           "turnoverBillion": 0.32,
-          "instNetLots": -3
+          "foreignNetLots": null,
+          "instNetLots": -3,
+          "retail100Lots": 33099,
+          "retail100Pct": 34.07,
+          "retail100Diff": null,
+          "major400Lots": 52708,
+          "major400Pct": 54.3,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -482,7 +548,14 @@
           "prevClose": 221.0,
           "chgPct": 9.95,
           "turnoverBillion": 0.41,
-          "instNetLots": -29
+          "foreignNetLots": -29,
+          "instNetLots": -29,
+          "retail100Lots": 41444,
+          "retail100Pct": 25.52,
+          "retail100Diff": null,
+          "major400Lots": 109258,
+          "major400Pct": 67.39,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -492,7 +565,14 @@
           "prevClose": 65.8,
           "chgPct": 9.88,
           "turnoverBillion": 0.19,
-          "instNetLots": -12
+          "foreignNetLots": null,
+          "instNetLots": -12,
+          "retail100Lots": 88933,
+          "retail100Pct": 53.91,
+          "retail100Diff": null,
+          "major400Lots": 63657,
+          "major400Pct": 38.63,
+          "major400Diff": null
         }
       ],
       "x": -97.7
@@ -571,7 +651,14 @@
           "prevClose": 851.0,
           "chgPct": 9.99,
           "turnoverBillion": 1.66,
-          "instNetLots": -20
+          "foreignNetLots": -24,
+          "instNetLots": -20,
+          "retail100Lots": 58950,
+          "retail100Pct": 30.88,
+          "retail100Diff": null,
+          "major400Lots": 106376,
+          "major400Pct": 55.79,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -581,7 +668,14 @@
           "prevClose": 551.0,
           "chgPct": 9.98,
           "turnoverBillion": 1.58,
-          "instNetLots": 9
+          "foreignNetLots": -23,
+          "instNetLots": 9,
+          "retail100Lots": 74876,
+          "retail100Pct": 31.74,
+          "retail100Diff": null,
+          "major400Lots": 142345,
+          "major400Pct": 60.41,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -591,7 +685,14 @@
           "prevClose": 487.5,
           "chgPct": 9.95,
           "turnoverBillion": 0.4,
-          "instNetLots": -2
+          "foreignNetLots": -2,
+          "instNetLots": -2,
+          "retail100Lots": 27091,
+          "retail100Pct": 20.24,
+          "retail100Diff": null,
+          "major400Lots": 91824,
+          "major400Pct": 68.74,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -601,7 +702,14 @@
           "prevClose": 307.0,
           "chgPct": 9.93,
           "turnoverBillion": 1.63,
-          "instNetLots": -346
+          "foreignNetLots": -346,
+          "instNetLots": -346,
+          "retail100Lots": 46273,
+          "retail100Pct": 20.95,
+          "retail100Diff": null,
+          "major400Lots": 154710,
+          "major400Pct": 70.2,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -611,7 +719,14 @@
           "prevClose": 594.0,
           "chgPct": 9.93,
           "turnoverBillion": 12.42,
-          "instNetLots": -734
+          "foreignNetLots": null,
+          "instNetLots": -734,
+          "retail100Lots": 36036,
+          "retail100Pct": 28.98,
+          "retail100Diff": null,
+          "major400Lots": 67243,
+          "major400Pct": 54.17,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -621,7 +736,14 @@
           "prevClose": 215.0,
           "chgPct": 10.0,
           "turnoverBillion": 0.09,
-          "instNetLots": 5
+          "foreignNetLots": null,
+          "instNetLots": 5,
+          "retail100Lots": 22890,
+          "retail100Pct": 42.75,
+          "retail100Diff": null,
+          "major400Lots": 26973,
+          "major400Pct": 50.42,
+          "major400Diff": null
         }
       ],
       "x": -81.2
@@ -700,7 +822,14 @@
           "prevClose": 482.0,
           "chgPct": 9.96,
           "turnoverBillion": 35.23,
-          "instNetLots": -5049
+          "foreignNetLots": -5077,
+          "instNetLots": -5049,
+          "retail100Lots": 443094,
+          "retail100Pct": 9.82,
+          "retail100Diff": null,
+          "major400Lots": 3868921,
+          "major400Pct": 86.08,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -710,7 +839,14 @@
           "prevClose": 157.0,
           "chgPct": 9.87,
           "turnoverBillion": 27.3,
-          "instNetLots": -8224
+          "foreignNetLots": -8299,
+          "instNetLots": -8224,
+          "retail100Lots": 490016,
+          "retail100Pct": 38.1,
+          "retail100Diff": null,
+          "major400Lots": 721995,
+          "major400Pct": 56.22,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -720,7 +856,14 @@
           "prevClose": 191.0,
           "chgPct": 9.95,
           "turnoverBillion": 2.33,
-          "instNetLots": -143
+          "foreignNetLots": -193,
+          "instNetLots": -143,
+          "retail100Lots": 268294,
+          "retail100Pct": 35.3,
+          "retail100Diff": null,
+          "major400Lots": 450501,
+          "major400Pct": 59.32,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -730,7 +873,14 @@
           "prevClose": 2930.0,
           "chgPct": 9.9,
           "turnoverBillion": 0.68,
-          "instNetLots": -6
+          "foreignNetLots": -7,
+          "instNetLots": -6,
+          "retail100Lots": 12668,
+          "retail100Pct": 34.67,
+          "retail100Diff": null,
+          "major400Lots": 16211,
+          "major400Pct": 44.42,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -740,7 +890,14 @@
           "prevClose": 3805.0,
           "chgPct": 9.99,
           "turnoverBillion": 3.57,
-          "instNetLots": -26
+          "foreignNetLots": null,
+          "instNetLots": -26,
+          "retail100Lots": 28726,
+          "retail100Pct": 29.28,
+          "retail100Diff": null,
+          "major400Lots": 47341,
+          "major400Pct": 48.29,
+          "major400Diff": null
         }
       ],
       "x": -27.1
@@ -819,7 +976,14 @@
           "prevClose": 3685.0,
           "chgPct": 9.91,
           "turnoverBillion": 52.21,
-          "instNetLots": -50
+          "foreignNetLots": -94,
+          "instNetLots": -50,
+          "retail100Lots": 286232,
+          "retail100Pct": 17.79,
+          "retail100Diff": null,
+          "major400Lots": 1142371,
+          "major400Pct": 71.15,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -829,7 +993,14 @@
           "prevClose": 3560.0,
           "chgPct": 9.97,
           "turnoverBillion": 7.99,
-          "instNetLots": -111
+          "foreignNetLots": -122,
+          "instNetLots": -111,
+          "retail100Lots": 38906,
+          "retail100Pct": 44.98,
+          "retail100Diff": null,
+          "major400Lots": 26622,
+          "major400Pct": 30.79,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -839,7 +1010,14 @@
           "prevClose": 5120.0,
           "chgPct": 9.96,
           "turnoverBillion": 7.25,
-          "instNetLots": -51
+          "foreignNetLots": -48,
+          "instNetLots": -51,
+          "retail100Lots": 29349,
+          "retail100Pct": 21.85,
+          "retail100Diff": null,
+          "major400Lots": 85549,
+          "major400Pct": 63.81,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -849,7 +1027,14 @@
           "prevClose": 431.0,
           "chgPct": 1.04,
           "turnoverBillion": 48.86,
-          "instNetLots": -2858
+          "foreignNetLots": -2563,
+          "instNetLots": -2858,
+          "retail100Lots": 98814,
+          "retail100Pct": 16.11,
+          "retail100Diff": null,
+          "major400Lots": 443512,
+          "major400Pct": 72.51,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -859,7 +1044,14 @@
           "prevClose": 666.0,
           "chgPct": 4.2,
           "turnoverBillion": 58.0,
-          "instNetLots": -1237
+          "foreignNetLots": -595,
+          "instNetLots": -1237,
+          "retail100Lots": 67633,
+          "retail100Pct": 13.07,
+          "retail100Diff": null,
+          "major400Lots": 385475,
+          "major400Pct": 74.77,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -869,7 +1061,14 @@
           "prevClose": 8310.0,
           "chgPct": 9.99,
           "turnoverBillion": 5.14,
-          "instNetLots": -13
+          "foreignNetLots": null,
+          "instNetLots": -13,
+          "retail100Lots": 17689,
+          "retail100Pct": 42.48,
+          "retail100Diff": null,
+          "major400Lots": 14185,
+          "major400Pct": 34.09,
+          "major400Diff": null
         }
       ],
       "x": 89.3
@@ -928,7 +1127,7 @@
         27,
         -15,
         39,
-        2,
+        1,
         5,
         -38,
         7,
@@ -948,7 +1147,14 @@
           "prevClose": 281.0,
           "chgPct": 9.96,
           "turnoverBillion": 9.77,
-          "instNetLots": -1044
+          "foreignNetLots": -1010,
+          "instNetLots": -1044,
+          "retail100Lots": 558598,
+          "retail100Pct": 16.15,
+          "retail100Diff": null,
+          "major400Lots": 2779711,
+          "major400Pct": 80.55,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -958,7 +1164,14 @@
           "prevClose": 95.5,
           "chgPct": 9.95,
           "turnoverBillion": 4.88,
-          "instNetLots": -853
+          "foreignNetLots": -1032,
+          "instNetLots": -853,
+          "retail100Lots": 1380879,
+          "retail100Pct": 29.21,
+          "retail100Diff": null,
+          "major400Lots": 3133849,
+          "major400Pct": 66.36,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -968,7 +1181,14 @@
           "prevClose": 61.9,
           "chgPct": 9.85,
           "turnoverBillion": 2.02,
-          "instNetLots": -661
+          "foreignNetLots": -705,
+          "instNetLots": -661,
+          "retail100Lots": 1140659,
+          "retail100Pct": 57.4,
+          "retail100Diff": null,
+          "major400Lots": 697059,
+          "major400Pct": 35.08,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -978,7 +1198,14 @@
           "prevClose": 249.5,
           "chgPct": 8.62,
           "turnoverBillion": 28.6,
-          "instNetLots": -5064
+          "foreignNetLots": null,
+          "instNetLots": -5064,
+          "retail100Lots": 211719,
+          "retail100Pct": 59.35,
+          "retail100Diff": null,
+          "major400Lots": 116127,
+          "major400Pct": 32.56,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -988,7 +1215,14 @@
           "prevClose": 1450.0,
           "chgPct": 10.0,
           "turnoverBillion": 7.88,
-          "instNetLots": -156
+          "foreignNetLots": null,
+          "instNetLots": -156,
+          "retail100Lots": 110254,
+          "retail100Pct": 49.74,
+          "retail100Diff": null,
+          "major400Lots": 85246,
+          "major400Pct": 38.47,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -998,7 +1232,14 @@
           "prevClose": 233.0,
           "chgPct": 5.58,
           "turnoverBillion": 10.83,
-          "instNetLots": -940
+          "foreignNetLots": -948,
+          "instNetLots": -940,
+          "retail100Lots": 69120,
+          "retail100Pct": 70.06,
+          "retail100Diff": null,
+          "major400Lots": 18100,
+          "major400Pct": 18.35,
+          "major400Diff": null
         }
       ],
       "x": -32.5
@@ -1077,7 +1318,14 @@
           "prevClose": 206.0,
           "chgPct": 9.95,
           "turnoverBillion": 43.32,
-          "instNetLots": 2012
+          "foreignNetLots": -888,
+          "instNetLots": 2012,
+          "retail100Lots": 3651649,
+          "retail100Pct": 25.88,
+          "retail100Diff": null,
+          "major400Lots": 9766947,
+          "major400Pct": 69.37,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1087,7 +1335,14 @@
           "prevClose": 257.0,
           "chgPct": 9.92,
           "turnoverBillion": 70.64,
-          "instNetLots": -8877
+          "foreignNetLots": -12734,
+          "instNetLots": -8877,
+          "retail100Lots": 522966,
+          "retail100Pct": 12.68,
+          "retail100Diff": null,
+          "major400Lots": 3469440,
+          "major400Pct": 84.45,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1097,7 +1352,14 @@
           "prevClose": 148.5,
           "chgPct": 9.76,
           "turnoverBillion": 13.5,
-          "instNetLots": -2188
+          "foreignNetLots": -2588,
+          "instNetLots": -2188,
+          "retail100Lots": 870099,
+          "retail100Pct": 25.32,
+          "retail100Diff": null,
+          "major400Lots": 2375055,
+          "major400Pct": 69.22,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1107,7 +1369,14 @@
           "prevClose": 1375.0,
           "chgPct": 9.82,
           "turnoverBillion": 11.46,
-          "instNetLots": -246
+          "foreignNetLots": -328,
+          "instNetLots": -246,
+          "retail100Lots": 97504,
+          "retail100Pct": 16.63,
+          "retail100Diff": null,
+          "major400Lots": 432568,
+          "major400Pct": 73.96,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1117,7 +1386,14 @@
           "prevClose": 38.75,
           "chgPct": 8.9,
           "turnoverBillion": 14.08,
-          "instNetLots": -15229
+          "foreignNetLots": -8963,
+          "instNetLots": -15229,
+          "retail100Lots": 827238,
+          "retail100Pct": 23.0,
+          "retail100Diff": null,
+          "major400Lots": 2635653,
+          "major400Pct": 73.45,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1127,7 +1403,14 @@
           "prevClose": 990.0,
           "chgPct": 9.6,
           "turnoverBillion": 11.52,
-          "instNetLots": -487
+          "foreignNetLots": -460,
+          "instNetLots": -487,
+          "retail100Lots": 390148,
+          "retail100Pct": 14.97,
+          "retail100Diff": null,
+          "major400Lots": 2062510,
+          "major400Pct": 79.38,
+          "major400Diff": null
         }
       ],
       "x": 73.6
@@ -1206,7 +1489,14 @@
           "prevClose": 2365.0,
           "chgPct": 9.94,
           "turnoverBillion": 8.52,
-          "instNetLots": -117
+          "foreignNetLots": -131,
+          "instNetLots": -117,
+          "retail100Lots": 74120,
+          "retail100Pct": 18.69,
+          "retail100Diff": null,
+          "major400Lots": 265840,
+          "major400Pct": 67.21,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -1216,7 +1506,14 @@
           "prevClose": 777.0,
           "chgPct": 9.91,
           "turnoverBillion": 1.47,
-          "instNetLots": -13
+          "foreignNetLots": null,
+          "instNetLots": -13,
+          "retail100Lots": 29787,
+          "retail100Pct": 31.71,
+          "retail100Diff": null,
+          "major400Lots": 52237,
+          "major400Pct": 55.69,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1226,7 +1523,14 @@
           "prevClose": 3685.0,
           "chgPct": 9.91,
           "turnoverBillion": 2.45,
-          "instNetLots": -41
+          "foreignNetLots": -40,
+          "instNetLots": -41,
+          "retail100Lots": 23615,
+          "retail100Pct": 16.0,
+          "retail100Diff": null,
+          "major400Lots": 99388,
+          "major400Pct": 67.51,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1236,7 +1540,14 @@
           "prevClose": 5640.0,
           "chgPct": 9.93,
           "turnoverBillion": 1.37,
-          "instNetLots": -12
+          "foreignNetLots": -14,
+          "instNetLots": -12,
+          "retail100Lots": 18511,
+          "retail100Pct": 19.38,
+          "retail100Diff": null,
+          "major400Lots": 60795,
+          "major400Pct": 63.78,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1246,7 +1557,14 @@
           "prevClose": 433.0,
           "chgPct": 9.93,
           "turnoverBillion": 0.49,
-          "instNetLots": 9
+          "foreignNetLots": 14,
+          "instNetLots": 9,
+          "retail100Lots": 44896,
+          "retail100Pct": 35.68,
+          "retail100Diff": null,
+          "major400Lots": 71238,
+          "major400Pct": 56.69,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1256,7 +1574,14 @@
           "prevClose": 116.5,
           "chgPct": 9.87,
           "turnoverBillion": 0.61,
-          "instNetLots": 118
+          "foreignNetLots": 106,
+          "instNetLots": 118,
+          "retail100Lots": 73442,
+          "retail100Pct": 25.56,
+          "retail100Diff": null,
+          "major400Lots": 181725,
+          "major400Pct": 63.32,
+          "major400Diff": null
         }
       ],
       "x": -84.3
@@ -1335,7 +1660,14 @@
           "prevClose": 258.5,
           "chgPct": 9.86,
           "turnoverBillion": 0.41,
-          "instNetLots": 0
+          "foreignNetLots": 1,
+          "instNetLots": 0,
+          "retail100Lots": 83893,
+          "retail100Pct": 57.55,
+          "retail100Diff": null,
+          "major400Lots": 50778,
+          "major400Pct": 34.84,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -1345,7 +1677,14 @@
           "prevClose": 255.0,
           "chgPct": 10.0,
           "turnoverBillion": 1.12,
-          "instNetLots": -160
+          "foreignNetLots": null,
+          "instNetLots": -160,
+          "retail100Lots": 76629,
+          "retail100Pct": 53.29,
+          "retail100Diff": null,
+          "major400Lots": 51863,
+          "major400Pct": 36.09,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1355,7 +1694,14 @@
           "prevClose": 890.0,
           "chgPct": 10.0,
           "turnoverBillion": 1.05,
-          "instNetLots": -14
+          "foreignNetLots": -23,
+          "instNetLots": -14,
+          "retail100Lots": 28647,
+          "retail100Pct": 34.98,
+          "retail100Diff": null,
+          "major400Lots": 44639,
+          "major400Pct": 54.54,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -1365,7 +1711,14 @@
           "prevClose": 322.0,
           "chgPct": 9.94,
           "turnoverBillion": 0.63,
-          "instNetLots": -82
+          "foreignNetLots": null,
+          "instNetLots": -82,
+          "retail100Lots": 60071,
+          "retail100Pct": 63.43,
+          "retail100Diff": null,
+          "major400Lots": 22865,
+          "major400Pct": 24.13,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -1375,7 +1728,14 @@
           "prevClose": 247.5,
           "chgPct": 9.9,
           "turnoverBillion": 1.49,
-          "instNetLots": -334
+          "foreignNetLots": null,
+          "instNetLots": -334,
+          "retail100Lots": 57321,
+          "retail100Pct": 50.4,
+          "retail100Diff": null,
+          "major400Lots": 41037,
+          "major400Pct": 36.1,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1385,7 +1745,14 @@
           "prevClose": 1350.0,
           "chgPct": 10.0,
           "turnoverBillion": 6.81,
-          "instNetLots": -363
+          "foreignNetLots": -378,
+          "instNetLots": -363,
+          "retail100Lots": 89180,
+          "retail100Pct": 15.85,
+          "retail100Diff": null,
+          "major400Lots": 395346,
+          "major400Pct": 70.43,
+          "major400Diff": null
         }
       ],
       "x": -87.9
@@ -1464,7 +1831,14 @@
           "prevClose": 3090.0,
           "chgPct": 9.87,
           "turnoverBillion": 4.5,
-          "instNetLots": -48
+          "foreignNetLots": -48,
+          "instNetLots": -48,
+          "retail100Lots": 69456,
+          "retail100Pct": 19.33,
+          "retail100Diff": null,
+          "major400Lots": 237486,
+          "major400Pct": 66.26,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1474,7 +1848,14 @@
           "prevClose": 782.0,
           "chgPct": 9.97,
           "turnoverBillion": 2.63,
-          "instNetLots": -152
+          "foreignNetLots": -172,
+          "instNetLots": -152,
+          "retail100Lots": 85861,
+          "retail100Pct": 16.08,
+          "retail100Diff": null,
+          "major400Lots": 406759,
+          "major400Pct": 76.36,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1484,7 +1865,14 @@
           "prevClose": 558.0,
           "chgPct": 9.86,
           "turnoverBillion": 7.0,
-          "instNetLots": -188
+          "foreignNetLots": -77,
+          "instNetLots": -188,
+          "retail100Lots": 287105,
+          "retail100Pct": 17.42,
+          "retail100Diff": null,
+          "major400Lots": 1241150,
+          "major400Pct": 75.46,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1494,7 +1882,14 @@
           "prevClose": 670.0,
           "chgPct": 10.0,
           "turnoverBillion": 3.23,
-          "instNetLots": -224
+          "foreignNetLots": -223,
+          "instNetLots": -224,
+          "retail100Lots": 67408,
+          "retail100Pct": 10.39,
+          "retail100Diff": null,
+          "major400Lots": 549653,
+          "major400Pct": 85.05,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1504,7 +1899,14 @@
           "prevClose": 467.5,
           "chgPct": 9.95,
           "turnoverBillion": 6.39,
-          "instNetLots": -666
+          "foreignNetLots": -514,
+          "instNetLots": -666,
+          "retail100Lots": 118715,
+          "retail100Pct": 22.48,
+          "retail100Diff": null,
+          "major400Lots": 377650,
+          "major400Pct": 71.65,
+          "major400Diff": null
         },
         {
           "ex": "otc",
@@ -1514,7 +1916,14 @@
           "prevClose": 685.0,
           "chgPct": 9.93,
           "turnoverBillion": 1.47,
-          "instNetLots": -66
+          "foreignNetLots": null,
+          "instNetLots": -66,
+          "retail100Lots": 99190,
+          "retail100Pct": 33.08,
+          "retail100Diff": null,
+          "major400Lots": 175657,
+          "major400Pct": 58.63,
+          "major400Diff": null
         }
       ],
       "x": -73.4
@@ -1593,7 +2002,14 @@
           "prevClose": 425.0,
           "chgPct": 10.0,
           "turnoverBillion": 0.96,
-          "instNetLots": 70
+          "foreignNetLots": 59,
+          "instNetLots": 70,
+          "retail100Lots": 74957,
+          "retail100Pct": 21.52,
+          "retail100Diff": null,
+          "major400Lots": 252329,
+          "major400Pct": 72.6,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1603,7 +2019,14 @@
           "prevClose": 132.5,
           "chgPct": 6.04,
           "turnoverBillion": 6.23,
-          "instNetLots": -1756
+          "foreignNetLots": -1828,
+          "instNetLots": -1756,
+          "retail100Lots": 245509,
+          "retail100Pct": 48.76,
+          "retail100Diff": null,
+          "major400Lots": 228904,
+          "major400Pct": 45.48,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1613,7 +2036,14 @@
           "prevClose": 147.0,
           "chgPct": 9.86,
           "turnoverBillion": 1.89,
-          "instNetLots": -257
+          "foreignNetLots": -266,
+          "instNetLots": -257,
+          "retail100Lots": 113804,
+          "retail100Pct": 21.81,
+          "retail100Diff": null,
+          "major400Lots": 382344,
+          "major400Pct": 73.37,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1623,7 +2053,14 @@
           "prevClose": 69.5,
           "chgPct": 9.93,
           "turnoverBillion": 0.21,
-          "instNetLots": 101
+          "foreignNetLots": 100,
+          "instNetLots": 101,
+          "retail100Lots": 143337,
+          "retail100Pct": 51.43,
+          "retail100Diff": null,
+          "major400Lots": 113790,
+          "major400Pct": 40.83,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1633,7 +2070,14 @@
           "prevClose": 25.8,
           "chgPct": 9.88,
           "turnoverBillion": 1.06,
-          "instNetLots": -1429
+          "foreignNetLots": -1336,
+          "instNetLots": -1429,
+          "retail100Lots": 469095,
+          "retail100Pct": 59.7,
+          "retail100Diff": null,
+          "major400Lots": 251730,
+          "major400Pct": 32.03,
+          "major400Diff": null
         }
       ],
       "x": -89.1
@@ -1712,7 +2156,14 @@
           "prevClose": 266.5,
           "chgPct": 2.44,
           "turnoverBillion": 23.87,
-          "instNetLots": -3034
+          "foreignNetLots": -3074,
+          "instNetLots": -3034,
+          "retail100Lots": 81170,
+          "retail100Pct": 22.9,
+          "retail100Diff": null,
+          "major400Lots": 245105,
+          "major400Pct": 69.25,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1722,7 +2173,14 @@
           "prevClose": 71.7,
           "chgPct": 9.9,
           "turnoverBillion": 0.29,
-          "instNetLots": 86
+          "foreignNetLots": 86,
+          "instNetLots": 86,
+          "retail100Lots": 85682,
+          "retail100Pct": 49.91,
+          "retail100Diff": null,
+          "major400Lots": 77162,
+          "major400Pct": 44.98,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1732,7 +2190,14 @@
           "prevClose": 109.0,
           "chgPct": 4.59,
           "turnoverBillion": 6.61,
-          "instNetLots": -2532
+          "foreignNetLots": -2512,
+          "instNetLots": -2532,
+          "retail100Lots": 148135,
+          "retail100Pct": 52.99,
+          "retail100Diff": null,
+          "major400Lots": 112433,
+          "major400Pct": 40.23,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1742,7 +2207,14 @@
           "prevClose": 162.0,
           "chgPct": 9.88,
           "turnoverBillion": 0.28,
-          "instNetLots": 52
+          "foreignNetLots": 27,
+          "instNetLots": 52,
+          "retail100Lots": 32141,
+          "retail100Pct": 26.79,
+          "retail100Diff": null,
+          "major400Lots": 79137,
+          "major400Pct": 66.04,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1752,7 +2224,14 @@
           "prevClose": 127.0,
           "chgPct": 9.84,
           "turnoverBillion": 0.37,
-          "instNetLots": 45
+          "foreignNetLots": 27,
+          "instNetLots": 45,
+          "retail100Lots": 112710,
+          "retail100Pct": 49.52,
+          "retail100Diff": null,
+          "major400Lots": 93270,
+          "major400Pct": 41.0,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1762,7 +2241,14 @@
           "prevClose": 3620.0,
           "chgPct": 9.94,
           "turnoverBillion": 3.99,
-          "instNetLots": 0
+          "foreignNetLots": -9,
+          "instNetLots": 0,
+          "retail100Lots": 38544,
+          "retail100Pct": 29.42,
+          "retail100Diff": null,
+          "major400Lots": 69699,
+          "major400Pct": 53.27,
+          "major400Diff": null
         }
       ],
       "x": -62.6
@@ -1805,7 +2291,7 @@
         87,
         -42,
         100,
-        92,
+        93,
         -100,
         -20,
         -6,
@@ -1841,7 +2327,14 @@
           "prevClose": 234.5,
           "chgPct": 9.59,
           "turnoverBillion": 113.66,
-          "instNetLots": 1592
+          "foreignNetLots": 160,
+          "instNetLots": 1592,
+          "retail100Lots": 377627,
+          "retail100Pct": 17.41,
+          "retail100Diff": null,
+          "major400Lots": 1682618,
+          "major400Pct": 77.69,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1851,7 +2344,14 @@
           "prevClose": 54.5,
           "chgPct": 3.3,
           "turnoverBillion": 22.15,
-          "instNetLots": -9948
+          "foreignNetLots": -10238,
+          "instNetLots": -9948,
+          "retail100Lots": 1031966,
+          "retail100Pct": 29.51,
+          "retail100Diff": null,
+          "major400Lots": 2354566,
+          "major400Pct": 67.4,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1861,7 +2361,14 @@
           "prevClose": 96.1,
           "chgPct": 1.04,
           "turnoverBillion": 29.26,
-          "instNetLots": -9306
+          "foreignNetLots": -8935,
+          "instNetLots": -9306,
+          "retail100Lots": 217690,
+          "retail100Pct": 7.7,
+          "retail100Diff": null,
+          "major400Lots": 2515248,
+          "major400Pct": 89.61,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1871,7 +2378,14 @@
           "prevClose": 44.2,
           "chgPct": 9.95,
           "turnoverBillion": 43.01,
-          "instNetLots": 12042
+          "foreignNetLots": -2755,
+          "instNetLots": 12042,
+          "retail100Lots": 593421,
+          "retail100Pct": 10.94,
+          "retail100Diff": null,
+          "major400Lots": 4637468,
+          "major400Pct": 85.86,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1881,7 +2395,14 @@
           "prevClose": 21.1,
           "chgPct": 6.64,
           "turnoverBillion": 22.86,
-          "instNetLots": 26497
+          "foreignNetLots": 15908,
+          "instNetLots": 26497,
+          "retail100Lots": 1117565,
+          "retail100Pct": 18.13,
+          "retail100Diff": null,
+          "major400Lots": 4777576,
+          "major400Pct": 77.74,
+          "major400Diff": null
         }
       ],
       "x": 143.7
@@ -1910,7 +2431,7 @@
         -71,
         78,
         36,
-        -4,
+        -41,
         100,
         -18,
         45,
@@ -1960,7 +2481,14 @@
           "prevClose": 130.5,
           "chgPct": 9.96,
           "turnoverBillion": 38.0,
-          "instNetLots": 4485
+          "foreignNetLots": 7042,
+          "instNetLots": 4485,
+          "retail100Lots": 1426387,
+          "retail100Pct": 10.13,
+          "retail100Diff": null,
+          "major400Lots": 12184108,
+          "major400Pct": 86.96,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1970,7 +2498,14 @@
           "prevClose": 95.0,
           "chgPct": 10.0,
           "turnoverBillion": 49.25,
-          "instNetLots": 3702
+          "foreignNetLots": 12538,
+          "instNetLots": 3702,
+          "retail100Lots": 1576930,
+          "retail100Pct": 10.71,
+          "retail100Diff": null,
+          "major400Lots": 12641136,
+          "major400Pct": 86.16,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1980,7 +2515,14 @@
           "prevClose": 63.8,
           "chgPct": 9.56,
           "turnoverBillion": 48.84,
-          "instNetLots": -403
+          "foreignNetLots": 4501,
+          "instNetLots": -403,
+          "retail100Lots": 2612126,
+          "retail100Pct": 13.22,
+          "retail100Diff": null,
+          "major400Lots": 16243172,
+          "major400Pct": 82.52,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -1990,7 +2532,14 @@
           "prevClose": 50.0,
           "chgPct": 10.0,
           "turnoverBillion": 21.75,
-          "instNetLots": 8490
+          "foreignNetLots": -3677,
+          "instNetLots": 8490,
+          "retail100Lots": 1960144,
+          "retail100Pct": 13.16,
+          "retail100Diff": null,
+          "major400Lots": 12461935,
+          "major400Pct": 83.99,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -2000,7 +2549,14 @@
           "prevClose": 56.8,
           "chgPct": 7.22,
           "turnoverBillion": 28.75,
-          "instNetLots": -21967
+          "foreignNetLots": -20024,
+          "instNetLots": -21967,
+          "retail100Lots": 1285978,
+          "retail100Pct": 20.16,
+          "retail100Diff": null,
+          "major400Lots": 4812695,
+          "major400Pct": 75.59,
+          "major400Diff": null
         },
         {
           "ex": "tse",
@@ -2010,7 +2566,14 @@
           "prevClose": 16.85,
           "chgPct": 4.15,
           "turnoverBillion": 9.04,
-          "instNetLots": -4753
+          "foreignNetLots": -5374,
+          "instNetLots": -4753,
+          "retail100Lots": 5778780,
+          "retail100Pct": 36.66,
+          "retail100Diff": null,
+          "major400Lots": 8480158,
+          "major400Pct": 53.87,
+          "major400Diff": null
         }
       ],
       "x": 106.4
