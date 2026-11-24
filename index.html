@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>台股實盤資金泡泡圖（14細分族群 × 當天5分主力色塊）</title>
+  <title>台股實盤資金泡泡圖（14細分族群 × 四大籌碼明細）</title>
   <style>
     :root {
       --bg: #070b14;
@@ -98,7 +98,7 @@
       border-radius: 6px; cursor: pointer; background: rgba(15, 23, 42, 0.55); margin-bottom: 4px;
     }
 
-    /* 細分大類選擇列與個股明細 */
+    /* 細分大類選擇列與個股籌碼四宮格 */
     .sector-scroll { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
     .sector-scroll::-webkit-scrollbar { display: none; }
     .s-btn {
@@ -106,17 +106,27 @@
       padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer;
     }
     .s-btn.active { background: rgba(251, 191, 36, 0.18); border-color: var(--gold); color: #fde68a; }
-    .stock-cards { display: flex; flex-direction: column; gap: 7px; }
+    .stock-cards { display: flex; flex-direction: column; gap: 8px; }
     .st-item {
-      background: var(--card); border: 1px solid var(--border); border-radius: 9px;
-      padding: 9px 10px; font-size: 0.79rem; font-variant-numeric: tabular-nums;
-      display: flex; flex-direction: column; gap: 4px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px; font-size: 0.8rem; font-variant-numeric: tabular-nums;
+      display: flex; flex-direction: column; gap: 7px;
     }
-    .st-row { display: flex; justify-content: space-between; align-items: center; }
+    .st-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
     .ex-tag {
       font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; margin-left: 5px;
       background: rgba(148, 163, 184, 0.18); color: #cbd5e1; font-weight: 600;
     }
+    .chip-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+    }
+    .chip-cell {
+      background: rgba(9, 14, 26, 0.55); border: 1px solid rgba(148, 163, 184, 0.12);
+      border-radius: 7px; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px;
+    }
+    .chip-label { font-size: 0.68rem; color: var(--muted); }
+    .chip-val { font-size: 0.78rem; font-weight: 700; }
+    .chip-sub { font-size: 0.67rem; color: var(--muted); }
 
     /* 當天主力 5 分鐘買賣色塊 */
     .color-legend { display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--muted); }
@@ -215,19 +225,19 @@
     <div class="rank-grid" id="rankGrid"></div>
   </section>
 
-  <!-- 2. 細分大類成分股明細（80檔上市櫃 + 官方三大法人） -->
+  <!-- 2. 細分大類成分股明細（外資 / 三大法人 / 100張↓散戶 / 400張↑大戶） -->
   <section class="card-box" id="stockSection">
     <div class="box-head">
       <div>
-        <div class="box-title" id="stockTitle">2. 細分族群成分股明細（含廠務、設備、封測等 14 類）</div>
-        <div class="box-sub">盤中顯示即時價量；盤後顯示上市櫃官方三大法人買賣超（張）</div>
+        <div class="box-title" id="stockTitle">2. 細分族群成分股明細</div>
+        <div class="box-sub" id="stockChipDates">載入官方法人與集保分級日期中...</div>
       </div>
     </div>
     <div class="sector-scroll" id="sectorScroll"></div>
     <div class="stock-cards" id="stockCards"></div>
   </section>
 
-  <!-- 3. 當天主力買賣色塊（每 5 分鐘一格，純色呈現） -->
+  <!-- 3. 當天主力買賣色塊（每 5 分鐘一格） -->
   <section class="card-box">
     <div class="box-head">
       <div>
@@ -371,6 +381,19 @@
     if (score > -35) return "溫和偏賣";
     if (score > -70) return "明顯主動賣超";
     return "重度賣壓湧出";
+  }
+
+  function formatSignedLots(n) {
+    if (n === null || n === undefined) return `<span style="color:var(--muted);">--</span>`;
+    const cls = n > 0 ? "up" : (n < 0 ? "down" : "");
+    const sign = n > 0 ? "+" : "";
+    return `<span class="${cls}">${sign}${Number(n).toLocaleString()} 張</span>`;
+  }
+
+  function formatInventoryLots(n) {
+    if (n === null || n === undefined) return "--";
+    if (Math.abs(n) >= 100000) return `${(n / 10000).toFixed(1)}萬張`;
+    return `${Number(n).toLocaleString()} 張`;
   }
 
   // =========================================================================
@@ -649,6 +672,9 @@
     `).join("");
   }
 
+  // =========================================================================
+  // 4. 成分股明細：外資(日) / 三大法人(日) / 100張↓散戶(集保週) / 400張↑大戶(集保週)
+  // =========================================================================
   function renderStocks() {
     document.getElementById("sectorScroll").innerHTML = liveSectors.map(s =>
       `<button class="s-btn ${s.id === selectedId ? "active" : ""}" onclick="selectSector('${s.id}')">${s.name}</button>`
@@ -658,22 +684,65 @@
     if (!sec) return;
     document.getElementById("stockTitle").textContent = `2. ${sec.name} 成分股明細（${sec.stocks.length} 檔）`;
 
+    const instD = (postCloseData && postCloseData.instDate) || "待更新";
+    const tdccD = (postCloseData && postCloseData.tdccDate) || "待更新";
+    const tdccPrev = postCloseData && postCloseData.tdccPrevDate;
+    const tdccNote = tdccPrev ? `較 ${tdccPrev} 增減` : "首週建檔，下週起顯示週增減";
+    document.getElementById("stockChipDates").textContent =
+      `法人日資料：${instD}｜集保週資料：${tdccD}（${tdccNote}；官方級距 100張↓ / 400張↑）`;
+
     const sortedStocks = [...sec.stocks].sort((a, b) => b.turnoverBillion - a.turnoverBillion);
     document.getElementById("stockCards").innerHTML = sortedStocks.map(st => {
       const isUp = st.chgPct >= 0;
       const mktLabel = st.ex === "otc" ? "上櫃" : "上市";
-      const instText = st.instNetLots === null || st.instNetLots === undefined
-        ? `<span style="color:var(--muted);">三大法人：盤後更新</span>`
-        : `三大法人：<b class="${st.instNetLots >= 0 ? "up" : "down"}">${st.instNetLots >= 0 ? "+" : ""}${st.instNetLots.toLocaleString()} 張</b>`;
+
+      const retailMain = st.retail100Diff !== null && st.retail100Diff !== undefined
+        ? formatSignedLots(st.retail100Diff)
+        : (st.retail100Lots !== null && st.retail100Lots !== undefined
+          ? `<span>持有 ${formatInventoryLots(st.retail100Lots)}</span>`
+          : `<span style="color:var(--muted);">--</span>`);
+      const retailSub = st.retail100Pct !== null && st.retail100Pct !== undefined
+        ? `佔比 ${st.retail100Pct}%｜庫存 ${formatInventoryLots(st.retail100Lots)}`
+        : "尚無集保資料";
+
+      const majorMain = st.major400Diff !== null && st.major400Diff !== undefined
+        ? formatSignedLots(st.major400Diff)
+        : (st.major400Lots !== null && st.major400Lots !== undefined
+          ? `<span>持有 ${formatInventoryLots(st.major400Lots)}</span>`
+          : `<span style="color:var(--muted);">--</span>`);
+      const majorSub = st.major400Pct !== null && st.major400Pct !== undefined
+        ? `佔比 ${st.major400Pct}%｜庫存 ${formatInventoryLots(st.major400Lots)}`
+        : "尚無集保資料";
+
       return `
         <div class="st-item">
           <div class="st-row">
             <span><strong>${st.code} ${st.name}</strong><span class="ex-tag">${mktLabel}</span></span>
-            <span><b>${Number(st.close).toFixed(2)}</b> <span class="${isUp ? "up" : "down"}">${isUp ? "+" : ""}${Number(st.chgPct).toFixed(2)}%</span></span>
+            <span>
+              <span style="font-size:0.73rem; color:var(--muted); margin-right:6px;">成交 ${st.turnoverBillion}億</span>
+              <b>${Number(st.close).toFixed(2)}</b>
+              <span class="${isUp ? "up" : "down"}">${isUp ? "+" : ""}${Number(st.chgPct).toFixed(2)}%</span>
+            </span>
           </div>
-          <div class="st-row" style="font-size:0.74rem; color:var(--muted);">
-            <span>成交額：<b>${st.turnoverBillion} 億</b></span>
-            <span>${instText}</span>
+          <div class="chip-grid">
+            <div class="chip-cell">
+              <span class="chip-label">外資買賣超（日）</span>
+              <span class="chip-val">${formatSignedLots(st.foreignNetLots)}</span>
+            </div>
+            <div class="chip-cell">
+              <span class="chip-label">三大法人買賣超（日）</span>
+              <span class="chip-val">${formatSignedLots(st.instNetLots)}</span>
+            </div>
+            <div class="chip-cell">
+              <span class="chip-label">100張↓ 散戶（集保週）</span>
+              <span class="chip-val">${retailMain}</span>
+              <span class="chip-sub">${retailSub}</span>
+            </div>
+            <div class="chip-cell">
+              <span class="chip-label">400張↑ 大戶（集保週）</span>
+              <span class="chip-val">${majorMain}</span>
+              <span class="chip-sub">${majorSub}</span>
+            </div>
           </div>
         </div>
       `;
@@ -681,7 +750,7 @@
   }
 
   // =========================================================================
-  // 4. 當天主力買賣色塊（每 5 分鐘一格）
+  // 5. 當天主力買賣色塊（每 5 分鐘一格）
   // =========================================================================
   function setHeatView(mode) {
     heatViewMode = mode;
@@ -755,7 +824,7 @@
   }
 
   // =========================================================================
-  // 5. 近 30 日真實收盤比較（XY 軸 + 當天均價基準線）
+  // 6. 近 30 日真實收盤比較（XY 軸 + 當天均價基準線）
   // =========================================================================
   function drawThirtyDay() {
     if (!postCloseData || !postCloseData.history30d || !postCloseData.history30d.length) return;
@@ -816,7 +885,6 @@
     ctx.lineWidth = 1.4;
     ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, h - pad.bottom); ctx.lineTo(w - pad.right, h - pad.bottom); ctx.stroke();
 
-    // 當天均價金色虛線
     if (currentTodayAvg !== null) {
       const avgY = toY(refAvg);
       ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = "#fbbf24"; ctx.lineWidth = 1.6;
@@ -830,7 +898,6 @@
       ctx.fillText(`當天均價 ${refAvg.toFixed(2)}`, pad.left + 9, labelY - 6);
     }
 
-    // 折線與端點
     ctx.beginPath();
     closes.forEach((v, i) => {
       const px = toX(i), py = toY(v);
