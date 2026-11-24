@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-24 17:24:01 CST",
+  "generatedAt": "2026-11-24 23:05:57 CST",
   "dataDate": "2026-11-24",
   "intradayDate": "2026-11-24",
   "intradaySlots": [
@@ -245,7 +245,7 @@
       "date": "2026-11-24",
       "close": 40122.35,
       "diff": 3310.46,
-      "turnoverBillion": 4268.3
+      "turnoverBillion": 4325.6
     }
   ],
   "sectors": [
@@ -819,7 +819,7 @@
           "prevClose": 3685.0,
           "chgPct": 9.91,
           "turnoverBillion": 52.21,
-          "instNetLots": -127
+          "instNetLots": -50
         },
         {
           "ex": "tse",
@@ -859,7 +859,7 @@
           "prevClose": 666.0,
           "chgPct": 4.2,
           "turnoverBillion": 58.0,
-          "instNetLots": -1288
+          "instNetLots": -1237
         },
         {
           "ex": "otc",
@@ -928,7 +928,7 @@
         27,
         -15,
         39,
-        1,
+        2,
         5,
         -38,
         7,
@@ -1464,7 +1464,7 @@
           "prevClose": 3090.0,
           "chgPct": 9.87,
           "turnoverBillion": 4.5,
-          "instNetLots": -44
+          "instNetLots": -48
         },
         {
           "ex": "tse",
@@ -1805,7 +1805,7 @@
         87,
         -42,
         100,
-        93,
+        92,
         -100,
         -20,
         -6,
@@ -1910,7 +1910,7 @@
         -71,
         78,
         36,
-        -41,
+        -4,
         100,
         -18,
         45,
@@ -1980,7 +1980,7 @@
           "prevClose": 63.8,
           "chgPct": 9.56,
           "turnoverBillion": 48.84,
-          "instNetLots": -451
+          "instNetLots": -403
         },
         {
           "ex": "tse",
